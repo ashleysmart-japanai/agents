@@ -36,6 +36,8 @@
 
 ## PR description
 
+**Template selection:** Check the repo's AGENTS.md and `.github/pull_request_template.md` (or `.github/PULL_REQUEST_TEMPLATE/`) for a repo-specific PR template. If one exists, use it. Otherwise, fall back to `~/agents/PR_TEMPLATE.md`.
+
 Use a HEREDOC via `mktemp` (never hardcode `/tmp` paths — multiple agents run concurrently):
 
 ```bash
@@ -45,20 +47,6 @@ cat <<'PREOF' > "$TMPFILE"
 PREOF
 gh pr create --title "title" --body-file "$TMPFILE"
 rm "$TMPFILE"
-```
-
-### Structure
-
-```markdown
-## Summary
-<1-3 bullet points on what changed and why>
-
-## Test plan
-- [ ] Checklist items for manual verification
-- [ ] Each item is a specific page/feature to test
-
-## Deploy notes
-<Risks, monitoring, rollback plan — only if applicable>
 ```
 
 ### Title conventions

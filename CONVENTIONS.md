@@ -4,9 +4,28 @@ Rules and expectations for all AI agents working in this repository tree.
 These guidelines apply to every project unless a project-level `Agents.md`
 explicitly overrides a section.
 
+## Git convention
+
+## Title conventions
+- Under 70 characters
+- Format: `type(scope): description`
+- Types: `fix`, `feat`, `refactor`, `docs`, `test`, `chore`
+- Use description for details, not the title
+
+## Description rules
+- Lead with WHY, not WHAT
+- List all changed files/endpoints/components in a structured table if the PR is large
+- Explicitly list what was NOT changed and why (scope boundaries)
+- If there are pre-existing issues in untouched files, note them as out of scope
+- Link to spec if one exists
+- Update the description when the PR changes — stale descriptions cause review friction
+
+
 ---
 
-## 1. Micro Spec Convention
+# Spec
+
+## Micro Spec Convention
 
 Every non-trivial task begins with a micro spec written **before** any code.
 
@@ -40,7 +59,9 @@ Every non-trivial task begins with a micro spec written **before** any code.
 
 ---
 
-## 2. Unit Test Standard
+# testing
+
+## Unit Test Standard
 
 **Target: 97 % line coverage, 100 % branch coverage on public interfaces.**
 
@@ -63,9 +84,6 @@ Exclusions must be listed in the micro spec under *Scope > Out of scope*.
 
 ```
 tests/
-  unit/         # fast, no I/O, no network — run on every save
-  integration/  # real DB / filesystem, use fixtures — run on PR
-  e2e/          # full stack — run on merge to main
 ```
 
 Each test file mirrors its source file in path and name.
@@ -100,7 +118,7 @@ test <behaviour>_<condition>_<expected outcome>:
     verify result matches expectation
 ```
 
-- One logical assertion per test.
+- One logical purpose per test.
 - Tests are deterministic: no randomness, no wall-clock time, no network —
   inject or stub these at the boundary.
 - Tests never share mutable state across test functions.
@@ -112,7 +130,9 @@ Enforce this through the project's standard coverage tooling.
 
 ---
 
-## 3. SOLID Design Principles
+# design conventions
+
+##  SOLID Design Principles
 
 This project applies all five SOLID principles:
 
@@ -162,7 +182,7 @@ the composition root — never constructed inside business logic.
 
 ---
 
-## 4. Engineering Quality Standards
+## Engineering Quality Standards
 
 ### Code style
 
@@ -217,7 +237,7 @@ the composition root — never constructed inside business logic.
 
 ---
 
-## 5. Agent Workflow
+## Agent Workflow
 
 When an AI agent picks up a task it **must** follow this order:
 
@@ -241,7 +261,7 @@ An agent must stop and surface an open question rather than guess when:
 
 ---
 
-## 6. What Agents Must Never Do
+## What Agents Must Never Do
 
 ### Scope creep — the hardest rule
 

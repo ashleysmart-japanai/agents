@@ -1,30 +1,4 @@
-# Overview
-
-Evaluate the code based on the following aspects:
- - Code quality and adherence to {{language}} best practices
- - Potential bugs or unhandled edge cases
- - Performance optimizations
- - Readability and maintainability
- - Any security vulnerabilities
-
-# Output
-
-In your output:
- - Begin with a brief summary of the overall code quality
- - Line numbers start at 1, based on the code as presented
- - If no issues are found, briefly state that the code meets best practices
- - the checklist
-
-
-# Lint and test
-
-Detect the language from changed files and run the matching checks. See `tooling/TOOLING.md` / `tooling/TOOLING_<lang>.md` for per-language commands.
-
-- Fix all lint and format errors before proceeding
-- Ignore pre-existing typecheck errors in untouched files
-- Read @TESTING.md for a specific test list
-
-# Checklist
+# Review Checklist
 
 - Big file checkins
     - check for large files that dont use LFS
@@ -68,7 +42,7 @@ Detect the language from changed files and run the matching checks. See `tooling
     - Does the code run fast
     - Does the code do unnecessary loops or repeat the same sub tasks over and over 
     - does the code use fail early/preflight checks to reduce cpu and memory usage
-- thread safety and blocking 
+- Thread safety and blocking 
     - do we use calls that will block the API eg time.Sleep or a request to another service that takes time to come back
     - are there race conditions in the code
 - UI sanity: 
@@ -98,11 +72,11 @@ Detect the language from changed files and run the matching checks. See `tooling
 - State Management:
     - Does it leave "stale" data in the UI or state after an action?
     - does the zeroth state work or fail
-Idempotency:
+- Idempotency:
     - If the user clicks "Submit" twice, does it create two records or break the DB?
-Local files:
+- Local files:
     - Does it rely on a local file or path that won't exist in production?
     - are all files commited to the PR
-Type Safety:
+- Type Safety:
     - were types correct. did it just stick any everywhere    
     - where structs of data validated 
