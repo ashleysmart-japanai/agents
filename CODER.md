@@ -33,6 +33,7 @@ Every non-trivial task begins with a micro spec written **before** any code.
 - No code is written until the micro spec exists and is committed.
 - The spec is the source of truth. If code diverges, update the spec first
   and get acknowledgement before continuing.
+- In markdown docs, do not manually hard-wrap prose lines; keep paragraph text on a single line and let the editor handle visual wrapping.
 - Acceptance criteria drive the test plan — every criterion maps to at least
   one test. Missing test → missing criterion or vice versa.
 - Interfaces in the spec are expressed in language-neutral pseudocode or
