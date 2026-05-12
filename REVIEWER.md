@@ -21,12 +21,16 @@
    - Are imports used? Are exports consumed?
    - Are types correct (`any` usage, missing generics, wrong shapes)?
    - Are values passed correctly between layers (endpoint -> service -> data layer)?
+   - **Trace callers**: who calls the changed function? Do upstream preconditions contradict the new logic?
+   - **Find parallel paths**: are there other code paths that perform the same operation? Does the fix apply to all of them?
 
 4. **Check for regressions** — compare old vs new for each changed function/endpoint:
    - What did the old function return? What shape/type?
    - What does the new function return? Same contract?
    - Did the old code have filters or guards? Are they preserved?
    - Are callers updated to match any signature changes?
+   - If a validation or guard was weakened/removed, do all paths behind it still have equivalent protection?
+   - Does the fix introduce a worse failure mode than the original bug on any path? (e.g., silent data corruption replacing a safe 400 error)
 
 ---
 
@@ -50,6 +54,7 @@ Run each check group against the diff. Every group produces a PASS / FAIL / N/A.
 - Are there N+1 queries, unnecessary re-renders, or blocking calls?
 - Does the code use fail-early/preflight checks to reduce wasted CPU and memory?
 - Could verbose logic be replaced with a clearer standard library call or idiom?
+- When new data fetches are added, is the same data already available from a previous step in the call chain?
 
 ### Readability & complexity
 - Is the code easy to follow, or is it overly complex (deep nesting, spaghetti)?
@@ -70,6 +75,8 @@ Run each check group against the diff. Every group produces a PASS / FAIL / N/A.
 - Do test inputs match the actual function signatures?
 - Do assertions match the actual return types and shapes?
 - Are mocks/stubs compatible with real implementations?
+- Can the test scenario actually be constructed? Trace `.unwrap()` / `.expect()` in setup through production validation — will setup steps succeed?
+- Does the asserted error/value have a producer in the current codebase?
 
 ### Checklist
 - Read `review/CHECKLIST.md` and walk through every item against the diff.
@@ -118,6 +125,7 @@ Begin with a brief summary of the overall code quality. Line numbers start at 1.
 | No N+1 queries, unnecessary re-renders, or blocking calls | ✅/❌/N/A |
 | Fail-early/preflight checks used | ✅/❌/N/A |
 | Uses clear stdlib calls / idioms where possible | ✅/❌/N/A |
+| No redundant data fetches across call chain | ✅/❌/N/A |
 
 ### Readability & complexity
 | Check | Result |
@@ -146,6 +154,8 @@ Begin with a brief summary of the overall code quality. Line numbers start at 1.
 | Test inputs match actual function signatures | ✅/❌/N/A |
 | Assertions match actual return types and shapes | ✅/❌/N/A |
 | Mocks/stubs compatible with real implementations | ✅/❌/N/A |
+| Test scenarios constructable (setup steps succeed) | ✅/❌/N/A |
+| Asserted errors/values have a producer in codebase | ✅/❌/N/A |
 
 ## Checklist
 | Item | Result |
@@ -172,6 +182,7 @@ Begin with a brief summary of the overall code quality. Line numbers start at 1.
 | Idempotency | PASS/FAIL/N/A |
 | Local files | PASS/FAIL/N/A |
 | Type Safety | PASS/FAIL/N/A |
+| Doc Accuracy | PASS/FAIL/N/A |
 
 ## Findings
 
