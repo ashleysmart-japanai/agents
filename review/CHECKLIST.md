@@ -55,6 +55,9 @@
 - Comments: 
     - are there explainations of complex parts?
     - is there a one line summary comment of what the code will try to do for the next 10-20 lines
+- Doc Accuracy:
+    - do doc/comment claims match the actual implementation behavior?
+    - if docs reference a standard or spec (RFC, etc.), does the implementation actually conform?
 - Ready to Ship: 
     - Is it 100% finished and not a "placeholder" block?
     - grep for WIP, TODO, TDB and other im not done comments 
