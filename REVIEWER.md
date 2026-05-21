@@ -66,6 +66,10 @@ Run each check group against the diff. Every group produces a PASS / FAIL / N/A.
 - Does the API validate and clean inputs?
 - Any new attack surface (injection, XSS, CSRF)?
 
+### Route safety (Next.js / file-based routers)
+- Do new static route files sit alongside a `[param].ts` dynamic route in the same directory? If so, the dynamic route may shadow the static file — move static routes into a subdirectory (e.g. `actions/`) to avoid ambiguity.
+- Are all fetch paths in frontend code consistent with the actual route file locations?
+
 ### Optimizations & simplification
 - Is there overly complex code that could be reduced?
 - Could any section be simplified without losing correctness?
@@ -140,6 +144,7 @@ Begin with a brief summary of the overall code quality. Line numbers start at 1.
 | No hardcoded keys, secrets, or test passwords | ✅/❌/N/A |
 | API validates and cleans inputs | ✅/❌/N/A |
 | No new attack surface (injection, XSS, CSRF) | ✅/❌/N/A |
+| No static routes shadowed by [param] dynamic routes | ✅/❌/N/A |
 
 ### Optimizations & simplification
 | Check | Result |

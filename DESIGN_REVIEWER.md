@@ -98,6 +98,8 @@ See [reference/design-principles/CHECKLIST.md](reference/design-principles/CHECK
 - [ ] Are all external inputs (API, user, file, network) treated as untrusted and validated?
 - [ ] Are remote call failures, timeouts, and malformed responses handled explicitly?
 - [ ] Are defensive checks concentrated at the boundary, not duplicated throughout internals?
+- [ ] Does any in-process state (Map, cache, singleton) need to survive across multiple instances? Cloud Run, ECS, and k8s scale horizontally — in-memory state is per-instance. Multi-step flows (OAuth authorize→callback, upload→process) must use shared storage (cookie, Redis, DB) or be stateless.
+- [ ] If a flow spans two HTTP requests (redirect, callback, webhook), will both requests hit the same process? If not, any state from request 1 must be externalized before the response.
 
 ### Domain-Driven Design
 - [ ] Do class and method names use the domain's ubiquitous language?
