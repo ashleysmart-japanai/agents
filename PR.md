@@ -36,7 +36,7 @@
 
 ## PR description
 
-**Template selection:** Check the repo's AGENTS.md and `.github/pull_request_template.md` (or `.github/PULL_REQUEST_TEMPLATE/`) for a repo-specific PR template. If one exists, use it. Otherwise, fall back to `@PR_TEMPLATE.md`.
+**Template selection:** Check the repo's AGENTS.md and `.github/pull_request_template.md` (or `.github/PULL_REQUEST_TEMPLATE/`) for a repo-specific PR template. If one exists, use it. Otherwise, fall back to `@DEFAULT_PR.md`.
 
 Use a HEREDOC with a date-stamped temp file named `<repo>_PR<number>_<date>.md`:
 
