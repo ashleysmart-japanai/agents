@@ -20,6 +20,8 @@
     - is the APU robust to input over flow 
     - does the API report a clean and specifci error for the user to deal with 
     - Does the  API leave the system in a half state or correctly recover the failed operation
+    - are there empty catch blocks (catch {}) that silently swallow errors? These hide auth failures, rate limits, and network errors behind partial results
+    - if errors are intentionally skipped (e.g. batch operations), is the caller informed which items failed and why?
 - Readability: 
     - Is the code easy to follow, or is it a "spaghetti" mess?
     - Is the function size limited 
@@ -45,6 +47,7 @@
 - Thread safety and blocking 
     - do we use calls that will block the API eg time.Sleep or a request to another service that takes time to come back
     - are there race conditions in the code
+    - is there a read-then-write (TOCTOU) pattern where the data can change between the read and the write? (e.g., fetch record → merge fields → update record — another writer can overwrite between fetch and update)
 - UI sanity: 
     - Does the UI/UX look and feel right?
     - Are componetents actually visable to a user?
@@ -83,3 +86,10 @@
 - Type Safety:
     - were types correct. did it just stick any everywhere    
     - where structs of data validated 
+- Integration Contracts:
+    - do keys/identifiers written by one layer (admin UI, API) match what another layer reads (runtime, registry)?
+    - after a rename/refactor, trace a value end-to-end: UI write → DB storage → runtime lookup. Does it resolve?
+    - do constructor/function calls match the actual signature (arity, argument order, types)?
+    - are there stale constants, enums, or mapping tables that reference the old names after a rename?
+    - grep for the OLD name across ALL files after a rename — not just the constants file but every consumer (form fields, setValue calls, inline strings, test fixtures)
+    - file names and export names should match the new terminology — stale names attract stale usage

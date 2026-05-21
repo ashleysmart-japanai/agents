@@ -43,73 +43,15 @@ Every non-trivial task begins with a micro spec written **before** any code.
 
 ## 2. Unit Test Standard
 
-**Target: 97 % line coverage, 100 % branch coverage on public interfaces.**
+> Full details: `@unittesting/GENERAL.md` | Pre-submit: `@unittesting/CHECKLIST.md`
 
-### What must be tested
-
-- Every public function / method / endpoint.
-- Every error path listed in the micro spec's *Error cases* section.
-- Every boundary value (zero, one, max, overflow where relevant).
-- Every state transition if the module is stateful.
-
-### What is explicitly excluded from the 97 % target
-
-- Auto-generated code — mark with the project's coverage-skip mechanism.
-- Third-party adapters that are thin pass-throughs with no logic.
-- Entry-point bootstrapping that wires the dependency graph.
-
-Exclusions must be listed in the micro spec under *Scope > Out of scope*.
-
-### Test structure
-
-```
-tests/
-  unit/         # fast, no I/O, no network — run on every save
-  integration/  # real DB / filesystem, use fixtures — run on PR
-  e2e/          # full stack — run on merge to main
-```
-
-Each test file mirrors its source file in path and name.
-
-### Red / Green / Refactor cycle
-
-Each acceptance criterion from the micro spec is implemented through exactly
-one cycle:
-
-1. **Red** — write the test, run the suite, read the failure output.
-   The failure must be an assertion failure against the behaviour under test,
-   not a setup or import error. Fix setup issues until the failure is clean,
-   then stop.
-2. **Green** — write the smallest production change that turns that test
-   green. Run the full suite to confirm no regressions.
-3. **Refactor** — improve the code while the suite stays green.
-
-An agent must never write production code before observing a red failure.
-Skipping the red step invalidates the test as a safety net.
-
-### Test anatomy (AAA)
-
-```
-test <behaviour>_<condition>_<expected outcome>:
-    // Arrange
-    set up inputs and dependencies
-
-    // Act
-    result = call the unit under test
-
-    // Assert
-    verify result matches expectation
-```
-
-- One logical assertion per test.
-- Tests are deterministic: no randomness, no wall-clock time, no network —
-  inject or stub these at the boundary.
-- Tests never share mutable state across test functions.
-
-### Coverage gate
-
-CI must fail if coverage drops below 97 % on any PR touching production code.
-Enforce this through the project's standard coverage tooling.
+- **Target**: 97% line coverage, 100% branch coverage on public interfaces
+- **Cycle**: Red → Green → Refactor. Never write production code before seeing a red test.
+- **Pattern**: AAA (Arrange, Act, Assert). One assertion per test. No shared mutable state.
+- **Structure**: `tests/unit/` (every save), `tests/integration/` (on PR), `tests/e2e/` (on merge). Mirror source paths.
+- **Deterministic**: no randomness, no wall-clock time, no network — stub at the boundary
+- **CI gate**: coverage below 97% fails the PR
+- **Automation**: unit tests, lints, and formatting are enforced by deterministic tools via CI and pre-commit hooks — never run manually or by the agent. If a check can be automated, it must be.
 
 ---
 

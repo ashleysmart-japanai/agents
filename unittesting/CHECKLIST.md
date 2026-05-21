@@ -1,0 +1,41 @@
+# Unit Testing Checklist
+
+- Coverage:
+    - does every new public function/method have at least one test?
+    - is 100% line coverage achieved on new code?
+    - are uncoverable lines justified with a comment?
+- AAA Pattern:
+    - does each test follow Arrange, Act, Assert?
+    - is there only one logical assertion per test (or a tightly related group)?
+- Happy Path:
+    - is the normal/expected flow tested?
+- Error Cases:
+    - invalid input (wrong type, out of range)
+    - null/empty/missing data
+    - thrown exceptions — are they caught and verified?
+- Boundary Conditions:
+    - zero items, one item, max items
+    - empty strings, negative numbers, overflow values
+- Side Effects:
+    - are side effects verified (notifications sent, logs written, events emitted)?
+    - are side effects isolated so they don't leak between tests?
+- Mocking:
+    - are external dependencies mocked (DB, APIs, Pub/Sub)?
+    - is the unit under test NOT mocked?
+    - do mocks verify they were called with expected arguments?
+    - are mocks reset between tests to prevent cross-test contamination?
+- Test Isolation:
+    - can tests run in any order without affecting each other?
+    - no shared mutable state between tests?
+    - no reliance on test execution order?
+- Test Naming:
+    - do test names describe the scenario and expected outcome?
+    - can you understand what failed from the test name alone?
+- Fragility:
+    - do tests assert behavior, not implementation details?
+    - will the test break if you refactor internals without changing behavior?
+    - are there flaky time-dependent or order-dependent assertions?
+- Scope:
+    - no tests for third-party library internals
+    - no tests for simple type definitions or constants
+    - no tests for unchanged code (unless your change affects its behavior)

@@ -36,12 +36,13 @@
 
 ## PR description
 
-**Template selection:** Check the repo's AGENTS.md and `.github/pull_request_template.md` (or `.github/PULL_REQUEST_TEMPLATE/`) for a repo-specific PR template. If one exists, use it. Otherwise, fall back to `~/agents/PR_TEMPLATE.md`.
+**Template selection:** Check the repo's AGENTS.md and `.github/pull_request_template.md` (or `.github/PULL_REQUEST_TEMPLATE/`) for a repo-specific PR template. If one exists, use it. Otherwise, fall back to `@DEFAULT_PR.md`.
 
-Use a HEREDOC via `mktemp` (never hardcode `/tmp` paths — multiple agents run concurrently):
+Use a HEREDOC with a date-stamped temp file named `<repo>_PR<number>_<date>.md`:
 
 ```bash
-TMPFILE=$(mktemp /tmp/pr-XXXXXX.md)
+REPO=$(basename "$(git rev-parse --show-toplevel)")
+TMPFILE="/tmp/${REPO}_PR<number>_$(date +%Y%m%d-%H%M%S).md"
 cat <<'PREOF' > "$TMPFILE"
 <body content>
 PREOF
@@ -66,7 +67,8 @@ rm "$TMPFILE"
 ## Updating an existing PR
 
 ```bash
-TMPFILE=$(mktemp /tmp/pr-body-XXXXXX.md)
+REPO=$(basename "$(git rev-parse --show-toplevel)")
+TMPFILE="/tmp/${REPO}_PR<number>_$(date +%Y%m%d-%H%M%S).md"
 gh pr view <number> --json body --jq .body > "$TMPFILE"
 # edit $TMPFILE
 gh pr edit <number> --body-file "$TMPFILE"
@@ -119,6 +121,6 @@ Body text here.
 - Never skip hooks (`--no-verify`)
 - Never create empty commits
 - Always run lint + format + typecheck + tests before creating/updating a PR
-- Always use `mktemp` for temp files — never hardcode `/tmp/` paths
+- Temp files go in `/tmp/` named `<repo>_PR<number>_<date>.md` — no `mktemp`, no random suffixes
 - Keep the PR description in sync with the actual code — update it when changes are made
 - If the PR description references endpoints, components, or features, verify they exist in the diff
