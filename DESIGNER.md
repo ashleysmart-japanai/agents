@@ -2,6 +2,8 @@
 
 Software design knowledge required of all agents operating in a design or architecture capacity.
 
+> Spec authoring guide: `@design/SPECS.md`
+
 ---
 
 ## Data Flow Design vs Class-Based Design
