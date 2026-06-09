@@ -169,3 +169,10 @@ Verify none of the following exist in the code under review. See [anti-patterns.
 #### Singleton Overuse
 - [ ] No singleton is accessed as global state throughout the codebase.
 - [ ] Dependencies that happen to be single instances are injected, not fetched globally.
+
+#### Star-Alias
+- [ ] No implementation widens interface parameter types via intersection (`Type & { extra }`).
+- [ ] Implementation method signatures match the interface exactly.
+- [ ] No variable or column holds two distinct pieces of data (e.g. `"userId:orgId"`).
+- [ ] No variable is reused for a different purpose than its name suggests.
+- [ ] One variable, one meaning. One column, one value.

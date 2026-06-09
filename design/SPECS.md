@@ -7,14 +7,18 @@ Long-lived: `<project>/docs/<module-slug>.md`
 
 ## Authorship
 
-| Section | Author | Agent rule |
-|---|---|---|
-| Requirements | Human | Read-only. Do not add, remove, or reword. |
-| Design | Human or Agent | If human provides it, follow it. If missing, propose and wait for approval. |
-| Task breakdown | Agent | Derive from design. Human reviews before work starts. |
-| Test plan | Agent | Derive from requirements. Human reviews for completeness. |
-| Security checklist | Agent | Agent checks before completion. Human verifies. |
-| Acceptance checklist | Human | Read-only. |
+| # | Section | Author | Agent rule |
+|---|---|---|---|
+| 1 | Requirements | Human | Read-only. Do not add, remove, or reword. |
+| 2 | Design | Human or Agent | If human provides it, follow it. If missing, propose and wait for approval. |
+| 3 | Use cases — summary | Human or Agent | Numbered checklist (`U<id>`). References requirements. Human reviews. |
+| 4 | Use cases — detail | Human or Agent | Expanded walkthroughs. Validates requirements against real workflows. |
+| 5 | Task breakdown — summary | Agent | Numbered checklist (`A<id>`). Ordered by dependency. Human reviews before work starts. |
+| 6 | Task breakdown — detail | Agent | Expanded task descriptions with modules, tests, dependencies. |
+| 7 | Test plan | Agent | Derive from requirements. Human reviews for completeness. |
+| 8 | Security checklist | Agent | Agent checks before completion. Human verifies. |
+| 9 | Acceptance checklist | Human | Read-only. |
+| 10 | References | Human or Agent | Append-only. Do not remove entries. |
 
 If the agent finds a gap or conflict in a human-authored section, it asks — it does not silently fix it.
 
@@ -24,11 +28,26 @@ If the agent finds a gap or conflict in a human-authored section, it asks — it
 
 What the system must do. Describe the **outputs and outcomes**, not the implementation.
 
-- One requirement per bullet. Compound items become sub-lists.
+- One requirement per bullet, numbered for tracking: `- [ ] R1: The system must...`
+- Terse. One sentence per requirement. If it needs explanation, it's two requirements.
 - Enough detail to be unambiguous. Not so much that it dictates implementation.
 - No code names or internal jargon.
+- Group related requirements under subheadings.
 - List what is **out of scope**.
 - List every error case: what triggers it, what the caller sees.
+
+Format:
+
+```markdown
+### Subheading
+- [ ] R1: The system accepts any OCI container image that listens on a port.
+- [ ] R2: No infrastructure implementation detail is exposed to clients.
+
+### Out of Scope
+- Thing we are not building
+```
+
+The `R<id>` numbers are stable identifiers. Use cases, test plans, and task breakdowns reference them. Do not renumber after review — append new requirements at the end.
 
 ### 2. Design (human or agent)
 
@@ -42,14 +61,56 @@ How to meet the requirements. Sets direction without micromanaging.
 
 The agent has flexibility in how it implements the design. The design defines the shape of the solution, not every line of code.
 
-### 3. Task breakdown (agent)
+### 3. Use cases — summary (human or agent)
 
-Ordered implementation steps derived from the design.
+Terse list of named scenarios that exercise the requirements. One line per use case, numbered for tracking.
 
-- One commit per task
-- Ordered by dependency — foundations first
+Format:
 
-### 4. Test plan (agent)
+```markdown
+- [ ] U1: Developer creates and deploys a hello world app (R1, R13, R17)
+- [ ] U2: Developer adds Custom Objects capability (R19, R23)
+- [ ] U3: Agent deploys an app through the API (R8, R10)
+```
+
+Each use case references the requirements it exercises. The summary is the checklist — reviewers scan it to confirm coverage. Every requirement should appear in at least one use case.
+
+### 4. Use cases — detail (human or agent)
+
+Expanded walkthrough for each use case listed in the summary.
+
+- Identify the actor (user, agent, system, external service)
+- Describe the trigger — what starts it
+- Walk through the steps — what happens, in what order, through which components
+- State the outcome — what the actor sees when it succeeds
+- State the failure cases — what happens when it fails, what the actor sees
+
+Use cases bridge requirements and design. Requirements say *what* the system must do. Design says *how* the system is structured. Use cases show *how actors interact with the system* in practice — they validate that the requirements are complete and the design supports real workflows.
+
+### 5. Task breakdown — summary (agent)
+
+Terse checklist of implementation steps, numbered for tracking. One line per task, ordered by dependency — foundations first.
+
+Format:
+
+```markdown
+- [ ] A1: Split monolithic controller into domain-specific packages (depends: —)
+- [ ] A2: Extract Knative Service template builder (depends: A1)
+- [ ] A3: Add Binding type to CRD (depends: A1)
+```
+
+Each task references its dependencies. One commit per task. The summary is the progress tracker.
+
+### 6. Task breakdown — detail (agent)
+
+Expanded description for each task listed in the summary.
+
+- What changes
+- Which module/files are affected
+- What tests verify completion
+- Dependencies explained
+
+### 7. Test plan (agent)
 
 Maps 1-to-1 to requirements. No requirement without a test. No test without a requirement.
 
@@ -57,35 +118,63 @@ Maps 1-to-1 to requirements. No requirement without a test. No test without a re
 - Error cases from section 1
 - Boundary conditions: zero, one, max
 
-### 5. Security checklist (agent, human reviews)
+### 8. Security checklist (agent, human reviews)
 
-Agent checks these before marking work complete. Human verifies during review.
+Agent checks these before marking work complete. Human verifies during review. Numbered for tracking.
 
-- [ ] No secrets, keys, or credentials in code or config files
-- [ ] All user input validated and sanitized at the boundary
-- [ ] Auth required on every endpoint — no silent fallback to anonymous
-- [ ] Authorization checked: caller can only access their own resources
-- [ ] No SQL injection, command injection, or XSS vectors
-- [ ] Sensitive data not logged or exposed in error messages
-- [ ] Dependencies have no known critical vulnerabilities
-- [ ] File paths, URLs, and redirects cannot be manipulated by user input
-- [ ] Rate limiting or abuse protection on public-facing endpoints
-- [ ] Multi-tenant: resources scoped by tenant — no cross-tenant access
+Format:
 
-Add project-specific items from `@SECURITY_REVIEWER.md` when applicable.
+```markdown
+- [ ] S1: No secrets, keys, or credentials in code or config files
+- [ ] S2: All user input validated and sanitized at the boundary
+```
 
-### 6. Acceptance checklist (human)
+Default items (include in every spec):
 
-What a human verifies when reviewing the delivered code.
+- [ ] S1: No secrets, keys, or credentials in code or config files
+- [ ] S2: All user input validated and sanitized at the boundary
+- [ ] S3: Auth required on every endpoint — no silent fallback to anonymous
+- [ ] S4: Authorization checked: caller can only access their own resources
+- [ ] S5: No SQL injection, command injection, or XSS vectors
+- [ ] S6: Sensitive data not logged or exposed in error messages
+- [ ] S7: Dependencies have no known critical vulnerabilities
+- [ ] S8: File paths, URLs, and redirects cannot be manipulated by user input
+- [ ] S9: Rate limiting or abuse protection on public-facing endpoints
+- [ ] S10: Multi-tenant: resources scoped by tenant — no cross-tenant access
 
-- [ ] Code solves the stated goal
-- [ ] Behaviour matches each requirement
-- [ ] Scope boundaries respected — nothing extra added
-- [ ] Interfaces match the design
-- [ ] Error cases handled as specified
-- [ ] No TODOs or placeholders left
+Add project-specific items from `@SECURITY_REVIEWER.md` when applicable. Continue numbering from S11.
 
-Add project-specific items as needed.
+### 9. Acceptance checklist (human)
+
+What a human verifies when reviewing the delivered code. Numbered for tracking.
+
+Format:
+
+```markdown
+- [ ] X1: Code solves the stated goal
+- [ ] X2: Behaviour matches each requirement
+```
+
+Default items (include in every spec):
+
+- [ ] X1: Code solves the stated goal
+- [ ] X2: Behaviour matches each requirement
+- [ ] X3: Scope boundaries respected — nothing extra added
+- [ ] X4: Interfaces match the design
+- [ ] X5: Error cases handled as specified
+- [ ] X6: No TODOs or placeholders left
+
+Add project-specific items as needed. Continue numbering from X7.
+
+### 10. References
+
+Provenance, prior art, and source material that informed the spec.
+
+- **Research**: prior specs, design reviews, Slack threads, PRs, git history, and investigations that shaped the requirements and design. Include dates and authors so decisions can be traced.
+- **Modules affected**: repos, directories, and services this spec touches.
+- **External**: links to external docs, RFCs, standards, or tools referenced in the design.
+
+References are append-only during the spec lifecycle. Do not remove references even if the linked material becomes stale — they are the audit trail for design decisions.
 
 ## Rules
 

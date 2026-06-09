@@ -41,4 +41,5 @@
 | [Spaghetti Code](anti-patterns/spaghetti-code.md) | Control flow jumps arbitrarily across functions and modules with no clear structure or layering |
 | [Swiss Army Knife](anti-patterns/swiss-army-knife.md) | A class or interface that does many unrelated things — the opposite of SRP at the API surface level |
 | [Temporal Coupling](anti-patterns/temporal-coupling.md) | Functions or methods that must be called in a specific order, with no enforcement of that order by the type system or constructor |
+| [Star-Alias](anti-patterns/star-alias.md) | A single variable, parameter, or column holds distinct pieces of data, is reused for a different purpose, or widens a type beyond what the interface declares |
 | [Yo-yo Problem](anti-patterns/yo-yo-problem.md) | A deep inheritance hierarchy where understanding a method requires jumping up and down through many ancestor classes |
