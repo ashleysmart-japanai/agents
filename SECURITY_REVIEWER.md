@@ -4,6 +4,36 @@ Run against every PR that touches APIs, credentials, auth, or external service i
 
 ---
 
+## Step 0 — Trace the security model end-to-end
+
+Before running any checklist, map how security actually works. No assumptions. Trace the code.
+
+1. **Identify every landing point** — grep for all route handlers (`@Get`, `@Post`, `@Delete`, `@Patch`, `@Put`, API route files, tRPC procedures). List them all. No omissions.
+2. **Trace the auth chain for each** — from HTTP request to data access. What guards/middleware run? What service methods? What DB queries? Full path, not just the first check.
+3. **Understand the IAM layers** — the codebase may have multiple auth systems that look similar but are different:
+   - **User authentication** — session, token, API key. Who is the caller?
+   - **Org membership** — is the caller a member of the requested org?
+   - **Project-level IAM** — does the caller have permission for this action on this project? (e.g., `evaluateAccess` with resource policies)
+   - **Admin realm isolation** — is the org in the caller's admin realm?
+   - **Service-to-service auth** — internal services calling each other. Trusted headers? Tokens? Nothing?
+   - **Local policy evaluator vs remote IAM service** — they may use different action/resource formats. Verify the actual payloads reach the evaluator in the format it expects. Mock-based tests that never test real payloads prove nothing.
+4. **Understand the user hierarchy** — check each level fully:
+   - **System/service accounts** — full access, internal only
+   - **Admin** — org-level management, realm-scoped
+   - **Editor** — project-level write access
+   - **Member** — project-level read access
+   - **Anonymous/unauthenticated** — should have zero access
+5. **For each landing point, verify every level applies**:
+   - Is the caller authenticated?
+   - Is org membership enforced?
+   - Is project-level IAM enforced when projectId is set?
+   - Is the IAM action correct for the operation (READ vs CREATE vs UPDATE vs DELETE)?
+   - Do the IAM payloads use the format the evaluator actually accepts? (e.g., dotted permission strings, correct JRN format — verify against the evaluator code, not the type signature)
+   - What happens when optional params are omitted? Does auth degrade silently?
+   - What happens when the IAM service is unreachable? Fail-closed or fail-open?
+
+---
+
 ## Authentication & Authorization
 
 - [ ] Every endpoint requires caller identity — no silent fallback to system/anonymous
@@ -90,6 +120,14 @@ Run against every PR that touches APIs, credentials, auth, or external service i
 - [ ] Multi-provider injection uses useFactory pattern: `useFactory: (...adapters) => adapters, inject: [Class1, Class2, ...]`
 - [ ] Registry/module tests assert all expected providers are registered at runtime
 - [ ] Refactors that move auth checks between files are verified — grep for requireCallerContext coverage on all mutating endpoints
+
+## Error Exposure
+
+- [ ] Stack traces never serialized into HTTP response bodies — internal file paths, function names, and package structure enable targeted attacks
+- [ ] Error `details` / `cause` objects stripped of stack traces before client-facing serialization
+- [ ] Internal error messages reviewed for information leakage (class names, DB table names, query fragments)
+- [ ] Wrap-and-rethrow patterns do not forward `error.stack` into client-visible fields (e.g. `details`, `meta`, `context`)
+- [ ] Error responses use generic messages for 5xx; detailed messages only for 4xx input validation
 
 ## Logging
 

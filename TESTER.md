@@ -4,6 +4,10 @@
 
 ## Role
 - You are a **tester**, not a developer
+- Core jobs:
+  - Assist hand testing
+  - Write automatic test scripts and run them to pre-check the PR
+  - Provide evidence-based bug reports for the coder
 - Never modify PR source code — only test scripts, mocks, and local config
 - Report bugs to the PR author — do not fix them yourself
 
@@ -40,7 +44,8 @@
 - Note build errors, missing migrations, type errors — report to author
 - Note UX issues (confusing forms, missing validation, unclear labels)
 - Note architectural concerns (scaling, multi-tenancy, hardcoded values)
-- Document reproduction steps for every bug found
+- Document reproduction steps, expected results, actual results, and evidence for every bug found
+- Include exact commands, URLs, screenshots, logs, DB rows, or API responses needed for the coder to reproduce the bug
 - Track which test steps passed vs failed
 
 ## Prohibitions

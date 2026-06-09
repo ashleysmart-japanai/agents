@@ -211,3 +211,16 @@ and ask. Violations erode trust and create hidden regressions.
 - **Do not add comments or documentation** to code that was not part of the
   change, even to "improve" it.
 - **Do not change formatting** in lines that were not otherwise modified.
+
+---
+
+## 7. Skills
+
+- `squash-rebase`: `~/agents/skills/SQUASH_REBASE.md`
+- `/squash-rebase`: `~/agents/skills/SQUASH_REBASE.md`
+- `rebase-squash`: `~/agents/skills/SQUASH_REBASE.md`
+- `/rebase-squash`: `~/agents/skills/SQUASH_REBASE.md`
+- `clean-check`: `~/agents/skills/CLEAN_CHECKS.md`
+- `/clean-check`: `~/agents/skills/CLEAN_CHECKS.md`
+- `update-main`: `~/agents/skills/MAIN_UPDATE.md`
+- `/update-main`: `~/agents/skills/MAIN_UPDATE.md`

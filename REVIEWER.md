@@ -70,6 +70,12 @@ Run each check group against the diff. Every group produces a PASS / FAIL / N/A.
 - Do new static route files sit alongside a `[param].ts` dynamic route in the same directory? If so, the dynamic route may shadow the static file — move static routes into a subdirectory (e.g. `actions/`) to avoid ambiguity.
 - Are all fetch paths in frontend code consistent with the actual route file locations?
 
+### Shims & dead indirection
+- Are there re-export shims (file A just re-exports from file B) left behind after refactors? Consumers should import directly.
+- Are there pass-through wrappers that add no logic — functions/classes that only delegate to another with the same signature?
+- Are there barrel exports (`index.ts`) still exporting symbols that were moved or deleted? Remove stale entries.
+- Are there empty interfaces, abstract classes, or type aliases that exist only for "backwards compatibility" with no remaining consumers?
+
 ### Optimizations & simplification
 - Is there overly complex code that could be reduced?
 - Could any section be simplified without losing correctness?
@@ -89,127 +95,201 @@ Run each check group against the diff. Every group produces a PASS / FAIL / N/A.
 
 ---
 
+## Issue States
+
+- OPEN - issue is not fixed yet
+- DEFERED - issue is known about but we will fix later
+- CLOSED - issue is fix now
+- WILL_NOT_FIX - issue is an annoyance or over-engineering - it has been decided by user to never fix. There will often be documentation to help the REVIEWER know why
+
 ## Output Format
 
-Begin with a brief summary of the overall code quality. Line numbers start at 1. If no issues are found, briefly state that the code meets best practices.
+Review output is persisted under `<working-directory>/reviews/<repo>-pr-<number>/` (relative to where the reviewer agent is running, not the agents directory). The required index file is `review.md`.
+
+The `review.md` index must start with the exact warning line `** WARNING do not delete review entries ever **`, then use exactly three top-level sections: `# META`, `# SUMMARY`, and `# DETAILS`. Line numbers start at 1. The `# SUMMARY` section must stay in `review.md` and must list every issue ID, including archived closed issues. Archived closed issues must include a grepable `archive:<ID>.md` marker in their `# SUMMARY` item. If no issues have ever been recorded for the review, set `open:none` and write `- none` under both `# SUMMARY` and `# DETAILS`.
+
+Open issue details must stay inline under `# DETAILS`. If the review tracks more than 15 issue IDs, verified-closed issue details may be archived into sibling files named `<ID>.md` in the same review directory and linked from `# DETAILS`. Do not archive open issues, do not archive any issue while the review tracks 15 or fewer issue IDs, and do not duplicate the same issue detail both inline and in a file.
+
+````md
+** WARNING do not delete review entries ever **
+
+# META
+repo:<repo>
+pr:<number>
+branch:<branch>
+base:<base-branch>
+head:<head-sha>
+reviewed:<yyyy-mm-dd>
+open:<ID>,<ID> or open:none
+
+# SUMMARY
+- [ ] B1 BUG [HIGH] - One-line summary and some key `path/file.ts:10`
+- [ ] SEC-1 SECURITY [HIGH] - One-line summary and some key `path/file.ts:20`
+- [ ] I1 ISSUE [MEDIUM] - One-line summary and some key `path/file.ts:30`
+- [ ] S1 SCOPING_AUTH [MEDIUM] - One-line summary and some key `path/file.ts:40`
+- [ ] O1 OPTIMIZATION [LOW] - One-line summary and some key `path/file.ts:50`
+- [ ] D1 DESIGN [MEDIUM] - One-line summary and some key `path/file.ts:55`
+- [ ] T1 TEST [MEDIUM] - One-line summary and some key `path/file.ts:58`
+- [ ] M1 MINOR [LOW] - One-line summary and some key `path/file.ts:60`
+
+# DETAILS
+## B1
+ID:B1
+type:BUG|SECURITY|ISSUE|SCOPING_AUTH|OPTIMIZATION|DESIGN|TEST|MINOR
+severity:CRITICAL|HIGH|MEDIUM|LOW
+summary:<one-line summary>
+file:`path/to/file.ts:123`
+pr:`#<number>` or `parent #<number> -> child #<number>`
+status:OPEN
+
+description:
+<description>
+
+evidence:
+```evidence
+<proof snippet or command output>
+```
+
+fix:<what needs to change>
+reverify:<exact grep/read/test command or file:line to check>
+````
+
+When the review tracks more than 15 issue IDs, a verified-closed issue detail may be archived like this in `review.md`. The matching `# SUMMARY` item remains in `review.md` and includes `archive:B2.md`.
+
+```md
+# SUMMARY
+- [x] B2 BUG [MEDIUM] - Closed issue summary and some key `path/file.ts:18` archive:B2.md
+
+# DETAILS
+- [B2](B2.md)
+```
+
+Example archived closed issue detail file at `<working-directory>/reviews/<repo>-pr-<number>/B2.md`:
+
+The archive file must contain the full original issue detail record. Do not replace it with a metadata-only stub.
+
+````md
+## B2
+ID:B2
+type:BUG
+severity:MEDIUM
+summary:<one-line summary>
+file:`path/to/file.ts:123`
+pr:`#<number>` or `parent #<number> -> child #<number>`
+status:CLOSED verified:<yyyy-mm-dd>
+commit:`<short sha>` or `squash to <sha>`
+
+description:
+<original description>
+
+evidence:
+```evidence
+<original proof snippet or command output>
+```
+
+fix:<original fix guidance>
+reverify:<exact grep/read/test command or file:line to check>
+fixed:<one-line description of the change>
+````
+
+## Issue Tracking
+
+See `review/ISSUE_TRACKING.md` for how to open, close, archive, and re-verify issues across re-checks.
+
+---
+
+## Full Review
+
+When asked for a "full review", run every stage and check group end-to-end with zero shortcuts. No skipping. No deferment. 100% checks.
+
+### Requirements
+
+1. **No skipping** — every check group runs in full, every checklist item is evaluated. No "N/A because it looks fine" — prove it's N/A with evidence.
+2. **No deferment** — do not defer findings to follow-up PRs. Every finding is tracked in the current review.
+3. **100% endpoint coverage** — enumerate every route handler / API endpoint touched or added by the PR. For each one, verify:
+   - Authentication: is the caller authenticated?
+   - Authorization: is project-level IAM enforced when projectId is present?
+   - Input validation: are all parameters validated?
+   - Error handling: are errors caught and surfaced correctly?
+   Do not verify only the endpoints that were explicitly changed. Verify **all** endpoints in the affected controllers/modules — missing checks on unchanged endpoints are the most common gap.
+4. **Systematic sweep** — after any security or IAM hardening round, grep for all route handlers (`@Get`, `@Post`, `@Delete`, `@Patch`, `@Put`, or framework equivalent) and verify each one against the access control pattern. Do not rely on the coder's commit message to tell you which endpoints were fixed — check them all.
+5. **Cross-path consistency** — for every access control check added, verify:
+   - The same check exists on all parallel paths that access the same data
+   - Edge cases are covered (e.g., parameter A without parameter B, null vs empty string)
+   - Error messages match the actual rejection reason
+6. **No reactive-only verification** — do not just verify what the coder changed. Actively search for what they missed.
+
+A full review that skips endpoints, defers findings, or only checks the happy path is not a full review. If you cannot complete a full review in one pass, split into parallel sub-agents by concern area (security, design, tests) but each sub-agent must complete its area fully.
+
+### Evidence of completion
+
+A full review must produce a **coverage evidence table** appended to the review output under `# FULL REVIEW EVIDENCE`. This table proves every file in scope was actually read and checked at the time of review. It is not a claim — it is a verifiable receipt.
+
+For every file in the PR diff (from `git diff main...HEAD --name-only`), and record it in the table. The table must be written to `review.md` after `# DETAILS`.
+
+Format:
+
+```md
+# FULL REVIEW EVIDENCE
+head:<commit-sha>
+date:<yyyy-mm-dd>
+
+| File | commit | Auth | Input | Errors | Notes |
+|---|---|---|---|---|---|
+| apps/foo/controller.ts | a1b2c3d4... | ✅ | ✅ | ✅ | 3 routes checked |
+| apps/foo/service.ts | e5f6a7b8... | N/A | ✅ | ✅ | no routes |
+| libs/bar/client.ts | c9d0e1f2... | N/A | ✅ | ⚠️ B48 | json parse before ok |
+```
+
+Column definitions:
+
+- **File** — path from repo root
+- **commit** — commit hash. 
+- **Auth** — authentication/authorization checks verified (✅ pass, ⚠️ finding, N/A no routes)
+- **Input** — input validation verified
+- **Errors** — error handling verified
+- **Notes** — endpoint count, findings, or why N/A
+
+Rules:
+
+- Every file in the diff must appear in the table. No omissions.
+- If a file was deleted in the PR, record as `deleted`.
+- If a file is binary (images, etc.), record commit but mark checks as N/A.
+- The `head:` line must match the `head:` in `# META`. If they differ, the evidence is stale.
+- When re-running a full review after new commits, regenerate the entire table — do not carry forward old hashes.
+
+### Review log
+
+A persistent append-only log file `log.md` is kept alongside `review.md` in the review directory. It records what was checked at each commit. 
+This file is **append-only** — never delete, overwrite, or rewrite entries. Each entry is a permanent record.
+
+Append a new entry every time the reviewer checks the code (pull and check, full review, incremental re-check, or fix verification). Each file checked is one line:
 
 ```
-## Summary
-2-3 sentences on what the PR does and whether the approach is sound.
-
-## Checks
-| Check | Result |
-|-------|--------|
-| Lint | PASS/FAIL |
-| Format | PASS/FAIL |
-| Typecheck | PASS/FAIL (note pre-existing errors) |
-| Tests | PASS/FAIL (X tests) |
-
-## Check Groups
-
-### Code quality & best practices
-| Check | Result |
-|-------|--------|
-| Follows language idioms and conventions | ✅/❌/N/A |
-| Naming, structure consistent with codebase | ✅/❌/N/A |
-| Readable and maintainable | ✅/❌/N/A |
-| Function size limited, logically divided (SRP) | ✅/❌/N/A |
-
-### Bugs & edge cases
-| Check | Result |
-|-------|--------|
-| No potential bugs | ✅/❌/N/A |
-| Error paths handled (null/empty, overflow, missing data) | ✅/❌/N/A |
-| API recovers correctly on failure (no half-state) | ✅/❌/N/A |
-
-### Performance & efficiency
-| Check | Result |
-|-------|--------|
-| No unnecessary loops or repeated work | ✅/❌/N/A |
-| No N+1 queries, unnecessary re-renders, or blocking calls | ✅/❌/N/A |
-| Fail-early/preflight checks used | ✅/❌/N/A |
-| Uses clear stdlib calls / idioms where possible | ✅/❌/N/A |
-| No redundant data fetches across call chain | ✅/❌/N/A |
-
-### Readability & complexity
-| Check | Result |
-|-------|--------|
-| Code easy to follow (no deep nesting / spaghetti) | ✅/❌/N/A |
-| No premature abstractions or over-engineering | ✅/❌/N/A |
-| Overly complex code simplified where possible | ✅/❌/N/A |
-
-### Security
-| Check | Result |
-|-------|--------|
-| No hardcoded keys, secrets, or test passwords | ✅/❌/N/A |
-| API validates and cleans inputs | ✅/❌/N/A |
-| No new attack surface (injection, XSS, CSRF) | ✅/❌/N/A |
-| No static routes shadowed by [param] dynamic routes | ✅/❌/N/A |
-
-### Optimizations & simplification
-| Check | Result |
-|-------|--------|
-| No overly complex code that could be reduced | ✅/❌/N/A |
-| Sections simplified without losing correctness | ✅/❌/N/A |
-| Reuses existing code instead of duplicating | ✅/❌/N/A |
-
-### Test quality
-| Check | Result |
-|-------|--------|
-| Test inputs match actual function signatures | ✅/❌/N/A |
-| Assertions match actual return types and shapes | ✅/❌/N/A |
-| Mocks/stubs compatible with real implementations | ✅/❌/N/A |
-| Test scenarios constructable (setup steps succeed) | ✅/❌/N/A |
-| Asserted errors/values have a producer in codebase | ✅/❌/N/A |
-
-## Checklist
-| Item | Result |
-|------|--------|
-| Big file checkins | PASS/FAIL/N/A |
-| Hard coding | PASS/FAIL/N/A |
-| Logic Check | PASS/FAIL/N/A |
-| No Breakage | PASS/FAIL/N/A |
-| Clean Naming | PASS/FAIL/N/A |
-| Security | PASS/FAIL/N/A |
-| Error Handling | PASS/FAIL/N/A |
-| Readability | PASS/FAIL/N/A |
-| Design (SOLID) | PASS/FAIL/N/A |
-| Reuse | PASS/FAIL/N/A |
-| Performance | PASS/FAIL/N/A |
-| Thread safety & blocking | PASS/FAIL/N/A |
-| UI sanity | PASS/FAIL/N/A |
-| Comments | PASS/FAIL/N/A |
-| Ready to Ship | PASS/FAIL/N/A |
-| Dead code | PASS/FAIL/N/A |
-| Dependency Audit | PASS/FAIL/N/A |
-| Logging & Observability | PASS/FAIL/N/A |
-| State Management | PASS/FAIL/N/A |
-| Idempotency | PASS/FAIL/N/A |
-| Local files | PASS/FAIL/N/A |
-| Type Safety | PASS/FAIL/N/A |
-| Doc Accuracy | PASS/FAIL/N/A |
-
-## Findings
-
-### Bugs (will break in production)
-1. file:line — description
-
-### Issues (functional risk)
-1. file:line — description
-
-### Optimizations (can be improved)
-1. file:line — description
-
-### Minor (style, consistency, docs)
-1. file:line — description
-
-## Verdict: LGTM / Needs Changes
-One sentence on what blocks merge, if anything.
+<datetime> - <git-hash> - <bug>:<bug_status> - <path> - <summary of check>
 ```
+
+Example `log.md`:
+
+```md
+2026-06-05-09:00:20 - df9fc5386 - B10:open - libs/domain/src/box/client.ts - refreshInFlight dedup verified, text-first json parse verified
+2026-06-05-09:00:20 - df9fc5386 - B11:close - apps/acme-api/src/modules/resource/resource.service.ts - projectId ?? "" removed
+2026-06-05 09:00:20 - df9fc5386 - B12:open - apps/acme-api/src/modules/resource/resource-credential.controller.ts - projectId ?? "" removed
+```
+
+Rules:
+
+- **Append only** — never delete, edit, or reorder existing entries. New entries go at the bottom.
+- Every pull-and-check cycle gets an entry, even if nothing changed (note "no new commits").
+- One line per file checked. Only files actually read/verified in that pass, not all files in the diff.
+- The log provides a complete audit trail. If a finding is missed, the log shows whether the file was checked and what was looked at.
+
+---
 
 ## Rules
 
 - Be concise and direct. Lead with facts, not praise.
+- Every finding must include evidence: the actual code snippet or command output that proves the issue. Never open an issue without evidence.
 - Use `file:line` references for every finding.
 - Distinguish bugs (will break) from issues (might break) from minor (won't break).
 - Never flag pre-existing issues in files not touched by the PR.

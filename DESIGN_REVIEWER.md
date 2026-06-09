@@ -22,12 +22,14 @@ See [reference/design-principles/CHECKLIST.md](reference/design-principles/CHECK
 - [ ] Is every class, method, and parameter required by a current acceptance criterion?
 - [ ] Are there any extension points, hooks, or config options with no present consumer?
 - [ ] Is any dead code present? If so, delete it.
+- [ ] Are any parameters derivable from other parameters? If A implies B, requiring both is overspecification — it creates false invariants, splits validation across call sites, and masks bugs when the values disagree.
 
 ### Separation of Concerns
 - [ ] Does each module have a single, nameable concern?
 - [ ] Are business rules free of HTTP, SQL, and framework types?
 - [ ] Are cross-cutting concerns (logging, auth, caching) handled at the boundary, not woven through logic?
 - [ ] Does changing the storage layer require touching the domain layer?
+- [ ] Are HTTP-layer error types (e.g., NestJS `HttpException`, Express `HttpError`) confined to controllers and error filters — never thrown inside service/domain/data layers? Throwing HTTP exceptions deep in the stack causes: (1) framework class dependencies in business logic, (2) broken `$transaction` / unit-of-work patterns when bundlers (webpack) destroy the class hierarchy, (3) premature formatting of errors before the system is ready to produce an HTTP response. Services should throw plain domain errors (e.g., `OntologyValidationError` with an error code); the controller or error filter maps them to HTTP status codes at the boundary.
 
 ### Principle of Least Astonishment
 - [ ] Does every function do exactly what its name says?
@@ -53,6 +55,7 @@ See [reference/design-principles/CHECKLIST.md](reference/design-principles/CHECK
 ### SOLID — ISP
 - [ ] Does any implementor define methods it does not use?
 - [ ] Can the interface be split into narrower ones that serve specific clients?
+- [ ] Does any implementor widen a parameter type beyond what the interface declares (e.g., `context: InterfaceType & { extraField }`)? This is a star-alias antipattern — the extra field should be on the interface or a separate parameter, not smuggled through an intersection type.
 
 ### SOLID — DIP
 - [ ] Do high-level modules depend on abstractions, not concrete implementations?
