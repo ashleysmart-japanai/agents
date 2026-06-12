@@ -1,4 +1,6 @@
-# Security Review Checklist
+# Security Review Check Groups
+
+> **Method**: Follow the review methodology in [REVIEW_METHOD.md](REVIEW_METHOD.md) before running these check groups.
 
 Run against every PR that touches APIs, credentials, auth, or external service integrations.
 

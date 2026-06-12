@@ -142,7 +142,7 @@ Default items (include in every spec):
 - [ ] S9: Rate limiting or abuse protection on public-facing endpoints
 - [ ] S10: Multi-tenant: resources scoped by tenant — no cross-tenant access
 
-Add project-specific items from `@SECURITY_REVIEWER.md` when applicable. Continue numbering from S11.
+Add project-specific items from `@review/SECURITY_REVIEW.md` when applicable. Continue numbering from S11.
 
 ### 9. Acceptance checklist (human)
 

@@ -1,8 +1,10 @@
-# Design Reviewer
+# Design Review Check Groups
+
+> **Method**: Follow the review methodology in [REVIEW_METHOD.md](REVIEW_METHOD.md) before running these check groups.
 
 Use this checklist when designing, implementing, or reviewing code. For each item: state whether it applies, how it is satisfied, and why.
 
-See [reference/design-principles/CHECKLIST.md](reference/design-principles/CHECKLIST.md) for the corresponding design checklists.
+See [reference/design-principles/CHECKLIST.md](../reference/design-principles/CHECKLIST.md) for the corresponding design checklists.
 
 ---
 
@@ -30,6 +32,14 @@ See [reference/design-principles/CHECKLIST.md](reference/design-principles/CHECK
 - [ ] Are cross-cutting concerns (logging, auth, caching) handled at the boundary, not woven through logic?
 - [ ] Does changing the storage layer require touching the domain layer?
 - [ ] Are HTTP-layer error types (e.g., NestJS `HttpException`, Express `HttpError`) confined to controllers and error filters — never thrown inside service/domain/data layers? Throwing HTTP exceptions deep in the stack causes: (1) framework class dependencies in business logic, (2) broken `$transaction` / unit-of-work patterns when bundlers (webpack) destroy the class hierarchy, (3) premature formatting of errors before the system is ready to produce an HTTP response. Services should throw plain domain errors (e.g., `OntologyValidationError` with an error code); the controller or error filter maps them to HTTP status codes at the boundary.
+
+### MVC / Layer Discipline
+- [ ] Are views/templates free of business logic? Conditionals like `if (status == "approved")` or `if (type == "abc")` in UI components are controller/service logic that leaked into the view — extract to a computed property, helper, or the model layer.
+- [ ] Are controllers thin? Controllers should map requests to service calls and service results to responses. Branching on domain values, computing derived state, or orchestrating multi-step workflows belongs in the service/domain layer.
+- [ ] Is formatting and display logic confined to the view layer? The model and controller should not produce HTML, CSS classes, or user-facing strings — the view maps model state to presentation.
+- [ ] Are data transformations (filtering, sorting, aggregation) in the service/model layer, not repeated across multiple views or controllers?
+- [ ] Do views bind to model properties or computed values, not raw API response shapes? If the view destructures an API payload directly, a backend change breaks the UI with no compile-time or type-level safety net.
+- [ ] Does the API drive view configuration through capabilities (flags, schemas, feature toggles) rather than the view inspecting domain values? The view should ask "can the user do X?" via a capability flag, not `if (role == "admin")` or `if (type == "premium")`. The controller/API declares what is enabled; the view renders accordingly. This keeps domain knowledge server-side, makes the UI data-driven, and avoids scattering magic strings across components.
 
 ### Principle of Least Astonishment
 - [ ] Does every function do exactly what its name says?
@@ -121,7 +131,7 @@ See [reference/design-principles/CHECKLIST.md](reference/design-principles/CHECK
 
 ---
 
-- See [reference/design-patterns.md](reference/design-patterns.md) for the full design-pattern catalogue.
-- See [reference/anti-patterns.md](reference/anti-patterns.md) for the full anti-pattern catalogue.
-- See [reference/design-principles/CHECKLIST.md](reference/design-principles/CHECKLIST.md) for the design-principles checklist and detail links.
-- See [reference/anti-patterns/CHECKLIST.md](reference/anti-patterns/CHECKLIST.md) for the anti-pattern checklist.
+- See [reference/design-patterns.md](../reference/design-patterns.md) for the full design-pattern catalogue.
+- See [reference/anti-patterns.md](../reference/anti-patterns.md) for the full anti-pattern catalogue.
+- See [reference/design-principles/CHECKLIST.md](../reference/design-principles/CHECKLIST.md) for the design-principles checklist and detail links.
+- See [reference/anti-patterns/CHECKLIST.md](../reference/anti-patterns/CHECKLIST.md) for the anti-pattern checklist.
