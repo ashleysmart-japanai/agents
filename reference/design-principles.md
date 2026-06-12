@@ -1,6 +1,6 @@
 # Design Principles
 
-Canonical index for design principles used by `DESIGNER.md` and `DESIGN_REVIEWER.md`.
+Canonical index for design principles used by `DESIGNER.md` and `review/DESIGN_REVIEW.md`.
 
 | Principle | Summary |
 |---|---|
