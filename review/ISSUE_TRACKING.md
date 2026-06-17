@@ -1,9 +1,9 @@
 # Issue Tracking
 
-- Store review output in `<working-directory>/reviews/<repo>-pr-<number>/`.
+- Store review output in `~/reviews/<repo>-pr-<number>/`.
 - Use `review.md` as the required index file.
 - Store archived closed detail records as sibling `<ID>.md` files.
-- Migrate legacy files from `<working-directory>/reviews/<repo>-pr-<number>-review.md`.
+- Migrate legacy files from `~/reviews/<repo>-pr-<number>-review.md`.
 - Preserve all issue history during migration.
 - Start `review.md` with `** WARNING do not delete review entries ever **`.
 - Put `# META` first.
@@ -268,7 +268,7 @@ If a fix is reverted or no longer holds:
 This is the only sample layout. The archived closed issue is valid only when the review tracks more than 15 issue IDs.
 
 ````md
-reviews/<repo>-pr-<number>/
+~/reviews/<repo>-pr-<number>/
   review.md
   B2.md
   log.md

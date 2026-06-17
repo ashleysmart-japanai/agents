@@ -18,8 +18,8 @@ High-level states:
 
 Before making claims or editing the persisted review file:
 
-1. Read the current review index at `reviews/<repo>-pr-<number>/review.md` if it exists.
-2. If only a legacy `reviews/<repo>-pr-<number>-review.md` exists, read it and migrate it to the review directory without losing history.
+1. Read the current review index at `~/reviews/<repo>-pr-<number>/review.md` if it exists.
+2. If only a legacy `~/reviews/<repo>-pr-<number>-review.md` exists, read it and migrate it to the review directory without losing history.
 3. Read every archived closed issue detail file linked from the index `# DETAILS` section.
 4. Summarize to yourself:
    - what the current issue IDs are
