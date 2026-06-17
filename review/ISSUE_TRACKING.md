@@ -1,19 +1,16 @@
 # Issue Tracking
 
 - Store review output in `~/reviews/<repo>-pr-<number>/`.
-- Use `review.md` as the required index file.
+- Use `review.md` as the index file. It contains only `# META` and `# SUMMARY`.
 - Use `feedback.md` as the external feedback ingress file.
-- Store archived closed detail records as sibling `<ID>.md` files.
+- Store every issue's detail record in its own `<ID>.md` file.
+- `review.md` never contains detail records.
 - Migrate legacy files from `~/reviews/<repo>-pr-<number>-review.md`.
 - Preserve all issue history during migration.
 - Start `review.md` with `** WARNING do not delete review entries ever **`.
 - Put `# META` first.
 - Put `# SUMMARY` second.
-- Put `# DETAILS` third.
 - No other top-level sections.
-- No open/closed detail sections.
-- No body moves for ordinary state changes.
-- Move issue bodies only for archive and unarchive operations.
 
 ## Feedback ingress
 
@@ -32,14 +29,14 @@ Run this procedure during Stage 0, after reading existing review state:
 3. If the file has content:
    - Move `feedback.md` to `feedback.lock.md` (atomic swap to prevent concurrent writers from losing entries).
    - Touch `feedback.md` to create a new blank file (external writers can resume appending immediately).
-4. Read `feedback.lock.md`, triage each feedback point, and open or update review issues in `review.md` using the normal opening flow.
+4. Read `feedback.lock.md`, triage each feedback point, and open or update review issues using the normal opening flow.
 5. Delete `feedback.lock.md` after all entries have been processed.
 
 ## Review handling rules
 
 ### Never ignore review points
 
-- Every review point from any source (PR comments, feedback.md, reviewer findings) is tracked in `review.md`.
+- Every review point from any source (PR comments, feedback.md, reviewer findings) is tracked.
 - No finding is silently dropped, filtered, or skipped.
 
 ### NEEDS_REVIEW usage
@@ -63,20 +60,14 @@ When asked to provide a list of open `NEEDS_REVIEW` items, list both `:reviewer`
   - "Too much work."
   - "Too big a change."
   - "Not in scope for this PR."
-- When the coder pushes back, they must update the detail record in `review.md` with evidence explaining the problem that prevents the fix.
+- When the coder pushes back, they must update the detail record in `<ID>.md` with evidence explaining the problem that prevents the fix.
 
 ## Review directory layout
 
-- Use the reference example for exact file layout.
-- Keep not-closed detail records inline in `review.md`.
-- Archive only verified-closed detail records.
-- Archive only when the review tracks more than 15 issue IDs.
-- Count issue IDs from `# SUMMARY`.
-- Ignore `- none` when counting issue IDs.
-- Store archived detail records as sibling `<ID>.md` files.
-- Link archived detail records from `# DETAILS`.
-- Keep one detail record per issue ID.
-- Never duplicate one detail record inline and archived.
+- `review.md` is the index: META and SUMMARY only.
+- Every issue gets its own `<ID>.md` file at creation time.
+- No detail records in `review.md`. Ever.
+- One detail file per issue ID.
 
 ## META section
 
@@ -87,7 +78,7 @@ When asked to provide a list of open `NEEDS_REVIEW` items, list both `:reviewer`
 - Required: `branch:`.
 - Required: `base:`.
 - Required: `head:`.
-- Required: `reviewed:`.
+- Required: `reviewed:`. Last review datetime as `<yyyy-mm-dd HH:MM>`. Overwrite on each review, do not append.
 - Required: `open:`.
 - `open:` contains every not-closed issue ID, comma-separated with no spaces.
 - Not-closed statuses are `OPEN`, `NEEDS_REVIEW:reviewer`, `NEEDS_REVIEW:coder`, and `DEFERRED`.
@@ -106,7 +97,8 @@ When asked to provide a list of open `NEEDS_REVIEW` items, list both `:reviewer`
 - Do not add checks.
 - Do not add prose.
 - Keep exactly one summary item per issue ID.
-- Use prefix format `- [<IS_CLOSED>] <ID> - <STATUS> [<SEVERITY>] - `.
+- Use prefix format `- [<IS_CLOSED>] <ID> - <STATUS> [<SEVERITY>] - <title>`.
+- The `<title>` is a short label, not a description. Keep it under one line. Full details go in `<ID>.md`.
 - Use `[ ]` for not-closed issues.
 - Use `[x]` for closed issues.
 - Do not use `[?]`.
@@ -127,36 +119,24 @@ When asked to provide a list of open `NEEDS_REVIEW` items, list both `:reviewer`
 - ID prefix `D` means `DESIGN`.
 - ID prefix `T` means `TEST`.
 - ID prefix `M` means `MINOR`.
-- Write human summary text after the prefix.
-- Put location keys in the summary text.
+- Write a short title after the prefix.
+- Put location keys in the title text.
 - Sort by prefix order: `B`, `SEC`, `I`, `S`, `O`, `D`, `T`, `M`.
 - Sort by issue ID within each prefix.
 - Use `- none` when there are no issues.
 - Keep `# SUMMARY` in `review.md`.
-- Never move summary items into archive files.
-- Add `archive:<ID>.md` for archived closed issues.
-- Remove `archive:<ID>.md` when unarchiving or reopening.
+- Never move summary items out of `review.md`.
 - Align checkbox state with `open:` in `# META`.
-- Align summary status with the detail `status:`.
+- Align summary status with the `status:` in the issue's `<ID>.md` file.
 
-## DETAILS section
+## Detail files (`<ID>.md`)
 
-- `# DETAILS` contains one stable full record for every issue ID.
-- Keep not-closed issue records inline under `# DETAILS`.
-- Closed issue records may stay inline under `# DETAILS`.
-- Do not move detail records for ordinary state changes.
-- Only move detail records during explicit archive and unarchive operations.
-- Archive only verified-closed issue records.
-- Archive verified-closed issue records only when the review tracks more than 15 issue IDs.
-- Store each archived issue record in one sibling `<ID>.md` file.
-- Link each archived issue from `review.md` `# DETAILS`.
-- Use one `# DETAILS` link per archived issue.
-- Use a full issue record for every inline detail.
-- Use a full issue record for every archived detail.
+- Every issue gets its own `<ID>.md` file at creation time.
+- The file contains the full detail record for that issue.
 - Required field: `ID:`.
 - Required field: `type:`.
 - Required field: `severity:`.
-- Required field: `summary:`.
+- Required field: `title:`.
 - Required field: `file:`.
 - Required field: `pr:`.
 - Required field: `status:`.
@@ -166,8 +146,9 @@ When asked to provide a list of open `NEEDS_REVIEW` items, list both `:reviewer`
 - Required field: `reverify:`.
 - The detail `status:` value must match the status in that issue's `# SUMMARY` item.
 - Valid detail statuses are `OPEN`, `NEEDS_REVIEW:reviewer`, `NEEDS_REVIEW:coder`, `DEFERRED`, `CLOSED verified:<yyyy-mm-dd>`, and `WILL_NOT_FIX`.
-- If the review has never recorded any issues, write `- none` under `# DETAILS`.
-- Do not replace an archived detail file with a metadata-only stub.
+- Never delete a detail file.
+- Never truncate a detail file to a stub.
+- Update the detail file in place when status changes.
 
 ## Opening an issue
 
@@ -177,11 +158,9 @@ When asked to provide a list of open `NEEDS_REVIEW` items, list both `:reviewer`
 - Severity values are `CRITICAL`, `HIGH`, `MEDIUM`, and `LOW`.
 - Always include the actual code snippet or command output that proves the issue.
 - Never open an issue without evidence.
+- Create `<ID>.md` with the full detail record.
 - Add the ID to the `open:` line in `# META`.
-- Add one unchecked `- [ ] <ID> - OPEN [<SEVERITY>] - <summary>` item to the flat list in `# SUMMARY`.
-- Add one full inline detail record under `# DETAILS`.
-- Keep the detail record inline while the issue is not closed.
-- Do not create `<ID>.md` for a new or not-closed issue.
+- Add one unchecked `- [ ] <ID> - OPEN [<SEVERITY>] - <title>` item to the flat list in `# SUMMARY`.
 - Include `pr:` in the detail record when the issue comes from cross-PR parent/child tracking.
 - Use `NEEDS_REVIEW:reviewer` when the reviewer is uncertain or needs human input.
 - Use `NEEDS_REVIEW:coder` when the coder pushes back with evidence that the fix is problematic.
@@ -189,16 +168,12 @@ When asked to provide a list of open `NEEDS_REVIEW` items, list both `:reviewer`
 
 ## Closing an issue
 
-- When a fix is confirmed, update the existing entries in place.
-- Do not move the detail record as part of closing.
+- When a fix is confirmed, update the entries in place.
 - Remove the ID from the `open:` line in `# META`.
 - Change its `# SUMMARY` prefix to `- [x] <ID> - CLOSED verified:<yyyy-mm-dd> [<SEVERITY>] - `.
-- Change the detail status from its current value to `status:CLOSED verified:<yyyy-mm-dd>`.
-- Add `commit:`, `reverify:`, and `fixed:` if missing.
+- Update `status:` in `<ID>.md` to `CLOSED verified:<yyyy-mm-dd>`.
+- Add `commit:`, `reverify:`, and `fixed:` to `<ID>.md` if missing.
 - Keep the original summary, description, file reference, PR reference, and evidence intact.
-- Do not move the issue body as part of the close itself.
-- Archive the verified-closed issue only if the review tracks more than 15 issue IDs.
-- Keep the verified-closed issue inline if the review tracks 15 or fewer issue IDs.
 
 ## Changing an issue status
 
@@ -211,28 +186,28 @@ For `NEEDS_REVIEW:reviewer`:
 
 - Keep or add the ID in the `open:` line in `# META`.
 - Keep the `# SUMMARY` checkbox unchecked and change the summary status to `NEEDS_REVIEW:reviewer`.
-- Change the detail status to `status:NEEDS_REVIEW:reviewer`.
+- Update `status:` in `<ID>.md` to `NEEDS_REVIEW:reviewer`.
 
 For `NEEDS_REVIEW:coder`:
 
 - Keep or add the ID in the `open:` line in `# META`.
 - Keep the `# SUMMARY` checkbox unchecked and change the summary status to `NEEDS_REVIEW:coder`.
-- Change the detail status to `status:NEEDS_REVIEW:coder`.
-- Add evidence in the detail record explaining why the fix is problematic.
+- Update `status:` in `<ID>.md` to `NEEDS_REVIEW:coder`.
+- Add evidence in `<ID>.md` explaining why the fix is problematic.
 
 For `DEFERRED` (human-only — agents must never set this state):
 
 - Keep or add the ID in the `open:` line in `# META`.
 - Keep the `# SUMMARY` checkbox unchecked and change the summary status to `DEFERRED`.
-- Change the detail status to `status:DEFERRED`.
-- Add `defer:<yyyy-mm-dd> - <reason>` in the same detail record when the reason is known.
+- Update `status:` in `<ID>.md` to `DEFERRED`.
+- Add `defer:<yyyy-mm-dd> - <reason>` in `<ID>.md` when the reason is known.
 
 For `WILL_NOT_FIX` (human-only — agents must never set this state):
 
 - Remove the ID from the `open:` line in `# META`.
 - Change its `# SUMMARY` prefix to `- [x] <ID> - WILL_NOT_FIX [<SEVERITY>] - `.
-- Change the detail status to `status:WILL_NOT_FIX`.
-- Add `decision:<yyyy-mm-dd> - <reason>` in the same detail record when the reason is known.
+- Update `status:` in `<ID>.md` to `WILL_NOT_FIX`.
+- Add `decision:<yyyy-mm-dd> - <reason>` in `<ID>.md` when the reason is known.
 
 ## Reopening an issue
 
@@ -240,69 +215,24 @@ If a fix is reverted or no longer holds:
 
 - Add the ID back to the `open:` line in `# META`.
 - Change its `# SUMMARY` prefix to `- [ ] <ID> - OPEN [<SEVERITY>] - `.
-- Change the detail status back to `status:OPEN`.
-- Add `reopened:<yyyy-mm-dd> - <reason and sha if known>` in the same detail record.
-- If the issue was archived in `<ID>.md`, restore the full detail record inline under `# DETAILS`.
-- If the issue was archived in `<ID>.md`, replace the archive link with the inline record.
-- Remove the `archive:<ID>.md` marker from the `# SUMMARY` item when the issue is unarchived or reopened.
-
-## Re-checking after a push or rebase
-
-- Pull the latest code.
-- Read every inline detail record.
-- Read every archived closed sibling detail file linked from `# DETAILS`.
-- Re-verify every closed issue using its documented check.
-- Reopen any closed issue whose fix was reverted.
-- Re-check every not-closed issue listed in `open:`.
-- Close any not-closed issue that is now fixed.
-- Add new findings as new `# SUMMARY` items.
-- Add new findings as new `# DETAILS` records.
-- Update the flat issue list under `# SUMMARY`.
-
-## Archiving closed details into files
-
-- Archive closed issue details into sibling files only when `review.md` becomes too large.
-- Archive closed issue details only if the review tracks more than 15 issue IDs.
-- Count issue IDs in `# SUMMARY`.
-- Exclude `- none` from the issue count.
-- Do not archive details when the count is 15 or fewer.
-- Select only verified-closed issues with `status:CLOSED verified:<yyyy-mm-dd>`.
-- Create one sibling archive file per selected closed issue.
-- Name each archive file `<ID>.md`.
-- Move the full existing `## <ID>` record into the archive file.
-- Do not rewrite issue history during archive.
-- Preserve description, evidence, fix, reverify, commit, and fixed fields.
-- Replace the inline record in `review.md` `# DETAILS` with `- [<ID>](<ID>.md)`.
-- Add `archive:<ID>.md` to the matching `# SUMMARY` item in `review.md`.
-- Preserve `# META` as the state index.
-- Preserve `# SUMMARY` as the state index.
-- Re-check every archived `# SUMMARY` marker has one matching `# DETAILS` link.
-- Re-check every archived `# SUMMARY` marker has one sibling archive file.
-- Re-check every `# SUMMARY` item has exactly one linked archive file or inline detail record.
-- Archive migration is allowed only for file size.
-- Archive migration is not a state change.
-- Archive migration must not archive not-closed issues.
-- Archive migration must not delete closed issues.
+- Update `status:` in `<ID>.md` back to `OPEN`.
+- Add `reopened:<yyyy-mm-dd> - <reason and sha if known>` in `<ID>.md`.
 
 ## Structural rules
 
 - Never rewrite the review directory from scratch.
-- Never cut-and-paste issue bodies during state changes.
-- Never archive not-closed issues into `<ID>.md`.
-- Never archive closed issues into `<ID>.md` unless the review tracks more than 15 issue IDs.
+- Never put inline detail records in `review.md`.
+- Never delete `<ID>.md` files.
+- Never truncate `<ID>.md` files to stubs.
 - Never move `# SUMMARY` out of `review.md`.
-- Never remove an issue from `# SUMMARY` because its detail record was archived.
-- Never archive an issue without adding `archive:<ID>.md` to its `# SUMMARY` item.
-- Never leave `archive:<ID>.md` on a summary item whose detail record is inline or reopened.
-- Never truncate an archived detail file to a metadata-only stub.
-- Never delete archived issue content just because the issue closed.
-- Never create index sections beyond `# META`, `# SUMMARY`, and `# DETAILS`.
+- Never remove an issue from `# SUMMARY`.
+- Never create index sections beyond `# META` and `# SUMMARY`.
 - Do not create a separate cross-PR tracking section. Cross-PR parent/child context belongs in each issue's `pr:` field.
-- Multiple agents work with this file concurrently. Structural changes break their references.
+- Multiple agents work with these files concurrently. Structural changes break their references.
 - State must match across all three places:
   - `open:` in `# META`
   - checkboxes and status tokens in `# SUMMARY`
-  - statuses in inline detail records or archived closed sibling `<ID>.md` detail files
+  - `status:` in the issue's `<ID>.md` file
 
 ## Review log
 
@@ -324,12 +254,11 @@ If a fix is reverted or no longer holds:
 
 ## Reference example
 
-This is the only sample layout. The archived closed issue is valid only when the review tracks more than 15 issue IDs.
-
 ````md
 ~/reviews/<repo>-pr-<number>/
   review.md
   feedback.md
+  B1.md
   B2.md
   log.md
 
@@ -342,21 +271,19 @@ pr:<number>
 branch:<branch>
 base:<base-branch>
 head:<head-sha>
-reviewed:<yyyy-mm-dd>
+reviewed:<yyyy-mm-dd HH:MM>
 open:B1
 
 # SUMMARY
-- [ ] B1 - OPEN [HIGH] - One-line summary and some key `path/file.ts:10`
-- [x] B2 - CLOSED verified:2026-06-11 [MEDIUM] - Closed summary and some key `path/file.ts:42` archive:B2.md
+- [ ] B1 - OPEN [HIGH] - Short title `path/file.ts:10`
+- [x] B2 - CLOSED verified:2026-06-11 [MEDIUM] - Short title `path/file.ts:42`
 
-# DETAILS
-- [B2](B2.md)
-
+# B1.md
 ## B1
 ID:B1
 type:BUG
 severity:HIGH
-summary:One-line summary
+title:Short title
 file:`path/file.ts:10`
 pr:`#<number>`
 status:OPEN
@@ -377,7 +304,7 @@ reverify:<exact grep/read/test command or file:line to check>
 ID:B2
 type:BUG
 severity:MEDIUM
-summary:Closed summary
+title:Short title
 file:`path/file.ts:42`
 pr:`#<number>`
 status:CLOSED verified:2026-06-11

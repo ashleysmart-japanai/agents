@@ -24,10 +24,10 @@ Before making claims or editing the persisted review file:
 1. Read the current review index at `~/reviews/<repo>-pr-<number>/review.md` if it exists.
 2. If only a legacy `~/reviews/<repo>-pr-<number>-review.md` exists, read it and migrate it to the review directory without losing history.
 3. Process feedback using the procedure in [ISSUE_TRACKING.md § Feedback ingress](ISSUE_TRACKING.md#feedback-ingress).
-4. Read every archived closed issue detail file linked from the index `# DETAILS` section.
+4. Read the `<ID>.md` detail files for not-closed issues listed in `open:`.
 5. Summarize to yourself:
    - what the current issue IDs are
-   - which issues are not-closed vs closed according to `open:` in `# META`, `# SUMMARY` checkboxes and status tokens, and detail record statuses
+   - which issues are not-closed vs closed according to `open:` in `# META`, `# SUMMARY` checkboxes and status tokens, and `<ID>.md` statuses
    - which entries include cross-PR parent/child context in `pr:`
 
 ## Stage 1 — Gather & Analyze
@@ -95,7 +95,7 @@ A full review that skips endpoints, defers findings, or only checks the happy pa
 
 A full review must produce a **coverage evidence table** appended to the review output under `# FULL REVIEW EVIDENCE`. This table proves every file in scope was actually read and checked at the time of review. It is not a claim — it is a verifiable receipt.
 
-For every file in the PR diff (from `git diff main...HEAD --name-only`), record it in the table. The table must be written to `review.md` after `# DETAILS`.
+For every file in the PR diff (from `git diff main...HEAD --name-only`), record it in the table. The table must be written to `review.md` after `# SUMMARY`.
 
 Format:
 
@@ -146,8 +146,8 @@ Rules:
 - The review document contract (output format, issue tracking) is separate from the review judgment. The codebase is the source of truth for findings, not this file.
 - Do not invent ad hoc review sections if the existing review tracking format already has a place for the information.
 - If the user says "find the list", inspect the actual review file structure first — the primary state list is the flat checkbox list under `# SUMMARY`.
-- If you add a new issue ID, also add its detailed issue body inline under `# DETAILS`.
-- If you change severity or wording in a summary list item, reflect the same change in the detailed issue entry.
+- If you add a new issue ID, create its `<ID>.md` detail file.
+- If you change severity or wording in a title list item, reflect the same change in the `<ID>.md` detail file.
 
 ## Done Criteria
 
