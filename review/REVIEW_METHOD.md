@@ -8,11 +8,14 @@ Canonical persisted status tokens and the `# SUMMARY` prefix grammar are defined
 
 High-level states:
 
-- `OPEN` - coder must fix.
-- `NEEDS_REVIEW` - user/human needs to review because agents are uncertain or need input. Never discard a potential finding; if in doubt, use this state instead of omitting it.
-- `DEFERRED` - user has decided the issue is in scope but not needed now.
+- `OPEN` - coder must fix. No deferral — if the issue is OPEN, the coder fixes it.
+- `NEEDS_REVIEW:reviewer` - reviewer is uncertain about a finding and needs the user/human to decide.
+- `NEEDS_REVIEW:coder` - coder is pushing back on a finding with evidence that the fix is problematic.
+- `DEFERRED` - user has decided the issue is in scope but not needed now. Human-only — agents must never set this state.
 - `CLOSED verified:<yyyy-mm-dd>` - coder has fixed the problem and the fix was verified on that date.
-- `WILL_NOT_FIX` - user has decided the issue is invalid, out of scope, or should be ignored.
+- `WILL_NOT_FIX` - user has decided the issue is invalid, out of scope, or should be ignored. Human-only — agents must never set this state.
+
+Never discard a potential finding. If in doubt, use `NEEDS_REVIEW:reviewer` instead of omitting it.
 
 ## Stage 0 — Read existing review state
 
@@ -20,8 +23,9 @@ Before making claims or editing the persisted review file:
 
 1. Read the current review index at `~/reviews/<repo>-pr-<number>/review.md` if it exists.
 2. If only a legacy `~/reviews/<repo>-pr-<number>-review.md` exists, read it and migrate it to the review directory without losing history.
-3. Read every archived closed issue detail file linked from the index `# DETAILS` section.
-4. Summarize to yourself:
+3. Process feedback using the procedure in [ISSUE_TRACKING.md § Feedback ingress](ISSUE_TRACKING.md#feedback-ingress).
+4. Read every archived closed issue detail file linked from the index `# DETAILS` section.
+5. Summarize to yourself:
    - what the current issue IDs are
    - which issues are not-closed vs closed according to `open:` in `# META`, `# SUMMARY` checkboxes and status tokens, and detail record statuses
    - which entries include cross-PR parent/child context in `pr:`

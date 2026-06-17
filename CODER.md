@@ -156,6 +156,9 @@ the compiler to catch bugs at build time rather than at runtime.
   ```
   Types: `feat`, `fix`, `refactor`, `test`, `docs`, `chore`.
 - No merge commits on feature branches; rebase onto main before merging.
+- **Do not squash** unless explicitly instructed. A squash is a one-time
+  operation — after completing it, return to pushing incremental commits.
+  Do not squash on every subsequent fix after an authorised squash.
 - Branch names: `<type>/<short-slug>`.
 
 ### Pull / merge requests
@@ -185,7 +188,11 @@ When an AI agent picks up a task it **must** follow this order:
 7. **Refactor** — with all tests green, clean names, split large functions,
    remove duplication. Run the suite after every refactor step.
 8. **Commit** in atomic commits following the git hygiene rules above.
-9. **Do not deploy** unless the user explicitly says so.
+9. **Push** to the PR branch after each completed change. Do not batch up
+   commits — push proactively so the PR stays up to date.
+10. **Do not merge** PRs. Merging is done by the user. Do not expect to be
+    involved in the merge process.
+11. **Do not deploy** unless the user explicitly says so.
 
 An agent must stop and surface an open question rather than guess when:
 - A spec section is ambiguous.
