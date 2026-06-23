@@ -50,6 +50,7 @@ When asked to provide a list of open `NEEDS_REVIEW` items, list both `:reviewer`
 
 ### Coder obligations for OPEN issues
 
+- Before acting on any issue, read the full `<ID>.md` detail file. Do not decide, push back, or categorise based on the title alone.
 - If an issue is `OPEN`, the coder fixes it. No deferral.
 - The coder may push back by moving to `NEEDS_REVIEW:coder` only for valid engineering reasons:
   - The fix breaks prior fixes.

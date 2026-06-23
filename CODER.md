@@ -177,22 +177,27 @@ the compiler to catch bugs at build time rather than at runtime.
 
 When an AI agent picks up a task it **must** follow this order:
 
-1. **Read** the relevant micro spec (or create one if absent).
-2. **Read** existing code in the affected area before writing anything.
-3. **Write or update** the micro spec if the task is new or scope changes.
-4. **Red** — write one test, run the suite, confirm that test fails for the
+1. **Read the bug report or task fully.** If the task references a review
+   issue, read the entire `<ID>.md` detail file — description, evidence,
+   fix guidance, and reverify steps. Do not skim summaries or titles.
+   Do not make decisions, push back, or categorise an issue without
+   reading the full detail file first.
+2. **Read** the relevant micro spec (or create one if absent).
+3. **Read** existing code in the affected area before writing anything.
+4. **Write or update** the micro spec if the task is new or scope changes.
+5. **Red** — write one test, run the suite, confirm that test fails for the
    right reason. A test that cannot be seen to fail proves nothing.
-5. **Green** — write the minimum production code needed to make that test
+6. **Green** — write the minimum production code needed to make that test
    pass. No more.
-6. **Repeat** steps 4–5 for each acceptance criterion in the micro spec.
-7. **Refactor** — with all tests green, clean names, split large functions,
+7. **Repeat** steps 5–6 for each acceptance criterion in the micro spec.
+8. **Refactor** — with all tests green, clean names, split large functions,
    remove duplication. Run the suite after every refactor step.
-8. **Commit** in atomic commits following the git hygiene rules above.
-9. **Push** to the PR branch after each completed change. Do not batch up
-   commits — push proactively so the PR stays up to date.
-10. **Do not merge** PRs. Merging is done by the user. Do not expect to be
+9. **Commit** in atomic commits following the git hygiene rules above.
+10. **Push** to the PR branch after each completed change. Do not batch up
+    commits — push proactively so the PR stays up to date.
+11. **Do not merge** PRs. Merging is done by the user. Do not expect to be
     involved in the merge process.
-11. **Do not deploy** unless the user explicitly says so.
+12. **Do not deploy** unless the user explicitly says so.
 
 An agent must stop and surface an open question rather than guess when:
 - A spec section is ambiguous.
