@@ -170,6 +170,13 @@ Verify none of the following exist in the code under review. See [anti-patterns.
 - [ ] No singleton is accessed as global state throughout the codebase.
 - [ ] Dependencies that happen to be single instances are injected, not fetched globally.
 
+#### Smuggler
+- [ ] Metadata/control fields are not mixed into user data rows or DTOs.
+- [ ] User data and system metadata use separate fields or an explicit envelope.
+- [ ] No reserved prefix convention (`_foo`, `__meta`, etc.) is required to distinguish data from metadata.
+- [ ] No early return bypasses projection, validation, or sanitization.
+- [ ] No allowlist exists only to make mixed metadata/data safe.
+
 #### Star-Alias
 - [ ] No implementation widens interface parameter types via intersection (`Type & { extra }`).
 - [ ] Implementation method signatures match the interface exactly.

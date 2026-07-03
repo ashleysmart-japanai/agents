@@ -31,6 +31,7 @@ See [reference/design-principles/CHECKLIST.md](../reference/design-principles/CH
 - [ ] Are business rules free of HTTP, SQL, and framework types?
 - [ ] Are cross-cutting concerns (logging, auth, caching) handled at the boundary, not woven through logic?
 - [ ] Does changing the storage layer require touching the domain layer?
+- [ ] Are data and metadata carried separately? Metadata/control fields must not be smuggled into user rows or DTOs via reserved prefixes; use an explicit envelope such as `{ data, meta }`.
 - [ ] Are HTTP-layer error types (e.g., NestJS `HttpException`, Express `HttpError`) confined to controllers and error filters — never thrown inside service/domain/data layers? Throwing HTTP exceptions deep in the stack causes: (1) framework class dependencies in business logic, (2) broken `$transaction` / unit-of-work patterns when bundlers (webpack) destroy the class hierarchy, (3) premature formatting of errors before the system is ready to produce an HTTP response. Services should throw plain domain errors (e.g., `OntologyValidationError` with an error code); the controller or error filter maps them to HTTP status codes at the boundary.
 
 ### MVC / Layer Discipline

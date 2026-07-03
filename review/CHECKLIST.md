@@ -88,6 +88,9 @@
     - where structs of data validated 
 - Integration Contracts:
     - do keys/identifiers written by one layer (admin UI, API) match what another layer reads (runtime, registry)?
+    - is metadata/control data carried separately from user data, rather than smuggled into raw row/DTO fields?
+    - do all raw adapter/source rows pass through the same projection/sanitization path, including zero-property, empty-list, and early-return cases?
+    - are allowlists or reserved prefixes (`_foo`, `__meta`) hiding a metadata/data namespace collision that should be an explicit envelope?
     - after a rename/refactor, trace a value end-to-end: UI write → DB storage → runtime lookup. Does it resolve?
     - do constructor/function calls match the actual signature (arity, argument order, types)?
     - are there stale constants, enums, or mapping tables that reference the old names after a rename?

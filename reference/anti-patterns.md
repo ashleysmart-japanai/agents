@@ -37,6 +37,7 @@
 | [Shared Mutable State](anti-patterns/shared-mutable-state.md) | Multiple components reading and writing the same in-memory state without synchronisation |
 | [Shotgun Surgery](anti-patterns/shotgun-surgery.md) | A single logical change requires edits scattered across many unrelated files and classes |
 | [Singleton Overuse](anti-patterns/singleton-overuse.md) | Using Singleton as a back door for global state — any code can reach the instance at any time, creating hidden dependencies throughout the system |
+| [Smuggler](anti-patterns/smuggler.md) | Metadata or control data is hidden inside user data instead of carried in a separate envelope, creating collisions and projection bypasses |
 | [Soft Coding](anti-patterns/soft-coding.md) | Making every decision configurable to avoid committing to anything — the opposite of magic numbers but equally harmful. Business logic is pushed into configuration files or databases |
 | [Spaghetti Code](anti-patterns/spaghetti-code.md) | Control flow jumps arbitrarily across functions and modules with no clear structure or layering |
 | [Swiss Army Knife](anti-patterns/swiss-army-knife.md) | A class or interface that does many unrelated things — the opposite of SRP at the API surface level |
