@@ -52,7 +52,16 @@ Before making claims or editing the persisted review file:
    - **Trace callers**: who calls the changed function? Do upstream preconditions contradict the new logic?
    - **Find parallel paths**: are there other code paths that perform the same operation? Does the fix apply to all of them?
 
-4. **Check for regressions** — compare old vs new for each changed function/endpoint:
+4. **CODER.md §4 compliance** — for every changed file, verify these are not violated:
+   - **Enums for closed sets**: no raw strings where a const enum or union type exists. Grep for string literals passed to typed parameters.
+   - **Booleans over string arrays**: fixed permission/flag sets use `{ key: boolean }` records, not `string[]`.
+   - **Fail-closed defaults**: filters, permission checks, and gates deny on empty or absent input unless a documented legacy exception exists. Present-but-empty is always deny.
+   - **No metadata in data namespaces**: system fields are under a reserved envelope key, not mixed into user data objects.
+   - **No compat shims for internal code**: no re-exports, adapter wrappers, or renaming shims for internal callers. Internal interface changes update all callers directly.
+   - **Cursor pagination**: all paginated endpoints use cursor-based pagination keyed on a record ID, not offset/page-number. Response shape is `{ items, nextCursor, hasMore }` — no `page`, `totalPages`, or `offset`.
+   - **No `any`**: no new `any` types without a disable comment explaining why.
+
+5. **Check for regressions** — compare old vs new for each changed function/endpoint:
    - What did the old function return? What shape/type?
    - What does the new function return? Same contract?
    - Did the old code have filters or guards? Are they preserved?
@@ -148,6 +157,64 @@ Rules:
 - If the user says "find the list", inspect the actual review file structure first — the primary state list is the flat checkbox list under `# SUMMARY`.
 - If you add a new issue ID, create its `<ID>.md` detail file.
 - If you change severity or wording in a title list item, reflect the same change in the `<ID>.md` detail file.
+
+## Acceptance Gate Verification
+
+Before accepting a PR as review-complete, verify the acceptance gates from
+CODER.md §5. Each gate requires an artifact — no artifact means the gate
+was not run.
+
+### Process gates (verify artifacts exist)
+
+- [ ] **P1 Spec-with-matrix**: if the PR adds filters, permissions, gates, or
+  fallbacks — the spec contains the input-state × behavior table with absent
+  and present-but-empty as separate rows. No TBD cells. If absent, open as a
+  finding.
+- [ ] **P2 Executable ACs**: every acceptance criterion names a test. Check
+  that the named tests exist and pass. Prose-only ACs are a finding.
+- [ ] **P3 Anti-pattern catalog check**: the spec or PR description includes a
+  pass/fail/N-A list against `anti-patterns/CHECKLIST.md`. If absent, run the
+  check yourself and open findings for any hits.
+
+### Code gates (verify in the diff)
+
+- [ ] **C1 Fail-closed posture**: every gate in the diff has its posture
+  documented. `grep` for filter/permission/guard logic and verify absent →
+  deny (or documented compat), empty → deny.
+- [ ] **C2 No raw strings for closed sets**: `grep` new fields for bare
+  `string` types where a union/enum exists. Any hit is a finding.
+- [ ] **C3 Invalid states unrepresentable**: flags use booleans not string
+  arrays; domain values use named types not primitives.
+- [ ] **C4 No metadata in data namespace**: system fields are under a reserved
+  envelope key, not mixed into user data. Run smuggler checklist against diff.
+- [ ] **C5 One owner per contract**: types crossing boundaries are declared
+  once and imported, or carry `KEEP-IN-SYNC` references with a shape-pinning
+  test.
+- [ ] **C6 Only functional code**: every new symbol has a caller in the diff.
+  No speculative fields, params, shims, or fallbacks without a current
+  consumer named in the spec.
+- [ ] **Cursor pagination**: any new paginated endpoint uses cursor-based
+  pagination keyed on record ID, not offset/page-number.
+
+### Truth gates (verify claims match code)
+
+- [ ] **T1 No reviewer bait**: scan the diff for comments, docblocks, test
+  names, and log messages that describe behavior the code does not implement.
+  Each hit is a finding.
+- [ ] **T2 Failures reported verbatim**: check that test output, skipped
+  steps, and unverified paths are stated plainly — not editorialised.
+
+### Submission gates (verify before marking review complete)
+
+- [ ] **S1 Checklists executed with artifacts**: `REVIEW_METHOD.md` checklist
+  was run (this file). `SECURITY_REVIEW.md` check groups ran if the diff
+  touches APIs/auth/credentials. `anti-patterns/CHECKLIST.md` ran against the
+  diff. Each has a filled item → pass/fail/N-A → `file:line` record.
+- [ ] **S2 Findings classified before fixes**: every finding is tagged
+  on-objective / robustness-layer / out-of-scope. Robustness layers default to
+  rejected pending user decision.
+- [ ] **S3 Fresh state**: review ran against current HEAD after `git fetch`.
+  HEAD SHA is recorded.
 
 ## Done Criteria
 

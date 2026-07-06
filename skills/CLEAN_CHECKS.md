@@ -1,6 +1,6 @@
 ---
 name: clean-check
-description: Slash command /clean-check. Run a repository clean-state and verification pass, fetch/prune remotes, run lint, typecheck, format check, tests, changed-file coverage, pre-commit hooks, push the current branch, then show the final git graph if successful. Use before calling a branch clean, ready, mergeable, or safe to hand off.
+description: Slash command /clean-check. Run a repository clean-state and verification pass, fetch/prune remotes, run lint, typecheck, build, format check, tests, changed-file coverage, pre-commit hooks, push the current branch, then show the final git graph if successful. Use before calling a branch clean, ready, mergeable, or safe to hand off.
 ---
 
 # Clean Check
@@ -28,9 +28,14 @@ Use this skill when the user asks for a clean check, readiness check, pre-merge 
    - Use `git fetch --all --prune` only when multiple remotes matter for the task.
 6. Run lint.
 7. Run typechecks.
-8. Run format checks.
-9. Run test cases.
-10. Generate a coverage report for changed files:
+8. Run a build of the changed/affected projects:
+   - For Nx repositories, prefer `nx build <project>` scoped to affected projects.
+   - For other repositories, use the repository's native build command.
+   - A build failure (e.g., webpack `ERROR in` lines, non-zero exit code) is a verification failure — stop and report.
+   - This catches type errors that standalone `tsc --noEmit` misses, such as stricter type narrowing in bundler compilation or generated-type mismatches.
+9. Run format checks.
+10. Run test cases.
+11. Generate a coverage report for changed files:
    - Determine the comparison base. Prefer the PR base branch when known; otherwise use `origin/main` when available.
    - List changed files with the merge base, for example `git diff --name-only "$(git merge-base HEAD origin/main)" HEAD`.
    - Filter to changed production files. Exclude deleted files, test files, generated files, docs, fixtures, and config-only changes unless the repo treats them as coverable code.
@@ -38,16 +43,27 @@ Use this skill when the user asks for a clean check, readiness check, pre-merge 
    - Report per-file coverage for every changed production file.
    - If the coverage tool cannot produce changed-file coverage, report the closest available coverage summary and explicitly list which changed production files could not be reported.
    - If there are no changed production files, report coverage as N/A with the reason.
-11. Run pre-commit hooks.
-12. Re-check that the working tree is clean:
+12. Run pre-commit hooks.
+13. Reviewer-bait check:
+   - Read the full diff for the branch: `git diff "$(git merge-base HEAD origin/main)" HEAD`.
+   - Scan every changed hunk for reviewer bait — text that says something the code does not actually do. Common forms:
+     - Comments describing logic that was deleted, never implemented, or does something different from what the comment says.
+     - Docstrings or JSDoc whose parameter lists, return types, or behavior descriptions don't match the actual function signature or body.
+     - Log/error messages that name an operation, entity, or condition that doesn't correspond to what the surrounding code handles.
+     - Variable or function names that imply a purpose the implementation doesn't fulfill (e.g., `validateInput` that never validates).
+     - TODO/FIXME markers on code that was supposedly just fixed in this branch.
+     - Leftover boilerplate strings (e.g., "handles X gracefully") copied from a template but never made true.
+   - For each finding, quote the bait text and the contradicting code. Report as a verification failure.
+   - If no reviewer bait is found, report the step as passed.
+14. Re-check that the working tree is clean:
    - `git status --short --branch`
    - If the checks or hooks created changes, stop and report them instead of pushing.
-13. Push the current branch:
+15. Push the current branch:
    - If an upstream exists, run `git push`.
    - If no upstream exists and `origin` exists, run `git push -u origin "$(git branch --show-current)"`.
    - Stop and report if the remote or branch target is ambiguous.
-14. Report the push result.
-15. If the push succeeds, show the final graph summary:
+16. Report the push result.
+17. If the push succeeds, show the final graph summary:
    - `git log --graph --oneline | head -n 10`
 
 ## Command Selection
@@ -66,7 +82,7 @@ Report in this order:
 
 1. Git state: branch, stashes, untracked files, unstaged changes, staged changes.
 2. Fetch/prune result.
-3. Verification results: lint, typecheck, format check, tests, changed-file coverage, pre-commit hooks.
+3. Verification results: lint, typecheck, build, format check, tests, changed-file coverage, pre-commit hooks, reviewer-bait check.
 4. Push result.
 5. Final graph summary, only after a successful push.
 6. Any blockers or commands that could not be run.

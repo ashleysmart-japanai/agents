@@ -117,6 +117,56 @@ the compiler to catch bugs at build time rather than at runtime.
   `// eslint-disable-next-line @typescript-eslint/no-explicit-any` comment
   explaining why.
 
+### Fail-closed defaults
+
+Any code that filters, permits, or gates must default to deny:
+
+- **Present-but-empty means deny.** An empty permission set, an empty filter
+  list, or an empty role array grants nothing — never treat empty the same as
+  absent.
+- **Absent may mean "legacy, allow" only if the spec documents it.** If there
+  is no documented legacy exception, absent also means deny.
+- **Missing declarations exclude.** An item without a permission or type
+  declaration is excluded from results, not included by default.
+- **State the posture in the spec.** Every gate or filter in a micro spec must
+  say what happens when input is absent, empty, or unrecognized.
+
+### Booleans over string arrays for fixed permission sets
+
+When a set of permissions is closed and known at compile time, model them as
+a record of booleans (`{ read: true, write: false }`) rather than a string
+array (`["read"]`). Booleans cannot be misspelled, are self-documenting, and
+the compiler catches missing keys.
+
+### No metadata in data namespaces
+
+System fields (timestamps, version markers, internal IDs) never share a
+namespace with user-supplied data. System fields live under a single reserved
+envelope key, written after user data so they cannot be shadowed. The reserved
+key is stripped from user input at the boundary.
+
+### Cursor pagination, not offset pagination
+
+All paginated endpoints and list queries use cursor-based pagination keyed on
+a stable record ID — never offset/page-number pagination. Offset pagination
+breaks under concurrent writes (skipped or duplicated rows) and degrades at
+depth (`OFFSET 10000` scans and discards 10 000 rows).
+
+- The cursor is an opaque token derived from the last record's ID (or a
+  composite key when sort order requires it).
+- Response shape: `{ items, nextCursor, hasMore }`. No `page`, `totalPages`,
+  or `offset` fields.
+- The underlying query uses a `WHERE id > :cursor ORDER BY id LIMIT :size`
+  pattern (or equivalent for the ORM/database).
+- If a UI needs a page-number display, the frontend synthesises it from
+  cursor state — the API never exposes offset semantics.
+
+### No compatibility shims for internal code
+
+Do not add backwards-compatibility wrappers, re-exports, or adapter layers
+for internal callers. When an internal interface changes, update every caller.
+Compat shims are only justified at published public API boundaries.
+
 ### Code style
 
 - Follow the language's idiomatic style guide.
@@ -175,7 +225,13 @@ the compiler to catch bugs at build time rather than at runtime.
 
 ## 5. Agent Workflow
 
-When an AI agent picks up a task it **must** follow this order:
+When an AI agent picks up a task it **must** follow this order. Every gate
+demands an artifact. Instructions that produce nothing are the ones that
+get skipped; instructions whose absence is visible cannot be skipped
+silently. An agent may not claim work is complete until every gate that
+applies has a recorded artifact.
+
+### Before code
 
 1. **Read the bug report or task fully.** If the task references a review
    issue, read the entire `<ID>.md` detail file — description, evidence,
@@ -185,6 +241,17 @@ When an AI agent picks up a task it **must** follow this order:
 2. **Read** the relevant micro spec (or create one if absent).
 3. **Read** existing code in the affected area before writing anything.
 4. **Write or update** the micro spec if the task is new or scope changes.
+
+**Process gates — stop here until all pass:**
+
+| # | Gate | Evidence |
+|---|------|----------|
+| P1 | **Spec-with-matrix exists.** For any feature that filters, permits, gates, or falls back: the spec contains the full input-state × behavior table — with absent and present-but-empty as separate rows — and no cell reads TBD. | The table in the spec doc, committed before implementation. |
+| P2 | **Acceptance criteria are executable.** Every AC names a test file/case that fails before implementation and passes after. Prose-only ACs are invalid. | Red run before, green run after — both captured. |
+| P3 | **Design is checked against the anti-pattern catalog before coding.** Named check of `anti-patterns/CHECKLIST.md` sections relevant to the design (smuggler for any new field on shared objects, primitive-obsession for any new string, boat-anchor for anything speculative). | Pass/fail/N-A list in the spec. |
+
+### During implementation
+
 5. **Red** — write one test, run the suite, confirm that test fails for the
    right reason. A test that cannot be seen to fail proves nothing.
 6. **Green** — write the minimum production code needed to make that test
@@ -192,7 +259,39 @@ When an AI agent picks up a task it **must** follow this order:
 7. **Repeat** steps 5–6 for each acceptance criterion in the micro spec.
 8. **Refactor** — with all tests green, clean names, split large functions,
    remove duplication. Run the suite after every refactor step.
+
+**Code gates — every new or changed symbol must satisfy all that apply:**
+
+| # | Gate | Evidence |
+|---|------|----------|
+| C1 | **Fail closed, stated explicitly.** Every gate declares its posture in the spec: absent → documented compat or deny; empty → deny; undeclared item → excluded. Fail-open requires a written justification. | Posture declaration in the spec for every gate. |
+| C2 | **No closed set as a raw string.** Every finite value set is a named union/enum at every layer it crosses. | `grep` new fields for bare `string` types — zero hits. |
+| C3 | **Invalid states unrepresentable.** Flags are booleans, not membership arrays; domain types over primitives. `{ read: true }` cannot typo; `["raed"]` can. | Type definitions in the diff use records/enums, not string arrays. |
+| C4 | **System metadata never shares a namespace with user data.** One reserved envelope key, written after user data, stripped from user input at the boundary. | Smuggler checklist against the diff. |
+| C5 | **One owner per contract.** A type crossing N boundaries is declared once and imported, or each copy carries a `KEEP-IN-SYNC` reference to the master, and a test pins the wire shape. | Single declaration site, or `KEEP-IN-SYNC` references plus a shape-pinning test. |
+| C6 | **Only functional code.** No field, param, shim, or fallback without a current consumer named in the spec. Reviewer suggestions are proposals — they get scope-checked against objectives, not implemented by default. | Every new symbol has a caller in the diff; spec lists no unused additions. |
+
+### Before commit
+
+**Truth gates — claims in the diff must match the code:**
+
+| # | Gate | Evidence |
+|---|------|----------|
+| T1 | **Every prose claim is verified in the same pass that touches the behavior.** Comments, docblocks, test names, spec assertions — if the claim describes behavior, either point it at a test or re-verify it when the behavior changes. A claim that cannot be checked gets deleted. | No reviewer-bait items survive the diff review. |
+| T2 | **Report failures verbatim.** Failing tests, skipped steps, and unverified paths are stated plainly, never smoothed over. | Raw output included — no editorialised summaries of failures. |
+
 9. **Commit** in atomic commits following the git hygiene rules above.
+
+### Before push / claiming complete
+
+**Submission gates — no push until all pass:**
+
+| # | Gate | Evidence |
+|---|------|----------|
+| S1 | **The published checklists actually execute, with artifacts.** `REVIEW_METHOD.md` every PR; `SECURITY_REVIEW.md` check groups whenever the diff touches APIs/auth/credentials; `anti-patterns/CHECKLIST.md` against the diff. Each produces a filled item → pass/fail/N-A → `file:line` record. No artifact = didn't happen. | Checklist output files with `file:line` evidence for every item. |
+| S2 | **Findings map to objectives before they map to fixes.** Every review finding is classified on-objective / robustness-layer / out-of-scope before any code is written; robustness layers default to rejected pending user decision. | Classification tag on each finding before implementation begins. |
+| S3 | **Fresh state before verdicts.** Reviews and fixes run against the current HEAD after fetch — never against a stale checkout. | `git fetch` + `HEAD` SHA recorded before each review or fix pass. |
+
 10. **Push** to the PR branch after each completed change. Do not batch up
     commits — push proactively so the PR stays up to date.
 11. **Do not merge** PRs. Merging is done by the user. Do not expect to be
