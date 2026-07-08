@@ -202,9 +202,13 @@ Compat shims are only justified at published public API boundaries.
   ```
   <type>: <imperative short summary>
 
-  <body — why, not what; optional>
+  <body — why, not what; optional, max 3 lines>
   ```
   Types: `feat`, `fix`, `refactor`, `test`, `docs`, `chore`.
+- **Keep commit messages terse.** The summary line is under 72 characters.
+  The body, if present, is 1–3 lines explaining *why* — not a changelog,
+  not a list of every file touched, not a paragraph restating the diff.
+  If the diff is self-explanatory, the body is omitted entirely.
 - No merge commits on feature branches; rebase onto main before merging.
 - **Do not squash** unless explicitly instructed. A squash is a one-time
   operation — after completing it, return to pushing incremental commits.

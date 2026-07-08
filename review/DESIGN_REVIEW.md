@@ -130,6 +130,46 @@ See [reference/design-principles/CHECKLIST.md](../reference/design-principles/CH
 - [ ] Is the object model being applied to a hot data path where it will cause cache misses or block vectorisation?
 - [ ] Is data flow being applied to a rich domain where logic will become scattered and unownable?
 
+### Scalability
+
+#### Query-level scoping (prefer check-in-the-query over fetch-then-check)
+
+When code must enforce access rules (ownership, visibility, tenancy), encode
+the full access predicate in the database query so that only authorized rows
+are returned. Do not fetch a superset and filter in application code.
+
+**Fetch-then-check** (avoid):
+```
+row = db.findFirst({ id, orgId })   // coarse filter — may return unauthorized rows
+if !canAccess(row, caller) → deny   // real decision in app code, after data is in memory
+```
+
+**Check-in-the-query** (prefer):
+```
+row = db.findFirst({ id, orgId, ...accessPredicates })  // query IS the gate
+// if a row comes back, it is authorized by construction
+```
+
+- [ ] Are access rules (ownership, visibility, placement) encoded in the query WHERE clause, not applied as post-fetch filters?
+- [ ] Does the query return only rows the caller is authorized to see — or does it fetch a superset and discard in application code?
+- [ ] For list/search endpoints: are visibility filters (user-private vs shared vs org-wide) part of the query, not a post-query `.filter()`?
+- [ ] If a post-fetch gate exists as a defense-in-depth layer, is the query still the primary authority? (A post-fetch check is acceptable as a second layer, not as the only layer.)
+- [ ] Does the query-level scoping cover all access dimensions (org, project, user ownership, placement/visibility enum)?
+- [ ] Are unknown or unrecognized access values (e.g., new placement enum variants) excluded by the query rather than passed through and checked later?
+
+Why this matters:
+- **Scales**: the database does the filtering; application code does not scan and discard.
+- **No information leakage**: rows the caller cannot access are never loaded into memory, never logged, never risk appearing in error messages.
+- **Single source of truth**: the query defines authorization; there is no second code path to drift out of sync.
+- **Auditable**: the query is inspectable — `EXPLAIN` shows exactly what rows are considered.
+
+#### Cursor pagination
+
+- [ ] Do all paginated endpoints use cursor-based pagination keyed on a stable record ID — not offset/page-number?
+- [ ] Is the response shape `{ items, nextCursor, hasMore }` with no `page`, `totalPages`, or `offset` fields?
+- [ ] Does the underlying query use `WHERE id > :cursor ORDER BY id LIMIT :size` (or equivalent) — not `OFFSET`?
+- [ ] If the UI needs page numbers, does the frontend synthesise them from cursor state rather than the API exposing offset semantics?
+
 ---
 
 - See [reference/design-patterns.md](../reference/design-patterns.md) for the full design-pattern catalogue.

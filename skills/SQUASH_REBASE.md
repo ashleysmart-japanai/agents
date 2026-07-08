@@ -5,39 +5,58 @@ description: Slash command /squash-rebase, also /rebase-squash. Squash a PR bran
 
 # Git Rebase Squash
 
-1. Check for local/untracked files:
-   - `git ls-files --others --exclude-standard`
-   - Stop and report any local files before rewriting history.
-2. Check for stashed work:
-   - `git stash list`
-   - Stop and report any stashes before rewriting history.
-3. Check for uncommitted changes:
-   - `git status --short`
-   - `git diff --stat`
-   - `git diff --cached --stat`
-   - Stop and report any unstaged or staged changes before rewriting history.
-4. Always fetch and prune before trusting `main`:
-   - `git fetch --prune origin`
-   - Never assume local `main` is up to date.
-5. Check out `main` and pull latest `origin/main`.
-6. Report the current `main` commit hash after updating it:
-   - `git rev-parse main`
-   - If `origin/main` exists, also report `git rev-parse origin/main` when it differs.
-7. Check out the PR branch.
-8. Find the branch cut point from the freshly fetched and updated `main`.
-9. Write a `/tmp` report with the changed file list and line summary.
-10. Squash all PR commits into one commit at the branch cut point.
-11. Confirm the squash changed nothing except commit history.
-12. Rebase the PR branch onto `origin/main`.
-13. Confirm the final file list and line summary still match the `/tmp` report so `main` changes did not poison the PR.
-14. Show the final graph summary:
-   - `git log --graph --oneline | head -n 10`
+**DO NOT hand-run git commands for this.** A hand-run squash-rebase once left the branch's
+merge-base behind `main`, which poisoned the PR diff with ~2000 lines of already-merged code
+and tripped a scope-mixing bot. The safe procedure is codified in a script that enforces the
+merge-base gate and the anti-poison diff gate deterministically. Run the script; do not
+reimplement it inline.
+
+## Procedure
+
+1. Confirm you are on (or know) the PR branch, and that `origin/main` is the target base.
+2. Run the script from the repo (it fetches, records the intended three-dot diff, rebases
+   `--onto origin/main`, squashes to one commit, and verifies both safety gates):
+
+   ```bash
+   python3 ~/agents/skills/squash_rebase.py --repo <repo-path> [--branch <name>]
+   ```
+
+   Without `--push` it stops **right before** the push and prints the exact push command —
+   this is the safe default. Add `--dry-run` to rebase/squash locally and stop before push
+   while still running every gate. Use `--message`/`--message-file` to set the squash commit
+   message; otherwise it derives one from the existing commit subjects.
+
+3. Read the script output. It prints, in order:
+   - branch, `origin/main` tip, old merge-base, and whether the branch was stale.
+   - the intended file count and `--stat` summary.
+   - `[GATE A ok]` merge-base advanced to equal `origin/main` (the check that was skipped
+     originally — a stale merge-base is what poisons the diff).
+   - `[GATE B ok]` post-rebase file list matches the pre-recorded three-dot list (no
+     main changes leaked in, no main files got reverted).
+   - `[squash ok]` exactly one commit above main and the tree is byte-identical (squash
+     changed only history, not content).
+4. If any gate fails, the script aborts with exit 1 and **restores the branch to its original
+   tip** — nothing is pushed. Report the failure; do not try to "fix it up" by hand.
+5. To push, re-run with `--push` (the skill invocation is approval to force-push — see Rules).
+
+## Recovery
+
+The script prints a `[recovery]` line with the exact `reset --hard <original-tip>` command
+before it rewrites anything. If a run is interrupted, use that line to restore the branch.
 
 ## Rules
 
-- Do not discard local work. STOP WHEN YOU FIND IT and REPORT IT
-- Do not use `main` for comparisons until after `git fetch --prune origin` has completed.
-- Always include the updated `main` commit hash in the report.
-- Do not push without approval.
-- When the user explicitly asks to use this `squash-rebase`, `/squash-rebase`, `rebase-squash`, or `/rebase-squash` skill, treat that request as approval to finish the workflow with `git push --force-with-lease` for the rewritten branch unless they explicitly say not to push.
-- Do not stop to ask for a second chat-level confirmation before that final `git push --force-with-lease`. If the runtime requires a separate execution approval, use that mechanism directly.
+- **Never reimplement the rebase/squash inline.** Use `squash_rebase.py`. It exists because
+  the manual version is easy to get wrong in a way that silently poisons the PR diff.
+- Never use `git reset --soft origin/main` to squash while the merge-base is stale — that
+  stages the two-dot delta and reverts main's own files. The script only does the soft-reset
+  squash *after* Gate A proves merge-base == main.
+- Do not discard local work. The script refuses to run with untracked files, stashes, or
+  uncommitted changes present. STOP AND REPORT if it does.
+- Do not use `main` for comparisons until after `git fetch --prune` (the script does this
+  unless `--no-fetch`).
+- Do not push without approval. When the user explicitly asks to use `squash-rebase`,
+  `/squash-rebase`, `rebase-squash`, or `/rebase-squash`, that is approval to finish with
+  `--push` (which runs `git push --force-with-lease`) unless they say not to push.
+- Do not stop to ask for a second chat-level confirmation before the final push. If the
+  runtime requires a separate execution approval, use that mechanism directly.
