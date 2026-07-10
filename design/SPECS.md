@@ -178,6 +178,12 @@ References are append-only during the spec lifecycle. Do not remove references e
 
 ## Rules
 
-- Spec is the source of truth. Update the spec before changing code direction.
+- Spec is the source of truth. Code out to the spec's intended target, filling
+  in-scope gaps with the established conventions (fail-closed for security,
+  SOLID for design, the coding standards) rather than prompting for
+  micro-requirements. Only ask when those conventions give no clear answer.
+  Update the spec before changing code direction — but a large or clear
+  divergence from the spec's intent is a stop-and-ask, not a self-approved spec
+  rewrite. See CODER.md §1 for the full divergence-by-size rule.
 - Every requirement must be verifiable.
 - Keep all sections in sync. A gap between them is a bug in the spec.

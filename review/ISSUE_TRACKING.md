@@ -1,5 +1,7 @@
 # Issue Tracking
 
+This document specifies the **persisted `review.md` store**: how the finding grammar defined in [REVIEW_METHOD.md § Finding Grammar](REVIEW_METHOD.md#finding-grammar) is applied to the on-disk review directory. The status tokens, severity values, and ID prefixes are defined there and imported here — this file does not redefine them; it says where they are written and how the files are kept in sync.
+
 - Store review output in `~/reviews/<repo>-pr-<number>/`.
 - Use `review.md` as the index file. It contains only `# META` and `# SUMMARY`.
 - Use `feedback.md` as the external feedback ingress file.
@@ -98,32 +100,15 @@ When asked to provide a list of open `NEEDS_REVIEW` items, list both `:reviewer`
 - Do not add checks.
 - Do not add prose.
 - Keep exactly one summary item per issue ID.
-- Use prefix format `- [<IS_CLOSED>] <ID> - <STATUS> [<SEVERITY>] - <title>`.
+- Each item uses the finding grammar line format from [REVIEW_METHOD.md § Finding Grammar](REVIEW_METHOD.md#finding-grammar): `- [<x| >] <ID> - <STATUS> [<SEVERITY>] - <title> \`file:line\``.
+- The status tokens, severity values, and ID prefixes are defined in REVIEW_METHOD.md. Do not redefine them here.
 - The `<title>` is a short label, not a description. Keep it under one line. Full details go in `<ID>.md`.
-- Use `[ ]` for not-closed issues.
-- Use `[x]` for closed issues.
-- Do not use `[?]`.
+- Use `[ ]` for not-closed issues; `[x]` for closed issues. Do not use `[?]`.
 - Not-closed statuses: `OPEN`, `NEEDS_REVIEW:reviewer`, `NEEDS_REVIEW:coder`, `DEFERRED`.
 - Closed statuses: `CLOSED verified:<yyyy-mm-dd>`, `WILL_NOT_FIX`.
-- `OPEN` means coder must fix.
-- `NEEDS_REVIEW:reviewer` means the reviewer is uncertain and needs the user/human to decide.
-- `NEEDS_REVIEW:coder` means the coder is pushing back with evidence that the fix is problematic.
-- `DEFERRED` means user chose to fix later.
-- `CLOSED verified:<yyyy-mm-dd>` means fixed and verified.
-- `WILL_NOT_FIX` means user rejected the issue.
 - Do not put a category token after the ID.
-- ID prefix `B` means `BUG`.
-- ID prefix `SEC` means `SECURITY`.
-- ID prefix `I` means `ISSUE`.
-- ID prefix `S` means `SCOPING_AUTH`.
-- ID prefix `O` means `OPTIMIZATION`.
-- ID prefix `D` means `DESIGN`.
-- ID prefix `T` means `TEST`.
-- ID prefix `M` means `MINOR`.
-- Write a short title after the prefix.
 - Put location keys in the title text.
-- Sort by prefix order: `B`, `SEC`, `I`, `S`, `O`, `D`, `T`, `M`.
-- Sort by issue ID within each prefix.
+- Sort by prefix order (`B`, `SEC`, `I`, `S`, `O`, `D`, `T`, `M`), then by issue ID within each prefix.
 - Use `- none` when there are no issues.
 - Keep `# SUMMARY` in `review.md`.
 - Never move summary items out of `review.md`.

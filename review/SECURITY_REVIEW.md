@@ -1,6 +1,7 @@
 # Security Review Check Groups
 
 > **Method**: Follow the review methodology in [REVIEW_METHOD.md](REVIEW_METHOD.md) before running these check groups.
+> **Principles**: These check groups *detect* violations of the security principles in [`reference/security-principles.md`](../reference/security-principles.md) — the instructive "how to build it right" catalog. Cite the principle when opening a finding.
 
 Run against every PR that touches APIs, credentials, auth, or external service integrations.
 

@@ -17,6 +17,7 @@
 | [Exception Swallowing](anti-patterns/exception-swallowing.md) | Catching an exception and doing nothing with it — silently ignoring a failure |
 | [Feature Envy](anti-patterns/feature-envy.md) | A method that operates primarily on data from another class rather than its own |
 | [God Object](anti-patterns/god-object.md) | A single class or module that knows too much and does too much — accumulates state and logic that belongs elsewhere |
+| [Gold Plating](anti-patterns/gold-plating.md) | Over-engineering: durability, abstraction, or protection added far beyond the requirement — e.g. temporary scaffolding for a seconds-long deploy gap whose build/track/remove cost exceeds the gap; a genuine zero-downtime need is a deliberate two-PR expand/contract instead |
 | [Golden Hammer](anti-patterns/golden-hammer.md) | Applying a familiar tool or pattern to every problem regardless of fit ("if all you have is a hammer…") |
 | [Inappropriate Intimacy](anti-patterns/inappropriate-intimacy.md) | Two classes are too deeply coupled to each other's internal details — each reaches into the other's private parts |
 | [Lava Flow](anti-patterns/lava-flow.md) | Dead or unknown code that remains because nobody dares remove it. Often accompanied by comments like "do not touch" |

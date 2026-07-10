@@ -2,22 +2,59 @@
 
 Evidence-based review methodology. Every finding must be provable from code, output, or trace.
 
-## Issue States
+This document is the methodology and the **finding grammar** — how to review, and how to express every finding in one unambiguous line. It is self-contained: you do not need any other file to list findings.
 
-Canonical persisted status tokens and the `# SUMMARY` prefix grammar are defined in [ISSUE_TRACKING.md](ISSUE_TRACKING.md). Use that file when writing or updating review records.
+The persisted `review.md` store (the `~/reviews/<repo>-pr-<number>/` directory, its `# META`/`# SUMMARY`/`<ID>.md` files, and the rules for maintaining them) is a **separate concern**, specified in [ISSUE_TRACKING.md](ISSUE_TRACKING.md). Only the reviewer/orchestrator that owns a review directory reads that file.
 
-High-level states:
+## Finding Grammar
 
-- `OPEN` - coder must fix. No deferral — if the issue is OPEN, the coder fixes it.
+Every finding is expressed as one line. No prose adjectives — never say a finding is "present", "resolved", "done", or "handled". State is one of the tokens below, and only those tokens.
+
+### Line format
+
+```
+- [<x| >] <ID> - <STATUS> [<SEVERITY>] - <title> `file:line`
+```
+
+- `[ ]` for a not-closed finding, `[x]` for a closed one.
+- `<title>` is a short label with the location key(s) in backticks. Full detail is not needed to communicate the finding.
+
+### Status tokens
+
+- `OPEN` - must fix. No deferral. **A fix that is written but not yet verified is still `OPEN`** — do not upgrade to closed until verification evidence exists.
 - `NEEDS_REVIEW:reviewer` - reviewer is uncertain about a finding and needs the user/human to decide.
 - `NEEDS_REVIEW:coder` - coder is pushing back on a finding with evidence that the fix is problematic.
 - `DEFERRED` - user has decided the issue is in scope but not needed now. Human-only — agents must never set this state.
-- `CLOSED verified:<yyyy-mm-dd>` - coder has fixed the problem and the fix was verified on that date.
+- `CLOSED verified:<yyyy-mm-dd>` - the fix was applied **and verified** on that date (a passing reverify command, test, or trace). "Verified" is evidence-based; a fix merely present in the code is not verified.
 - `WILL_NOT_FIX` - user has decided the issue is invalid, out of scope, or should be ignored. Human-only — agents must never set this state.
+
+Not-closed = `OPEN`, `NEEDS_REVIEW:reviewer`, `NEEDS_REVIEW:coder`, `DEFERRED`. Closed = `CLOSED verified:<yyyy-mm-dd>`, `WILL_NOT_FIX`.
+
+### Severity
+
+`CRITICAL`, `HIGH`, `MEDIUM`, `LOW`.
+
+### ID prefixes
+
+`B` BUG, `SEC` SECURITY, `I` ISSUE, `S` SCOPING_AUTH, `O` OPTIMIZATION, `D` DESIGN, `T` TEST, `M` MINOR. Sort by that prefix order, then by ID within each prefix.
+
+### Example
+
+```
+- [x] S1 - CLOSED verified:2026-07-09 [HIGH] - scope resolved from row when expectedProviderName absent `resolver:71,100-103,127-128`
+- [x] S2 - CLOSED verified:2026-07-09 [HIGH] - SHARED_ONLY denied in USER-scope branch before owner return `resolver:180-185`
+- [ ] S3 - OPEN [HIGH] - assertUserScopeOwnership wired into update/reauthorize/delete; admin build unverified `base:342,355;credential-controller:256`
+```
+
+### Coder output
+
+The coder **does not write to `review.md`** and does not touch the review directory. The coder lists findings to the user in chat as this flat checkbox list, using the grammar above. Persisting to the review store is the reviewer/orchestrator's job.
 
 Never discard a potential finding. If in doubt, use `NEEDS_REVIEW:reviewer` instead of omitting it.
 
 ## Stage 0 — Read existing review state
+
+Store step — for the reviewer/orchestrator persisting to a `review.md` directory. A coder reporting findings in chat skips Stage 0. The file mechanics referenced here (`review.md`, `# META`, `open:`, `<ID>.md`) are specified in [ISSUE_TRACKING.md](ISSUE_TRACKING.md).
 
 Before making claims or editing the persisted review file:
 
@@ -102,9 +139,11 @@ A full review that skips endpoints, defers findings, or only checks the happy pa
 
 ### Evidence of completion
 
-A full review must produce a **coverage evidence table** appended to the review output under `# FULL REVIEW EVIDENCE`. This table proves every file in scope was actually read and checked at the time of review. It is not a claim — it is a verifiable receipt.
+Store step — applies when persisting to a `review.md` directory (see [ISSUE_TRACKING.md](ISSUE_TRACKING.md)). A coder reporting in chat presents the same coverage as a plain table in its message.
 
-For every file in the PR diff (from `git diff main...HEAD --name-only`), record it in the table. The table must be written to `review.md` after `# SUMMARY`.
+A full review must produce a **coverage evidence table** under `# FULL REVIEW EVIDENCE`. This table proves every file in scope was actually read and checked at the time of review. It is not a claim — it is a verifiable receipt.
+
+For every file in the PR diff (from `git diff main...HEAD --name-only`), record it in the table. When persisting, the table is written to `review.md` after `# SUMMARY`.
 
 Format:
 
@@ -153,10 +192,7 @@ Rules:
 - Verify data flow end-to-end: endpoint -> service -> data layer -> response.
 - For any refactored data-fetching: verify the old filters, mappings, and return types are all preserved.
 - The review document contract (output format, issue tracking) is separate from the review judgment. The codebase is the source of truth for findings, not this file.
-- Do not invent ad hoc review sections if the existing review tracking format already has a place for the information.
-- If the user says "find the list", inspect the actual review file structure first — the primary state list is the flat checkbox list under `# SUMMARY`.
-- If you add a new issue ID, create its `<ID>.md` detail file.
-- If you change severity or wording in a title list item, reflect the same change in the `<ID>.md` detail file.
+- When persisting to a `review.md` store, follow [ISSUE_TRACKING.md](ISSUE_TRACKING.md) for all file mechanics (`<ID>.md` detail files, `# SUMMARY`, keeping titles and detail in sync). Those rules do not apply to in-chat finding reports.
 
 ## Acceptance Gate Verification
 
@@ -218,9 +254,16 @@ was not run.
 
 ## Done Criteria
 
-A review update is only complete when all of the following are true:
+A review is only complete when:
 
 - the review conclusions came from your own code review of the actual codebase
+- every finding is expressed in the finding grammar above, with `file:line` evidence
+- no potential finding was silently dropped
+
+### Store done criteria (when persisting to `review.md`)
+
+When the review is persisted to a `review.md` directory, additionally verify — full mechanics in [ISSUE_TRACKING.md](ISSUE_TRACKING.md):
+
 - the persisted review directory follows the output format and issue tracking contract in [ISSUE_TRACKING.md](ISSUE_TRACKING.md)
 - the `open:` line in `# META` matches `# SUMMARY` checkboxes/status tokens and detail statuses
 - any state changes are visible in the existing tracker and detailed entries

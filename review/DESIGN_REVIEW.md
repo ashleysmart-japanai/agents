@@ -132,36 +132,16 @@ See [reference/design-principles/CHECKLIST.md](../reference/design-principles/CH
 
 ### Scalability
 
-#### Query-level scoping (prefer check-in-the-query over fetch-then-check)
+#### Query-level scoping (detect fetch-then-check)
 
-When code must enforce access rules (ownership, visibility, tenancy), encode
-the full access predicate in the database query so that only authorized rows
-are returned. Do not fetch a superset and filter in application code.
+Principle: [Secure by Query](../reference/security-principles/secure-by-query.md). Detect where the code fetches a superset and filters in app code instead of scoping in the query.
 
-**Fetch-then-check** (avoid):
-```
-row = db.findFirst({ id, orgId })   // coarse filter — may return unauthorized rows
-if !canAccess(row, caller) → deny   // real decision in app code, after data is in memory
-```
-
-**Check-in-the-query** (prefer):
-```
-row = db.findFirst({ id, orgId, ...accessPredicates })  // query IS the gate
-// if a row comes back, it is authorized by construction
-```
-
-- [ ] Are access rules (ownership, visibility, placement) encoded in the query WHERE clause, not applied as post-fetch filters?
-- [ ] Does the query return only rows the caller is authorized to see — or does it fetch a superset and discard in application code?
-- [ ] For list/search endpoints: are visibility filters (user-private vs shared vs org-wide) part of the query, not a post-query `.filter()`?
-- [ ] If a post-fetch gate exists as a defense-in-depth layer, is the query still the primary authority? (A post-fetch check is acceptable as a second layer, not as the only layer.)
-- [ ] Does the query-level scoping cover all access dimensions (org, project, user ownership, placement/visibility enum)?
-- [ ] Are unknown or unrecognized access values (e.g., new placement enum variants) excluded by the query rather than passed through and checked later?
-
-Why this matters:
-- **Scales**: the database does the filtering; application code does not scan and discard.
-- **No information leakage**: rows the caller cannot access are never loaded into memory, never logged, never risk appearing in error messages.
-- **Single source of truth**: the query defines authorization; there is no second code path to drift out of sync.
-- **Auditable**: the query is inspectable — `EXPLAIN` shows exactly what rows are considered.
+- [ ] Access rules (ownership, visibility, placement) are in the query WHERE clause, not a post-fetch filter.
+- [ ] The query returns only authorized rows — it does not fetch a superset and discard in app code.
+- [ ] List/search visibility filters (user-private vs shared vs org-wide) are in the query, not a post-query `.filter()`.
+- [ ] Any post-fetch gate is a defense-in-depth *second* layer, with the query still the primary authority.
+- [ ] Query scoping covers all access dimensions (org, project, user ownership, placement/visibility enum).
+- [ ] Unknown/unrecognized access values (e.g. a new placement enum variant) are excluded by the query, not checked later.
 
 #### Cursor pagination
 

@@ -105,3 +105,4 @@ Pattern details are maintained in the reference docs, not inlined here.
 - [Design Patterns Catalogue](reference/design-patterns.md)
 - [Anti-Patterns Catalogue](reference/anti-patterns.md)
 - [Design Principles Checklist](reference/design-principles/CHECKLIST.md)
+- [Security Principles Index](reference/security-principles.md)

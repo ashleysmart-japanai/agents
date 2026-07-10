@@ -183,3 +183,10 @@ Verify none of the following exist in the code under review. See [anti-patterns.
 - [ ] No variable or column holds two distinct pieces of data (e.g. `"userId:orgId"`).
 - [ ] No variable is reused for a different purpose than its name suggests.
 - [ ] One variable, one meaning. One column, one value.
+
+#### Gold Plating (Over-Engineering)
+- [ ] No durability, abstraction, or protection is added beyond what a stated requirement justifies.
+- [ ] No alias, re-export, shim, or dual-read/write is added to bridge a rolling-deploy transition whose gap is seconds at worst.
+- [ ] No "temporary" transition scaffolding is smuggled into a refactor PR without a stated zero-downtime requirement justifying it.
+- [ ] Any genuine zero-downtime transition is done as a deliberate two-PR expand/contract (additive PR adds both, contract PR removes the old), not a shim in one PR.
+- [ ] Every bridging construct has a named removal step; none is left as an orphaned "remove later" alias.
