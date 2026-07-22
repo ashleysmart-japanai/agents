@@ -38,11 +38,11 @@
 
 **Template selection:** Check the repo's AGENTS.md and `.github/pull_request_template.md` (or `.github/PULL_REQUEST_TEMPLATE/`) for a repo-specific PR template. If one exists, use it. Otherwise, fall back to `@DEFAULT_PR.md`.
 
-Use a HEREDOC with a date-stamped temp file named `<repo>_PR<number>_<date>.md`:
+Use a HEREDOC with a `mktemp` file prefixed `<repo>_PR<number>_` (concurrent agents share /tmp — never hardcode the name):
 
 ```bash
 REPO=$(basename "$(git rev-parse --show-toplevel)")
-TMPFILE="/tmp/${REPO}_PR<number>_$(date +%Y%m%d-%H%M%S).md"
+TMPFILE=$(mktemp "/tmp/${REPO}_PR<number>_XXXXXX.md")
 cat <<'PREOF' > "$TMPFILE"
 <body content>
 PREOF
@@ -62,21 +62,29 @@ rm "$TMPFILE"
 - Explicitly list what was NOT changed and why (scope boundaries)
 - If there are pre-existing issues in untouched files, note them as out of scope
 - Link to spec if one exists
-- Update the description when the PR changes — stale descriptions cause review friction
+- Update the description when the PR changes — stale descriptions cause review friction. Updates follow "Updating an existing PR" below: surgical edits, never a rewrite.
 
 ## Updating an existing PR
 
+**NEVER regenerate the body from scratch or from memory.** A heredoc rewrite destroys links, checklists, and prior content. Always fetch the live body, edit it surgically, and diff before pushing:
+
 ```bash
 REPO=$(basename "$(git rev-parse --show-toplevel)")
-TMPFILE="/tmp/${REPO}_PR<number>_$(date +%Y%m%d-%H%M%S).md"
-gh pr view <number> --json body --jq .body > "$TMPFILE"
-# edit $TMPFILE
+TMPFILE=$(mktemp "/tmp/${REPO}_PR<number>_XXXXXX.md")
+gh pr view <number> --json body --jq .body > "$TMPFILE.orig"
+cp "$TMPFILE.orig" "$TMPFILE"
+# edit $TMPFILE — targeted edits only (sed or editor)
+diff "$TMPFILE.orig" "$TMPFILE"
 gh pr edit <number> --body-file "$TMPFILE"
-rm "$TMPFILE"
+rm "$TMPFILE" "$TMPFILE.orig"
 ```
 
-- Use `sed` for targeted replacements
-- Re-read and verify after updating — `gh pr view <number> --json body --jq .body | grep "<term>"`
+- Edit only the sections your change affects; every other line stays byte-identical.
+- Keep the template structure — never remove or rename template headings.
+- Preserve every link (spec, issue, docs, commit) verbatim. Removing a link requires an explicit user instruction.
+- The `diff` step is mandatory: if it shows anything beyond the intended change, fix the file before `gh pr edit`.
+- Re-read and verify after updating — `gh pr view <number> --json body --jq .body` and confirm every link from the old body is still present.
+- Only update the description when asked, or when your own code change made it stale. If asked to do something else (e.g., flip off draft), do NOT rewrite the description as a side effect — report the staleness and ask.
 
 ## Commit conventions
 
@@ -121,6 +129,8 @@ Body text here.
 - Never skip hooks (`--no-verify`)
 - Never create empty commits
 - Always run lint + format + typecheck + tests before creating/updating a PR
-- Temp files go in `/tmp/` named `<repo>_PR<number>_<date>.md` — no `mktemp`, no random suffixes
+- Temp files: `mktemp` with a `<repo>_PR<number>_` prefix — never hardcoded paths (concurrent agents overwrite each other)
 - Keep the PR description in sync with the actual code — update it when changes are made
+- Never replace a PR body wholesale — fetch, edit surgically, diff, then push (see "Updating an existing PR")
+- Never delete links or template sections from a PR body without an explicit user instruction
 - If the PR description references endpoints, components, or features, verify they exist in the diff

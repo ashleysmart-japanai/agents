@@ -55,6 +55,7 @@ Rules and expectations for all AI agents working in this repository tree. These 
 
 - **Target**: 97% line coverage, 100% branch coverage on public interfaces
 - **Cycle**: Red → Green → Refactor. Never write production code before seeing a red test.
+- **Red means committed red**: the failing test is added to the real suite and committed *while it fails*, before any production-code change. A "temporary" test that is run once and never committed is not a red light — it is fabricated evidence. The commit history must show the red-test commit preceding the fix commit.
 - **Pattern**: AAA (Arrange, Act, Assert). One assertion per test. No shared mutable state.
 - **Structure**: `tests/unit/` (every save), `tests/integration/` (on PR), `tests/e2e/` (on merge). Mirror source paths.
 - **Deterministic**: no randomness, no wall-clock time, no network — stub at the boundary
@@ -231,13 +232,14 @@ Call the principle out by abbreviation in review comments and specs (e.g. "this 
 | # | Gate | Evidence |
 |---|------|----------|
 | P1 | **Spec-with-matrix exists.** For any feature that filters, permits, gates, or falls back: the spec contains the full input-state × behavior table — with absent and present-but-empty as separate rows — and no cell reads TBD. | The table in the spec doc, committed before implementation. |
-| P2 | **Acceptance criteria are executable.** Every AC names a test file/case that fails before implementation and passes after. Prose-only ACs are invalid. | Red run before, green run after — both captured. |
+| P2 | **Acceptance criteria are executable.** Every AC names a test file/case that fails before implementation and passes after. Prose-only ACs are invalid. | Red run before, green run after — both captured, and the red test is a committed suite file (commit sha), not a temporary/uncommitted file. |
 | P3 | **Design is checked against the anti-pattern catalog before coding.** Named check of `anti-patterns/CHECKLIST.md` sections relevant to the design (smuggler for any new field on shared objects, primitive-obsession for any new string, boat-anchor for anything speculative). | Pass/fail/N-A list in the spec. |
 
 ### During implementation
 
-5. **Red** — write one test, run the suite, confirm that test fails for the right reason. A test that cannot be seen to fail proves nothing.
-6. **Green** — write the minimum production code needed to make that test pass. No more.
+5. **Red** — write one test in the real suite (committed file paths, not scratch/temp files), run the suite, confirm that test fails for the right reason, and **commit the failing test** with its raw red output referenced in the commit message. A test that cannot be seen to fail proves nothing; a red run with no committed test is unverifiable and does not count.
+6. **Green** — write the minimum production code needed to make that test pass. No more. The fix is a separate commit after the red-test commit, so history proves the test failed before the code changed.
+   - If a pre-commit hook blocks committing the red test (e.g. it runs the suite), do not skip the red commit and do not use `--no-verify` — stop and surface it to the user.
 7. **Repeat** steps 5–6 for each acceptance criterion in the micro spec.
 8. **Refactor** — with all tests green, clean names, split large functions, remove duplication. Run the suite after every refactor step.
 
@@ -279,6 +281,26 @@ Call the principle out by abbreviation in review comments and specs (e.g. "this 
 - Use the status tokens only (`OPEN`, `NEEDS_REVIEW:coder`, `CLOSED verified:<yyyy-mm-dd>`, …). **Never** describe a finding with a loose adjective like "present", "resolved", "done", or "handled".
 - A fix that is written but not yet verified is `OPEN`, not `CLOSED verified:` — "verified" requires a passing reverify command, test, or trace, not merely that the code is present.
 - Do **not** write to `review.md` or the `~/reviews/<repo>-pr-<number>/` directory. That persisted store is the reviewer/orchestrator's job (see `~/agents/review/ISSUE_TRACKING.md`). Your report is the in-chat list.
+  - **One exception:** the review-claim triage and red-light procedure below. When executing it, the coder records and updates the claims it is processing in the review store per ISSUE_TRACKING.md.
+
+### Review-claim triage and red-light (mandatory after any review)
+
+Run this for every claim a review produces — self-review, reviewer findings, PR comments, feedback ingress. A review claim is **unproven** until a committed red test demonstrates it. Process each claim in order; the first failing gate ends that claim's processing.
+
+1. **Record** the claim in the review store per `~/agents/review/ISSUE_TRACKING.md`: full ID (`<prefix><n>.<SID>`), status `OPEN`, detail field `redlight:pending`. Unproven-but-started is the recorded state — never triage a claim that isn't written down first.
+2. **Scope-check against the micro-spec.** If the claim is not in scope for the micro-spec, mark it `OUT_OF_SCOPE` with `scope:micro-spec - <reason>`.
+3. **Design-check against `steering.md`.** If the claim conflicts with the system design requirements in the repo's `steering.md`, mark it `OUT_OF_SCOPE` with `scope:steering - <reason>`.
+4. **Creep-check.** If fixing the claim requires changes beyond the files already changed on the branch, mark it `OUT_OF_SCOPE` with `scope:scope-creep - <files it would pull in>`.
+5. **Documentation nits:** correct the documentation *only if* the correction does not change the design stated in the micro-spec or `steering.md`. If it would, mark `NEEDS_REVIEW:coder` and explain the design conflict in the detail file. Doc-only fixes skip red-light — record `redlight:n/a-docs`.
+6. **Red-light the claim.** Add a test to the real suite that proves the claimed defect and **commit it in its failing state** — the red commit is the proof of work. Record `redlight:<sha> <file:case>` in the detail file. If no test can be made to fail from the claim, mark it `UNPROVEN`, keep the attempted probe and its passing output in the detail file, and do not write a fix.
+7. **Fix.** Change production code only to correct the proven issue. Never edit the red test to make it pass — hacking the test voids the proof and is fabricated evidence (T2).
+8. **Micro-review the fix diff** before committing. Check it for:
+   - anti-patterns (`~/agents/reference/anti-patterns/CHECKLIST.md`)
+   - security issues (security check groups when the diff touches APIs/auth/credentials)
+   - failure to follow `steering.md` / micro-spec requirements
+   - failure to meet the micro-spec acceptance criteria
+9. **Failure path.** If the fix does not turn the red test green, or the micro-review surfaces cascade claims against it, mark the issue `NEEDS_REVIEW:coder`, revert the production change, and document the problem plus the proposed correct code in the detail file. The red test stays committed — if the suite must be green, mark it skipped with the full issue ID in the skip reason; never delete it.
+10. **Commit** the verified fix as its own commit after the red commit, then update the issue to `CLOSED verified:<yyyy-mm-dd>` with both shas.
 
 10. **Push** to the PR branch after each completed change. Do not batch up commits — push proactively so the PR stays up to date.
 11. **Do not merge** PRs. Merging is done by the user. Do not expect to be involved in the merge process.
@@ -292,6 +314,26 @@ An agent must stop and surface an open question rather than guess when:
 ---
 
 ## 6. What Agents Must Never Do
+
+### No stashes — commit instead
+
+- **Never use `git stash`.** WIP is committed to its branch (`wip:` prefix is fine) — commits are visible, attributable, durable, and pushable; stashes are none of those.
+- A stash blocks history rewrites (squash-rebase fail-closes on stashes), survives invisibly across sessions, and loses its branch context.
+- Found an existing stash? Do not apply, drop, or pop it silently — surface it, then preserve it as a commit on a branch (`git stash branch`) with the user's approval.
+
+### No phantom tests — red evidence is committed evidence
+
+- **Never fake the red light with a temporary test.** A test written in a scratch file, run once, and deleted, reverted, or left uncommitted is not red-light evidence — it is untraceable and unverifiable, and claiming it as a red run is a false completion claim (violates T2).
+- Every red test lands in the real suite and is committed while failing, before the fix commit (§2, §5 step 5).
+- This applies to red-lighting review findings, not just new features: the probe that proves a bug **is** the regression test for its fix. Commit it red, keep it in the suite, let the fix turn it green. "Temporary probes, since reverted" means the findings have no evidence and the fixes will have no regression guard.
+- A red-light results table (🔴 verdicts) is only valid if every RED row cites a committed test `file:case` and its commit sha. If running the suite right now shows no failures, nothing is red-lighted — reporting it as confirmed is fabricated evidence.
+- If a test used to prove a bug turns out not to belong in the suite, that decision is the user's — surface it, do not silently delete it.
+
+### No side workspaces — work on the PR branch
+
+- All code changes happen on the PR branch checkout. **Never** apply fixes in a separate clone, worktree, or "review workspace".
+- A patch that exists only in a side workspace does not exist: it is unverifiable by others, not on the PR, and will be lost. Reporting such a patch as "addressed" is a false completion claim (violates T2).
+- Reviewers propose; the fix lands on the branch via the normal red → green → commit → push cycle (§5), or it is reported as an OPEN finding — never as done.
 
 ### Scope creep — the hardest rule
 

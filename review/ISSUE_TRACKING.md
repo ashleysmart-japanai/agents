@@ -84,10 +84,10 @@ When asked to provide a list of open `NEEDS_REVIEW` items, list both `:reviewer`
 - Required: `reviewed:`. Last review datetime as `<yyyy-mm-dd HH:MM>`. Overwrite on each review, do not append.
 - Required: `open:`.
 - `open:` contains every not-closed issue ID, comma-separated with no spaces.
-- Not-closed statuses are `OPEN`, `NEEDS_REVIEW:reviewer`, `NEEDS_REVIEW:coder`, and `DEFERRED`.
+- Not-closed statuses are `OPEN`, `NEEDS_REVIEW:reviewer`, `NEEDS_REVIEW:coder`, `DEFERRED`, and `UNPROVEN`.
 - If there are no not-closed issues, write `open:none`.
-- Update `open:` when an issue opens, closes, reopens, moves to `NEEDS_REVIEW:reviewer`, moves to `NEEDS_REVIEW:coder`, moves to `DEFERRED`, or moves to `WILL_NOT_FIX`.
-- Do not list closed IDs in `open:`. Closed statuses are `CLOSED verified:<yyyy-mm-dd>` and `WILL_NOT_FIX`.
+- Update `open:` on any status change, including moves to `UNPROVEN` and `OUT_OF_SCOPE`.
+- Do not list closed IDs in `open:`. Closed statuses are `CLOSED verified:<yyyy-mm-dd>`, `WILL_NOT_FIX`, and `OUT_OF_SCOPE`.
 - The `open:` key name is legacy; it tracks not-closed IDs, not only issues with status `OPEN`.
 - Add other grepable metadata only as `key:value` lines under `# META`.
 
@@ -104,8 +104,8 @@ When asked to provide a list of open `NEEDS_REVIEW` items, list both `:reviewer`
 - The status tokens, severity values, and ID prefixes are defined in REVIEW_METHOD.md. Do not redefine them here.
 - The `<title>` is a short label, not a description. Keep it under one line. Full details go in `<ID>.md`.
 - Use `[ ]` for not-closed issues; `[x]` for closed issues. Do not use `[?]`.
-- Not-closed statuses: `OPEN`, `NEEDS_REVIEW:reviewer`, `NEEDS_REVIEW:coder`, `DEFERRED`.
-- Closed statuses: `CLOSED verified:<yyyy-mm-dd>`, `WILL_NOT_FIX`.
+- Not-closed statuses: `OPEN`, `NEEDS_REVIEW:reviewer`, `NEEDS_REVIEW:coder`, `DEFERRED`, `UNPROVEN`.
+- Closed statuses: `CLOSED verified:<yyyy-mm-dd>`, `WILL_NOT_FIX`, `OUT_OF_SCOPE`.
 - Do not put a category token after the ID.
 - Put location keys in the title text.
 - Sort by prefix order (`B`, `SEC`, `I`, `S`, `O`, `D`, `T`, `M`), then by issue ID within each prefix.
@@ -118,6 +118,7 @@ When asked to provide a list of open `NEEDS_REVIEW` items, list both `:reviewer`
 ## Detail files (`<ID>.md`)
 
 - Every issue gets its own `<ID>.md` file at creation time.
+- `<ID>` is the full ID including the SID — `D4.2kQ7hVb1nZx0LpR4sT9WdC.md`, never `D4.md`.
 - The file contains the full detail record for that issue.
 - Required field: `ID:`.
 - Required field: `type:`.
@@ -131,14 +132,17 @@ When asked to provide a list of open `NEEDS_REVIEW` items, list both `:reviewer`
 - Required field: `fix:`.
 - Required field: `reverify:`.
 - The detail `status:` value must match the status in that issue's `# SUMMARY` item.
-- Valid detail statuses are `OPEN`, `NEEDS_REVIEW:reviewer`, `NEEDS_REVIEW:coder`, `DEFERRED`, `CLOSED verified:<yyyy-mm-dd>`, and `WILL_NOT_FIX`.
+- Valid detail statuses are `OPEN`, `NEEDS_REVIEW:reviewer`, `NEEDS_REVIEW:coder`, `DEFERRED`, `UNPROVEN`, `CLOSED verified:<yyyy-mm-dd>`, `WILL_NOT_FIX`, and `OUT_OF_SCOPE`.
+- Optional field `redlight:` — `pending`, `n/a-docs`, or `<sha> <file:case>` of the committed failing test, per the coder red-light procedure in `~/agents/CODER.md`.
 - Never delete a detail file.
 - Never truncate a detail file to a stub.
 - Update the detail file in place when status changes.
 
 ## Opening an issue
 
-- Give every finding a unique ID.
+- Give every finding a full ID per [REVIEW_METHOD.md § ID format](REVIEW_METHOD.md#id-format): `<prefix><n>.<SID>`, with a fresh SID (UUIDv4 → fixed-width 22-char base62) generated at creation via `~/agents/bin/sid.py`.
+- The SID is immutable. When an issue is carried into another PR or review directory, keep its SID; only the short number may be reassigned to the directory's sequence.
+- Before opening, check the finding is not an existing issue travelling under another number: search by SID (`rg <SID> ~/reviews`) and by file/title for cross-PR parents.
 - Include enough context to re-verify the finding later.
 - Use the ID prefix rules from `# SUMMARY`.
 - Severity values are `CRITICAL`, `HIGH`, `MEDIUM`, and `LOW`.
@@ -165,6 +169,7 @@ When asked to provide a list of open `NEEDS_REVIEW` items, list both `:reviewer`
 
 - The reviewer may move an issue to `NEEDS_REVIEW:reviewer` when uncertain or needing human input.
 - The coder may move an issue to `NEEDS_REVIEW:coder` when pushing back on a fix with evidence.
+- The coder may move an issue to `OUT_OF_SCOPE` or `UNPROVEN` only via the review-claim triage and red-light procedure in `~/agents/CODER.md`, with the required evidence recorded.
 - Only the user/human may move an issue to `DEFERRED`. Agents must never set this state.
 - Only the user/human may move an issue to `WILL_NOT_FIX`. Agents must never set this state.
 
@@ -194,6 +199,20 @@ For `WILL_NOT_FIX` (human-only — agents must never set this state):
 - Change its `# SUMMARY` prefix to `- [x] <ID> - WILL_NOT_FIX [<SEVERITY>] - `.
 - Update `status:` in `<ID>.md` to `WILL_NOT_FIX`.
 - Add `decision:<yyyy-mm-dd> - <reason>` in `<ID>.md` when the reason is known.
+
+For `OUT_OF_SCOPE` (coder-set, triage procedure only):
+
+- Remove the ID from the `open:` line in `# META`.
+- Change its `# SUMMARY` prefix to `- [x] <ID> - OUT_OF_SCOPE [<SEVERITY>] - `.
+- Update `status:` in `<ID>.md` to `OUT_OF_SCOPE`.
+- Add `scope:<micro-spec|steering|scope-creep> - <reason>` in `<ID>.md`. The entry is invalid without it.
+
+For `UNPROVEN` (coder-set, red-light procedure only):
+
+- Keep or add the ID in the `open:` line in `# META`.
+- Keep the `# SUMMARY` checkbox unchecked and change the summary status to `UNPROVEN`.
+- Update `status:` in `<ID>.md` to `UNPROVEN`.
+- Add the attempted red-light probe (test code) and its passing output to `evidence:` in `<ID>.md`. The entry is invalid without it.
 
 ## Reopening an issue
 
@@ -244,8 +263,8 @@ If a fix is reverted or no longer holds:
 ~/reviews/<repo>-pr-<number>/
   review.md
   feedback.md
-  B1.md
-  B2.md
+  B1.1Z0njAzGj6F7oezIwcQD7g.md
+  B2.4RQ0TSM6xX75zFFiKHBoDj.md
   log.md
 
 # review.md
@@ -258,15 +277,15 @@ branch:<branch>
 base:<base-branch>
 head:<head-sha>
 reviewed:<yyyy-mm-dd HH:MM>
-open:B1
+open:B1.1Z0njAzGj6F7oezIwcQD7g
 
 # SUMMARY
-- [ ] B1 - OPEN [HIGH] - Short title `path/file.ts:10`
-- [x] B2 - CLOSED verified:2026-06-11 [MEDIUM] - Short title `path/file.ts:42`
+- [ ] B1.1Z0njAzGj6F7oezIwcQD7g - OPEN [HIGH] - Short title `path/file.ts:10`
+- [x] B2.4RQ0TSM6xX75zFFiKHBoDj - CLOSED verified:2026-06-11 [MEDIUM] - Short title `path/file.ts:42`
 
-# B1.md
-## B1
-ID:B1
+# B1.1Z0njAzGj6F7oezIwcQD7g.md
+## B1.1Z0njAzGj6F7oezIwcQD7g
+ID:B1.1Z0njAzGj6F7oezIwcQD7g
 type:BUG
 severity:HIGH
 title:Short title
@@ -285,9 +304,9 @@ evidence:
 fix:<what needs to change>
 reverify:<exact grep/read/test command or file:line to check>
 
-# B2.md
-## B2
-ID:B2
+# B2.4RQ0TSM6xX75zFFiKHBoDj.md
+## B2.4RQ0TSM6xX75zFFiKHBoDj
+ID:B2.4RQ0TSM6xX75zFFiKHBoDj
 type:BUG
 severity:MEDIUM
 title:Short title
@@ -309,6 +328,6 @@ reverify:<exact grep/read/test command or file:line to check>
 fixed:<one-line description of the change>
 
 # log.md
-2026-06-11 09:00:20 - df9fc5386 - B1:OPEN - path/file.ts - open issue still present
-2026-06-11 09:03:14 - df9fc5386 - B2:CLOSED verified:2026-06-11 - path/file.ts - fix verified
+2026-06-11 09:00:20 - df9fc5386 - B1.1Z0njAzGj6F7oezIwcQD7g:OPEN - path/file.ts - open issue still present
+2026-06-11 09:03:14 - df9fc5386 - B2.4RQ0TSM6xX75zFFiKHBoDj:CLOSED verified:2026-06-11 - path/file.ts - fix verified
 ````

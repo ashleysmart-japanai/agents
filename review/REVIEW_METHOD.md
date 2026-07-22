@@ -27,23 +27,38 @@ Every finding is expressed as one line. No prose adjectives — never say a find
 - `DEFERRED` - user has decided the issue is in scope but not needed now. Human-only — agents must never set this state.
 - `CLOSED verified:<yyyy-mm-dd>` - the fix was applied **and verified** on that date (a passing reverify command, test, or trace). "Verified" is evidence-based; a fix merely present in the code is not verified.
 - `WILL_NOT_FIX` - user has decided the issue is invalid, out of scope, or should be ignored. Human-only — agents must never set this state.
+- `OUT_OF_SCOPE` - the claim failed a triage gate in the coder's review-claim procedure (micro-spec scope, `steering.md` design, or scope-creep beyond the branch's changed files). Coder-set only via that procedure; requires a `scope:<micro-spec|steering|scope-creep> - <reason>` line in the detail file. The user may reopen.
+- `UNPROVEN` - the coder attempted to red-light the claim and could not make a test fail from it. Requires the attempted probe and its passing output in the detail file. Awaits a human/reviewer decision: better evidence reopens it to `OPEN`, or the user closes it `WILL_NOT_FIX`.
 
-Not-closed = `OPEN`, `NEEDS_REVIEW:reviewer`, `NEEDS_REVIEW:coder`, `DEFERRED`. Closed = `CLOSED verified:<yyyy-mm-dd>`, `WILL_NOT_FIX`.
+Not-closed = `OPEN`, `NEEDS_REVIEW:reviewer`, `NEEDS_REVIEW:coder`, `DEFERRED`, `UNPROVEN`. Closed = `CLOSED verified:<yyyy-mm-dd>`, `WILL_NOT_FIX`, `OUT_OF_SCOPE`.
 
 ### Severity
 
 `CRITICAL`, `HIGH`, `MEDIUM`, `LOW`.
 
+### ID format
+
+Full ID: `<prefix><n>.<SID>` — e.g. `D4.2kQ7hVb1nZx0LpR4sT9WdC`.
+
+- `<prefix><n>` is the short ID: type prefix + per-review-directory sequence number. Convenient for humans to type and say.
+- `<SID>` is a UUIDv4 compressed to base62 `[0-9A-Za-z]`: 128 bits at fixed width 22, zero-padded, alphabet `0-9A-Za-z` most-significant first. Fixed width keeps it decodable back to the UUID and sortable. Generated once at issue creation, never changed, never reused — it follows the issue across PRs, code moves, and spec copies.
+- Generate a SID: `~/agents/bin/sid.py` (fresh UUIDv4; pass an existing UUID as the argument to encode it).
+- Persisted artifacts always use the full ID: `# SUMMARY` lines, `open:` in `# META`, `<ID>.md` filenames, code comments, test names and descriptions, micro-specs, commit messages, PR descriptions, and `log.md` lines.
+- **The short form is chat-only. Never write a bare short ID into any file.** `// M6 fail-closed` in a comment or `it("... (M6) ...")` in a test is a violation — write `M6.4gCr6bv3SakoOzx2jPYIvo`. The moment an ID leaves the conversation and lands in a file, it carries its SID.
+- Humans may use the short form (`D4`) in chat. Resolve it against the current review directory and echo back the full ID. If the short form matches more than one issue, list the matching full IDs and ask.
+- Short numbers repeat across PRs and review directories — the SID is the identity. Match, dedupe, and cross-reference issues by SID, never by short number alone. `rg <SID> ~/reviews` locates an issue's home directory.
+- Legacy IDs without a SID: assign one on first touch, rename the detail file, and update all references in the review directory.
+
 ### ID prefixes
 
-`B` BUG, `SEC` SECURITY, `I` ISSUE, `S` SCOPING_AUTH, `O` OPTIMIZATION, `D` DESIGN, `T` TEST, `M` MINOR. Sort by that prefix order, then by ID within each prefix.
+`B` BUG, `SEC` SECURITY, `I` ISSUE, `S` SCOPING_AUTH, `O` OPTIMIZATION, `D` DESIGN, `T` TEST, `M` MINOR. Sort by that prefix order, then by sequence number within each prefix.
 
 ### Example
 
 ```
-- [x] S1 - CLOSED verified:2026-07-09 [HIGH] - scope resolved from row when expectedProviderName absent `resolver:71,100-103,127-128`
-- [x] S2 - CLOSED verified:2026-07-09 [HIGH] - SHARED_ONLY denied in USER-scope branch before owner return `resolver:180-185`
-- [ ] S3 - OPEN [HIGH] - assertUserScopeOwnership wired into update/reauthorize/delete; admin build unverified `base:342,355;credential-controller:256`
+- [x] S1.6a9mBxGFDEFwDkWxPmDfhe - CLOSED verified:2026-07-09 [HIGH] - scope resolved from row when expectedProviderName absent `resolver:71,100-103,127-128`
+- [x] S2.0kijmPsixwhmorp7i7rIFm - CLOSED verified:2026-07-09 [HIGH] - SHARED_ONLY denied in USER-scope branch before owner return `resolver:180-185`
+- [ ] S3.3IAOnuu74N5DDX97Fv0q2g - OPEN [HIGH] - assertUserScopeOwnership wired into update/reauthorize/delete; admin build unverified `base:342,355;credential-controller:256`
 ```
 
 ### Coder output

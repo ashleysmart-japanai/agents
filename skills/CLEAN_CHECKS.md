@@ -55,15 +55,28 @@ Use this skill when the user asks for a clean check, readiness check, pre-merge 
      - Leftover boilerplate strings (e.g., "handles X gracefully") copied from a template but never made true.
    - For each finding, quote the bait text and the contradicting code. Report as a verification failure.
    - If no reviewer bait is found, report the step as passed.
-14. Re-check that the working tree is clean:
+14. Spec checklist check — an "implemented" spec with unchecked boxes is reviewer bait:
+   - Find spec/checklist docs in the branch diff: `git diff --name-only "$(git merge-base HEAD origin/main)" HEAD -- '*.md'` (micro-specs, acceptance checklists, task lists).
+   - Grep each for unchecked items, including the malformed no-space form: `grep -nE '^[[:space:]]*[-*] \[ ?\]' <file>`.
+   - If unchecked items exist, list every one with `file:line` and treat it as a verification failure — do not push.
+   - Do not check items off to make the gate pass. Verify each item is actually done first; checking a box without verifying it is itself reviewer bait.
+   - If an item is genuinely deferred, it must say so on the item (e.g. `- [ ] X7 — deferred to <issue/spec link>`); an annotated deferral passes, a bare unchecked box does not.
+   - If no spec/checklist files changed on the branch, report the step as N/A.
+15. Issue-ID hygiene check — bare short IDs in files go stale when numbers repeat across PRs:
+   - Locate the review directory for this PR: `~/reviews/<repo>-pr-<number>/`. If none exists, report the step as N/A.
+   - Build the ID list from the `<ID>.md` filenames — each is a full ID like `M6.4gCr6bv3SakoOzx2jPYIvo`.
+   - For each full ID, grep the branch diff's added lines for the bare short form (e.g. `M6`) NOT followed by `.<SID>`: `git diff "$(git merge-base HEAD origin/main)" HEAD | grep -nE '^\+' | grep -wE '<short>' | grep -vF '<full>'`.
+   - Only short forms of issues that exist in this PR's review directory count — do not flag unrelated tokens (AWS S3, checklist labels like T1/S1 in templates).
+   - Any hit is a verification failure: replace the bare short ID with the full ID before pushing.
+16. Re-check that the working tree is clean:
    - `git status --short --branch`
    - If the checks or hooks created changes, stop and report them instead of pushing.
-15. Push the current branch:
+17. Push the current branch:
    - If an upstream exists, run `git push`.
    - If no upstream exists and `origin` exists, run `git push -u origin "$(git branch --show-current)"`.
    - Stop and report if the remote or branch target is ambiguous.
-16. Report the push result.
-17. If the push succeeds, show the final graph summary:
+18. Report the push result.
+19. If the push succeeds, show the final graph summary:
    - `git log --graph --oneline | head -n 10`
 
 ## Command Selection
@@ -82,7 +95,7 @@ Report in this order:
 
 1. Git state: branch, stashes, untracked files, unstaged changes, staged changes.
 2. Fetch/prune result.
-3. Verification results: lint, typecheck, build, format check, tests, changed-file coverage, pre-commit hooks, reviewer-bait check.
+3. Verification results: lint, typecheck, build, format check, tests, changed-file coverage, pre-commit hooks, reviewer-bait check, spec checklist check, issue-ID hygiene check.
 4. Push result.
 5. Final graph summary, only after a successful push.
 6. Any blockers or commands that could not be run.
