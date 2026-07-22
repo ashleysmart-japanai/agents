@@ -55,7 +55,7 @@ Rules and expectations for all AI agents working in this repository tree. These 
 
 - **Target**: 97% line coverage, 100% branch coverage on public interfaces
 - **Cycle**: Red → Green → Refactor. Never write production code before seeing a red test.
-- **Red means committed red**: the failing test is added to the real suite and committed *while it fails*, before any production-code change. A "temporary" test that is run once and never committed is not a red light — it is fabricated evidence. The commit history must show the red-test commit preceding the fix commit. When pre-commit hooks require a green suite, commit the red state via an expected-failure marker (§5 step 6) — the marker proves the failure without breaking the hook.
+- **Red means committed red**: the failing test is added to the real suite and committed *while it fails*, before any production-code change. A "temporary" test that is run once and never committed is not a red light — it is fabricated evidence. The commit history must show the red-test commit preceding the fix commit. Hooks that run the suite will reject the red commit by design — that is the one sanctioned use of `--no-verify` (§5 step 6).
 - **Pattern**: AAA (Arrange, Act, Assert). One assertion per test. No shared mutable state.
 - **Structure**: `tests/unit/` (every save), `tests/integration/` (on PR), `tests/e2e/` (on merge). Mirror source paths.
 - **Deterministic**: no randomness, no wall-clock time, no network — stub at the boundary
@@ -239,9 +239,9 @@ Call the principle out by abbreviation in review comments and specs (e.g. "this 
 
 5. **Red** — write one test in the real suite (committed file paths, not scratch/temp files), run the suite, confirm that test fails for the right reason, and **commit the failing test** with its raw red output referenced in the commit message. A test that cannot be seen to fail proves nothing; a red run with no committed test is unverifiable and does not count.
 6. **Green** — write the minimum production code needed to make that test pass. No more. The fix is a separate commit after the red-test commit, so history proves the test failed before the code changed.
-   - If the pre-commit hook runs the suite (the normal case — see §2 Automation), commit the red test under the framework's **expected-failure marker** (`test.failing` Jest, `test.fails` Vitest, `@pytest.mark.xfail(strict=True)` pytest) with the full issue ID in the test description. The marker passes only while the test fails, so the hook stays green and the red state is machine-proven. The fix commit flips the marker to a normal test in the same commit as the code change.
-   - If the framework has no expected-failure marker, **pin the bug instead**: commit a test that asserts the current *wrong* behavior, named with the full issue ID and a `BUG:` tag. It passes (hook green) while documenting the defect exactly; the fix commit inverts the assertion to the correct behavior.
-   - The red-light commit is standing policy — pre-authorized by the user. A hook or suite complaint about a red test is never a reason to stop, skip the red commit, or use `--no-verify`; use the marker or bug-pin path and continue.
+   - A pre-commit hook that runs the suite (see §2 Automation) will reject a red commit by design. **In this case only, `--no-verify` is sanctioned**: the redness is the proof being committed, and the coder knows it. This is the sole permitted use of `--no-verify` — red-light commits are standing policy, pre-authorized by the user.
+   - Before using it, run the suite and confirm the only failures are the red-light test(s) being committed plus already-tracked red-light tests (their `redlight:` records). Any other failure is unrelated breakage — fix that first; `--no-verify` never smuggles it through.
+   - The green stage is likewise not blocked by other issues' still-red tests: when committing a fix, the fixed test must pass, and hook failures caused solely by tracked red-light tests do not force clearing them first — commit with `--no-verify` and continue the cycle.
 7. **Repeat** steps 5–6 for each acceptance criterion in the micro spec.
 8. **Refactor** — with all tests green, clean names, split large functions, remove duplication. Run the suite after every refactor step.
 
@@ -294,14 +294,14 @@ Run this for every claim a review produces — self-review, reviewer findings, P
 3. **Design-check against `steering.md`.** If the claim conflicts with the system design requirements in the repo's `steering.md`, mark it `OUT_OF_SCOPE` with `scope:steering - <reason>`.
 4. **Creep-check.** If fixing the claim requires changes beyond the files already changed on the branch, mark it `OUT_OF_SCOPE` with `scope:scope-creep - <files it would pull in>`.
 5. **Documentation nits:** correct the documentation *only if* the correction does not change the design stated in the micro-spec or `steering.md`. If it would, mark `NEEDS_REVIEW:coder` and explain the design conflict in the detail file. Doc-only fixes skip red-light — record `redlight:n/a-docs`.
-6. **Red-light the claim.** Add a test to the real suite that proves the claimed defect and **commit it in its failing state** — the red commit is the proof of work. When hooks require a green suite, commit it under the expected-failure marker (§5 step 6). Record `redlight:<sha> <file:case>` in the detail file. If no test can be made to fail from the claim, mark it `UNPROVEN`, keep the attempted probe and its passing output in the detail file, and do not write a fix.
+6. **Red-light the claim.** Add a test to the real suite that proves the claimed defect and **commit it in its failing state** — the red commit is the proof of work, using the red-light `--no-verify` carve-out (§5 step 6) when hooks block it. Record `redlight:<sha> <file:case>` in the detail file. If no test can be made to fail from the claim, mark it `UNPROVEN`, keep the attempted probe and its passing output in the detail file, and do not write a fix.
 7. **Fix.** Change production code only to correct the proven issue. Never edit the red test to make it pass — hacking the test voids the proof and is fabricated evidence (T2).
 8. **Micro-review the fix diff** before committing. Check it for:
    - anti-patterns (`~/agents/reference/anti-patterns/CHECKLIST.md`)
    - security issues (security check groups when the diff touches APIs/auth/credentials)
    - failure to follow `steering.md` / micro-spec requirements
    - failure to meet the micro-spec acceptance criteria
-9. **Failure path.** If the fix does not turn the red test green, or the micro-review surfaces cascade claims against it, mark the issue `NEEDS_REVIEW:coder`, revert the production change, and document the problem plus the proposed correct code in the detail file. The red test stays committed — return it to its expected-failure marker (§5 step 6) so the suite stays green; never delete it.
+9. **Failure path.** If the fix does not turn the red test green, or the micro-review surfaces cascade claims against it, mark the issue `NEEDS_REVIEW:coder`, revert the production change, and document the problem plus the proposed correct code in the detail file. The red test stays committed and stays red until the issue is resolved; never delete it and never mask it to make the suite green.
 10. **Commit** the verified fix as its own commit after the red commit, then update the issue to `CLOSED verified:<yyyy-mm-dd>` with both shas.
 
 10. **Push** to the PR branch after each completed change. Do not batch up commits — push proactively so the PR stays up to date.

@@ -126,7 +126,7 @@ Body text here.
 
 - Never push without user approval
 - Never force push to main/master
-- Never skip hooks (`--no-verify`)
+- Never skip hooks (`--no-verify`) — sole exception: red-light test commits per the carve-out in `~/agents/CODER.md` §5 step 6
 - Never create empty commits
 - Always run lint + format + typecheck + tests before creating/updating a PR
 - Temp files: `mktemp` with a `<repo>_PR<number>_` prefix — never hardcoded paths (concurrent agents overwrite each other)
