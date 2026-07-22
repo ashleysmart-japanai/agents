@@ -24,13 +24,14 @@ Every finding is expressed as one line. No prose adjectives — never say a find
 - `OPEN` - must fix. No deferral. **A fix that is written but not yet verified is still `OPEN`** — do not upgrade to closed until verification evidence exists.
 - `NEEDS_REVIEW:reviewer` - reviewer is uncertain about a finding and needs the user/human to decide.
 - `NEEDS_REVIEW:coder` - coder is pushing back on a finding with evidence that the fix is problematic.
+- `NEEDS_REVIEW:cascade` - the claim was caused by a prior review claim's fix (found by the cascade pre-check). Requires a `cascade-of:<full ID>` line naming the prior claim. **Agents must never fix a cascade item without the user's explicit approval** — the user decides: fix it, revert the prior fix, or rule otherwise.
 - `DEFERRED` - user has decided the issue is in scope but not needed now. Human-only — agents must never set this state.
 - `CLOSED verified:<yyyy-mm-dd>` - the fix was applied **and verified** on that date (a passing reverify command, test, or trace). "Verified" is evidence-based; a fix merely present in the code is not verified.
 - `WILL_NOT_FIX` - user has decided the issue is invalid, out of scope, or should be ignored. Human-only — agents must never set this state.
 - `OUT_OF_SCOPE` - the claim failed a triage gate in the coder's review-claim procedure (micro-spec scope, `steering.md` design, or scope-creep beyond the branch's changed files). Coder-set only via that procedure; requires a `scope:<micro-spec|steering|scope-creep> - <reason>` line in the detail file. The user may reopen.
 - `UNPROVEN` - the coder attempted to red-light the claim and could not make a test fail from it. Requires the attempted probe and its passing output in the detail file. Awaits a human/reviewer decision: better evidence reopens it to `OPEN`, or the user closes it `WILL_NOT_FIX`.
 
-Not-closed = `OPEN`, `NEEDS_REVIEW:reviewer`, `NEEDS_REVIEW:coder`, `DEFERRED`, `UNPROVEN`. Closed = `CLOSED verified:<yyyy-mm-dd>`, `WILL_NOT_FIX`, `OUT_OF_SCOPE`.
+Not-closed = `OPEN`, `NEEDS_REVIEW:reviewer`, `NEEDS_REVIEW:coder`, `NEEDS_REVIEW:cascade`, `DEFERRED`, `UNPROVEN`. Closed = `CLOSED verified:<yyyy-mm-dd>`, `WILL_NOT_FIX`, `OUT_OF_SCOPE`.
 
 ### Severity
 

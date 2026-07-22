@@ -290,19 +290,20 @@ Call the principle out by abbreviation in review comments and specs (e.g. "this 
 Run this for every claim a review produces — self-review, reviewer findings, PR comments, feedback ingress. A review claim is **unproven** until a committed red test demonstrates it. Process each claim in order; the first failing gate ends that claim's processing.
 
 1. **Record** the claim in the review store per `~/agents/review/ISSUE_TRACKING.md`: full ID (`<prefix><n>.<SID>`), status `OPEN`, detail field `redlight:pending`. Unproven-but-started is the recorded state — never triage a claim that isn't written down first.
-2. **Scope-check against the micro-spec.** If the claim is not in scope for the micro-spec, mark it `OUT_OF_SCOPE` with `scope:micro-spec - <reason>`.
-3. **Design-check against `steering.md`.** If the claim conflicts with the system design requirements in the repo's `steering.md`, mark it `OUT_OF_SCOPE` with `scope:steering - <reason>`.
-4. **Creep-check.** If fixing the claim requires changes beyond the files already changed on the branch, mark it `OUT_OF_SCOPE` with `scope:scope-creep - <files it would pull in>`.
-5. **Documentation nits:** correct the documentation *only if* the correction does not change the design stated in the micro-spec or `steering.md`. If it would, mark `NEEDS_REVIEW:coder` and explain the design conflict in the detail file. Doc-only fixes skip red-light — record `redlight:n/a-docs`.
-6. **Red-light the claim.** Add a test to the real suite that proves the claimed defect and **commit it in its failing state** — the red commit is the proof of work, using the red-light `--no-verify` carve-out (§5 step 6) when hooks block it. Record `redlight:<sha> <file:case>` in the detail file. If no test can be made to fail from the claim, mark it `UNPROVEN`, keep the attempted probe and its passing output in the detail file, and do not write a fix.
-7. **Fix.** Change production code only to correct the proven issue. Never edit the red test to make it pass — hacking the test voids the proof and is fabricated evidence (T2).
-8. **Micro-review the fix diff** before committing. Check it for:
+2. **Cascade pre-check.** Read `review.md` and the closed issues' detail files: was the code this claim points at changed by a prior review claim's fix (its fix commits, its `redlight:`/`commit:` shas, its files)? If yes, the claim is a **cascade**: mark it `NEEDS_REVIEW:cascade`, add `cascade-of:<full ID of the prior claim>` with an explanation of how that fix led to this claim, and stop processing it. **Cascading review items are never fixed without the user's explicit approval** — the user decides whether to fix the cascade, revert the prior fix, or rule otherwise.
+3. **Scope-check against the micro-spec.** If the claim is not in scope for the micro-spec, mark it `OUT_OF_SCOPE` with `scope:micro-spec - <reason>`.
+4. **Design-check against `steering.md`.** If the claim conflicts with the system design requirements in the repo's `steering.md`, mark it `OUT_OF_SCOPE` with `scope:steering - <reason>`.
+5. **Creep-check.** If fixing the claim requires changes beyond the files already changed on the branch, mark it `OUT_OF_SCOPE` with `scope:scope-creep - <files it would pull in>`.
+6. **Documentation nits:** correct the documentation *only if* the correction does not change the design stated in the micro-spec or `steering.md`. If it would, mark `NEEDS_REVIEW:coder` and explain the design conflict in the detail file. Doc-only fixes skip red-light — record `redlight:n/a-docs`.
+7. **Red-light the claim.** Add a test to the real suite that proves the claimed defect and **commit it in its failing state** — the red commit is the proof of work, using the red-light `--no-verify` carve-out (§5 step 6) when hooks block it. Record `redlight:<sha> <file:case>` in the detail file. If no test can be made to fail from the claim, mark it `UNPROVEN`, keep the attempted probe and its passing output in the detail file, and do not write a fix.
+8. **Fix.** Change production code only to correct the proven issue. Never edit the red test to make it pass — hacking the test voids the proof and is fabricated evidence (T2).
+9. **Micro-review the fix diff** before committing. Check it for:
    - anti-patterns (`~/agents/reference/anti-patterns/CHECKLIST.md`)
    - security issues (security check groups when the diff touches APIs/auth/credentials)
    - failure to follow `steering.md` / micro-spec requirements
    - failure to meet the micro-spec acceptance criteria
-9. **Failure path.** If the fix does not turn the red test green, or the micro-review surfaces cascade claims against it, mark the issue `NEEDS_REVIEW:coder`, revert the production change, and document the problem plus the proposed correct code in the detail file. The red test stays committed and stays red until the issue is resolved; never delete it and never mask it to make the suite green.
-10. **Commit** the verified fix as its own commit after the red commit, then update the issue to `CLOSED verified:<yyyy-mm-dd>` with both shas.
+10. **Failure path.** If the fix does not turn the red test green, or the micro-review surfaces new claims against it, mark the issue `NEEDS_REVIEW:coder`, revert the production change, and document the problem plus the proposed correct code in the detail file. Record each new claim the fix caused as `NEEDS_REVIEW:cascade` per step 2 — do not fix them without user approval. The red test stays committed and stays red until the issue is resolved; never delete it and never mask it to make the suite green.
+11. **Commit** the verified fix as its own commit after the red commit, then update the issue to `CLOSED verified:<yyyy-mm-dd>` with both shas.
 
 10. **Push** to the PR branch after each completed change. Do not batch up commits — push proactively so the PR stays up to date.
 11. **Do not merge** PRs. Merging is done by the user. Do not expect to be involved in the merge process.

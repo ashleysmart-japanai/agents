@@ -47,8 +47,9 @@ Run this procedure during Stage 0, after reading existing review state:
 
 - `NEEDS_REVIEW:reviewer` — the reviewer is uncertain whether a finding is valid and needs the user to decide.
 - `NEEDS_REVIEW:coder` — the coder believes the fix is problematic and is pushing back with evidence.
+- `NEEDS_REVIEW:cascade` — the claim was caused by a prior review claim's fix (cascade pre-check). The detail file must name the prior claim in `cascade-of:<full ID>`. Agents must never fix a cascade item without the user's explicit approval.
 
-When asked to provide a list of open `NEEDS_REVIEW` items, list both `:reviewer` and `:coder` items. For each, explain with evidence the problem and the reason for the `NEEDS_REVIEW` status.
+When asked to provide a list of open `NEEDS_REVIEW` items, list `:reviewer`, `:coder`, and `:cascade` items. For each, explain with evidence the problem and the reason for the `NEEDS_REVIEW` status.
 
 ### Coder obligations for OPEN issues
 
@@ -84,7 +85,7 @@ When asked to provide a list of open `NEEDS_REVIEW` items, list both `:reviewer`
 - Required: `reviewed:`. Last review datetime as `<yyyy-mm-dd HH:MM>`. Overwrite on each review, do not append.
 - Required: `open:`.
 - `open:` contains every not-closed issue ID, comma-separated with no spaces.
-- Not-closed statuses are `OPEN`, `NEEDS_REVIEW:reviewer`, `NEEDS_REVIEW:coder`, `DEFERRED`, and `UNPROVEN`.
+- Not-closed statuses are `OPEN`, `NEEDS_REVIEW:reviewer`, `NEEDS_REVIEW:coder`, `NEEDS_REVIEW:cascade`, `DEFERRED`, and `UNPROVEN`.
 - If there are no not-closed issues, write `open:none`.
 - Update `open:` on any status change, including moves to `UNPROVEN` and `OUT_OF_SCOPE`.
 - Do not list closed IDs in `open:`. Closed statuses are `CLOSED verified:<yyyy-mm-dd>`, `WILL_NOT_FIX`, and `OUT_OF_SCOPE`.
@@ -104,7 +105,7 @@ When asked to provide a list of open `NEEDS_REVIEW` items, list both `:reviewer`
 - The status tokens, severity values, and ID prefixes are defined in REVIEW_METHOD.md. Do not redefine them here.
 - The `<title>` is a short label, not a description. Keep it under one line. Full details go in `<ID>.md`.
 - Use `[ ]` for not-closed issues; `[x]` for closed issues. Do not use `[?]`.
-- Not-closed statuses: `OPEN`, `NEEDS_REVIEW:reviewer`, `NEEDS_REVIEW:coder`, `DEFERRED`, `UNPROVEN`.
+- Not-closed statuses: `OPEN`, `NEEDS_REVIEW:reviewer`, `NEEDS_REVIEW:coder`, `NEEDS_REVIEW:cascade`, `DEFERRED`, `UNPROVEN`.
 - Closed statuses: `CLOSED verified:<yyyy-mm-dd>`, `WILL_NOT_FIX`, `OUT_OF_SCOPE`.
 - Do not put a category token after the ID.
 - Put location keys in the title text.
@@ -132,7 +133,7 @@ When asked to provide a list of open `NEEDS_REVIEW` items, list both `:reviewer`
 - Required field: `fix:`.
 - Required field: `reverify:`.
 - The detail `status:` value must match the status in that issue's `# SUMMARY` item.
-- Valid detail statuses are `OPEN`, `NEEDS_REVIEW:reviewer`, `NEEDS_REVIEW:coder`, `DEFERRED`, `UNPROVEN`, `CLOSED verified:<yyyy-mm-dd>`, `WILL_NOT_FIX`, and `OUT_OF_SCOPE`.
+- Valid detail statuses are `OPEN`, `NEEDS_REVIEW:reviewer`, `NEEDS_REVIEW:coder`, `NEEDS_REVIEW:cascade`, `DEFERRED`, `UNPROVEN`, `CLOSED verified:<yyyy-mm-dd>`, `WILL_NOT_FIX`, and `OUT_OF_SCOPE`.
 - Optional field `redlight:` — `pending`, `n/a-docs`, or `<sha> <file:case>` of the committed failing test, per the coder red-light procedure in `~/agents/CODER.md`.
 - Never delete a detail file.
 - Never truncate a detail file to a stub.
@@ -170,6 +171,7 @@ When asked to provide a list of open `NEEDS_REVIEW` items, list both `:reviewer`
 - The reviewer may move an issue to `NEEDS_REVIEW:reviewer` when uncertain or needing human input.
 - The coder may move an issue to `NEEDS_REVIEW:coder` when pushing back on a fix with evidence.
 - The coder may move an issue to `OUT_OF_SCOPE` or `UNPROVEN` only via the review-claim triage and red-light procedure in `~/agents/CODER.md`, with the required evidence recorded.
+- The agent performing triage may move an issue to `NEEDS_REVIEW:cascade` via the cascade pre-check, with `cascade-of:` recorded. Only the user may move it out of that state.
 - Only the user/human may move an issue to `DEFERRED`. Agents must never set this state.
 - Only the user/human may move an issue to `WILL_NOT_FIX`. Agents must never set this state.
 
@@ -185,6 +187,14 @@ For `NEEDS_REVIEW:coder`:
 - Keep the `# SUMMARY` checkbox unchecked and change the summary status to `NEEDS_REVIEW:coder`.
 - Update `status:` in `<ID>.md` to `NEEDS_REVIEW:coder`.
 - Add evidence in `<ID>.md` explaining why the fix is problematic.
+
+For `NEEDS_REVIEW:cascade` (set by the cascade pre-check; only the user moves it out):
+
+- Keep or add the ID in the `open:` line in `# META`.
+- Keep the `# SUMMARY` checkbox unchecked and change the summary status to `NEEDS_REVIEW:cascade`.
+- Update `status:` in `<ID>.md` to `NEEDS_REVIEW:cascade`.
+- Add `cascade-of:<full ID of the prior claim>` and an explanation of how that claim's fix led to this one. The entry is invalid without it.
+- Do not red-light, fix, or close a cascade item without the user's explicit approval.
 
 For `DEFERRED` (human-only — agents must never set this state):
 
