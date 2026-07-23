@@ -289,6 +289,8 @@ Call the principle out by abbreviation in review comments and specs (e.g. "this 
 
 Run this for every claim a review produces — self-review, reviewer findings, PR comments, feedback ingress. A review claim is **unproven** until a committed red test demonstrates it. Process each claim in order; the first failing gate ends that claim's processing.
 
+**Execute this via the review-triage skill (`~/agents/skills/REVIEW_TRIAGE.md`).** All store writes go through `~/agents/skills/review_triage.py` — it enforces the gate order, full IDs, and required evidence, and refuses out-of-order operations. Judgment gates run as narrow-goal subagents per the skill. Do not hand-edit the review store during triage, and do not work around a script refusal — a refusal means the procedure is being violated.
+
 1. **Record** the claim in the review store per `~/agents/review/ISSUE_TRACKING.md`: full ID (`<prefix><n>.<SID>`), status `OPEN`, detail field `redlight:pending`. Unproven-but-started is the recorded state — never triage a claim that isn't written down first.
 2. **Cascade pre-check.** Read `review.md` and the closed issues' detail files: was the code this claim points at changed by a prior review claim's fix (its fix commits, its `redlight:`/`commit:` shas, its files)? If yes, the claim is a **cascade**: mark it `NEEDS_REVIEW:cascade`, add `cascade-of:<full ID of the prior claim>` with an explanation of how that fix led to this claim, and stop processing it. **Cascading review items are never fixed without the user's explicit approval** — the user decides whether to fix the cascade, revert the prior fix, or rule otherwise.
 3. **Scope-check against the micro-spec.** If the claim is not in scope for the micro-spec, mark it `OUT_OF_SCOPE` with `scope:micro-spec - <reason>`.
@@ -361,3 +363,5 @@ An agent must stop and surface an open question rather than guess when:
 - `/clean-check`: `~/agents/skills/CLEAN_CHECKS.md`
 - `update-main`: `~/agents/skills/MAIN_UPDATE.md`
 - `/update-main`: `~/agents/skills/MAIN_UPDATE.md`
+- `review-triage`: `~/agents/skills/REVIEW_TRIAGE.md`
+- `/review-triage`: `~/agents/skills/REVIEW_TRIAGE.md`
