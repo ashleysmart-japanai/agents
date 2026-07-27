@@ -26,7 +26,7 @@ Commands:
   needs-review ID --why W                                     -> NEEDS_REVIEW:coder pushback
   close     ID --fix-sha SHA --verify V                       -> CLOSED verified (needs triage pass + redlight)
   reopen    ID --why W
-  list      [--all]
+  list      [--all] [--tests]                                  -> --tests pairs each claim with its red-light test
   check                                                       -> store consistency lint (exit 1 on violation)
 """
 
@@ -365,8 +365,9 @@ def cmd_close(store, args, repo):
             die(f"fix sha {args.fix_sha} not found in {repo}", 1)
     store.set_status(fid, f"CLOSED verified:{today()}", True,
                      [f"commit:`{args.fix_sha}`", f"fixed:{args.verify}"])
-    store.append_log(fid, f"CLOSED verified:{today()}", "-", f"fix {args.fix_sha}; {args.verify}")
-    print(f"{fid} -> CLOSED verified:{today()}")
+    store.append_log(fid, f"CLOSED verified:{today()}", "-", f"fix {args.fix_sha}; proven by {red}; {args.verify}")
+    proof = "docs-only change (no test applicable)" if red == "n/a-docs" else f"proven by test {red}"
+    print(f"{fid} -> CLOSED verified:{today()} — fix {args.fix_sha}; {proof}")
 
 
 def cmd_reopen(store, args):
@@ -381,6 +382,9 @@ def cmd_list(store, args):
         if args.all or not v["checked"]:
             box = "x" if v["checked"] else " "
             print(f"- [{box}] {fid} - {v['status']} [{v['severity']}] - {v['title']}")
+            if args.tests:
+                red = store.detail_field(fid, "redlight") or "pending"
+                print(f"      test: {red}")
 
 
 def cmd_check(store, args):
@@ -476,6 +480,7 @@ def main():
 
     p = sub.add_parser("list")
     p.add_argument("--all", action="store_true")
+    p.add_argument("--tests", action="store_true", help="show each claim's matching red-light test")
 
     sub.add_parser("check")
 

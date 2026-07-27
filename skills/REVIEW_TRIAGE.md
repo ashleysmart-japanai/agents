@@ -50,11 +50,12 @@ Judgment gates run as **subagents with one narrow goal each**. Give the subagent
    ```bash
    review_triage.py --dir <DIR> --repo <checkout> close <ID> --fix-sha <sha> --verify "<reverify command + result>"
    ```
+   The close output names the red-light test that proves the claim — relay it verbatim when reporting the fix.
 8. **Check** store consistency at the end (and before reporting to the user):
    ```bash
    review_triage.py --dir <DIR> check
    ```
-9. **Report** to the user in chat as the finding-grammar checkbox list (`list` prints it).
+9. **Report** to the user in chat as the finding-grammar checkbox list. **Every fixed claim is reported with its matching red-light test** — the `file:case` and red commit sha that prove the claim (`list --tests` prints the pairing). A fix reported without its proving test is an incomplete report.
 
 ## Rules
 
