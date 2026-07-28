@@ -21,6 +21,10 @@ Commands:
   gate      ID (--pass | --docs-nit |
                 --cascade-of FULLID --why W |
                 --out-of-scope micro-spec|steering|scope-creep --why W)
+  trace     ID (--possible --path P | --impossible --evidence E | --already-fixed SHA --evidence E)
+            -> verdict from reading CURRENT HEAD code; red-light is refused until trace:possible.
+               impossible/already-fixed do NOT close the claim — a committed green disproof test does.
+  disprove  ID --sha SHA --test 'file:case' [--output O]      -> committed GREEN test disproving the claim; closes it
   redlight  ID --sha SHA --test 'file:case' [--output O]      -> records committed red proof
   unproven  ID --probe P --output O                           -> UNPROVEN with probe evidence
   needs-review ID --why W                                     -> NEEDS_REVIEW:coder pushback
@@ -248,7 +252,7 @@ def cmd_open(store, args):
     with open(store.detail_path(fid), "w") as fh:
         fh.write(
             f"## {fid}\nID:{fid}\ntype:{args.type}\nseverity:{args.sev}\ntitle:{args.title}\n"
-            f"file:`{args.file}`\npr:`#{meta.get('pr', '?')}`\nstatus:OPEN\ntriage:pending\nredlight:pending\n\n"
+            f"file:`{args.file}`\npr:`#{meta.get('pr', '?')}`\nstatus:OPEN\ntriage:pending\ntrace:pending\nredlight:pending\n\n"
             f"description:\n{args.desc}\n\nevidence:\n```evidence\n{args.evidence}\n```\n\n"
             f"fix:{args.fix}\nreverify:{args.reverify}\n"
         )
@@ -309,9 +313,75 @@ def cmd_gate(store, args):
         die("gate needs one of --pass / --docs-nit / --cascade-of / --out-of-scope")
 
 
+def cmd_trace(store, args, repo):
+    fid = require_id(args.id)
+    t = require_triage_done(store, fid, "trace")
+    if t == "passed-docs":
+        die("docs-nit claims do not need a trace", 1)
+    picked = [x for x in (args.possible, args.impossible, bool(args.already_fixed)) if x]
+    if len(picked) != 1:
+        die("trace needs exactly one of --possible / --impossible / --already-fixed SHA")
+    if args.possible:
+        if not args.path:
+            die("--possible requires --path: the current-HEAD file:line trace of how the defect manifests")
+        store.set_detail_field(fid, "trace", "possible")
+        store.set_status(fid, "OPEN", False, ["trace-evidence:", "```evidence", args.path, "```"])
+        store.append_log(fid, "OPEN", "-", "trace: defect possible on current HEAD")
+        print(f"{fid} trace:possible — proceed to red-light")
+    elif args.impossible:
+        if not args.evidence:
+            die("--impossible requires --evidence: current-HEAD file:line quotes (types, guards, constraints) showing the defect cannot manifest")
+        store.set_detail_field(fid, "trace", "impossible")
+        store.set_status(fid, "OPEN", False, ["trace-evidence:", "```evidence", args.evidence, "```"])
+        store.append_log(fid, "OPEN", "-", "trace: defect impossible on current HEAD; green disproof test required")
+        print(f"{fid} trace:impossible — commit a GREEN disproof test and record it with `disprove` (use `unproven` only if no test is constructable)")
+    else:
+        sha = args.already_fixed
+        if not re.match(r"^[0-9a-f]{7,40}$", sha):
+            die("--already-fixed must be a commit sha")
+        if not args.evidence:
+            die("--already-fixed requires --evidence: current-HEAD file:line quotes showing the fix in place")
+        if repo:
+            r = subprocess.run(["git", "-C", repo, "merge-base", "--is-ancestor", sha, "HEAD"], capture_output=True)
+            if r.returncode != 0:
+                die(f"{sha} is not an ancestor of HEAD in {repo} — an 'already fixed' claim needs the fix commit on this branch", 1)
+        store.set_detail_field(fid, "trace", f"already-fixed {sha}")
+        store.set_status(fid, "OPEN", False, [f"fixed-by:{sha}", "trace-evidence:", "```evidence", args.evidence, "```"])
+        store.append_log(fid, "OPEN", "-", f"trace: already fixed by {sha}; green regression test required to close")
+        print(f"{fid} trace:already-fixed {sha} — commit the GREEN regression/disproof test and record it with `disprove` to close")
+
+
+def cmd_disprove(store, args, repo):
+    fid = require_id(args.id)
+    tr = store.detail_field(fid, "trace") or "pending"
+    if tr != "impossible" and not tr.startswith("already-fixed"):
+        die(f"disprove applies only after a trace verdict of impossible/already-fixed; {fid} trace is '{tr}'", 1)
+    if not re.match(r"^[0-9a-f]{7,40}$", args.sha):
+        die("--sha must be the commit sha of the committed green disproof test")
+    if repo:
+        r = subprocess.run(["git", "-C", repo, "cat-file", "-t", args.sha], capture_output=True, text=True)
+        if r.stdout.strip() != "commit":
+            die(f"sha {args.sha} not found in {repo} — the disproof test must be COMMITTED", 1)
+        test_file = args.test.split(":")[0]
+        r = subprocess.run(["git", "-C", repo, "show", "--name-only", "--format=", args.sha], capture_output=True, text=True)
+        if test_file not in r.stdout:
+            die(f"commit {args.sha} does not touch {test_file} — wrong sha or uncommitted test", 1)
+    store.set_detail_field(fid, "redlight", f"disproof {args.sha} {args.test}")
+    fixed_by = store.detail_field(fid, "fixed-by")
+    note = f"already fixed by {fixed_by}; " if fixed_by else ""
+    store.set_status(fid, f"CLOSED verified:{today()}", True,
+                     [f"commit:`{fixed_by or args.sha}`", "disproof-output:", "```evidence", args.output or "(green)", "```",
+                      f"fixed:{note}claim disproven by green test {args.test}"])
+    store.append_log(fid, f"CLOSED verified:{today()}", args.test, f"{note}disproven by green test at {args.sha}")
+    print(f"{fid} -> CLOSED verified:{today()} — {note}disproven by green test {args.test} ({args.sha})")
+
+
 def cmd_redlight(store, args, repo):
     fid = require_id(args.id)
     require_triage_done(store, fid, "red-light")
+    tr = store.detail_field(fid, "trace") or "pending"
+    if tr != "possible":
+        die(f"cannot red-light {fid}: trace is '{tr}'. Trace the claim against current HEAD first — the claim's own text is not evidence about the code.", 1)
     if not re.match(r"^[0-9a-f]{7,40}$", args.sha):
         die("--sha must be a commit sha")
     if repo:
@@ -454,7 +524,21 @@ def main():
     p.add_argument("--out-of-scope", default=None)
     p.add_argument("--why", default=None)
 
+    p = sub.add_parser("trace")
+    p.add_argument("id")
+    p.add_argument("--possible", action="store_true")
+    p.add_argument("--impossible", action="store_true")
+    p.add_argument("--already-fixed", default=None, metavar="SHA")
+    p.add_argument("--path", default=None)
+    p.add_argument("--evidence", default=None)
+
     p = sub.add_parser("redlight")
+    p.add_argument("id")
+    p.add_argument("--sha", required=True)
+    p.add_argument("--test", required=True)
+    p.add_argument("--output", default=None)
+
+    p = sub.add_parser("disprove")
     p.add_argument("id")
     p.add_argument("--sha", required=True)
     p.add_argument("--test", required=True)
@@ -497,8 +581,12 @@ def main():
         cmd_cascade_scan(store, args)
     elif args.cmd == "gate":
         cmd_gate(store, args)
+    elif args.cmd == "trace":
+        cmd_trace(store, args, args.repo)
     elif args.cmd == "redlight":
         cmd_redlight(store, args, args.repo)
+    elif args.cmd == "disprove":
+        cmd_disprove(store, args, args.repo)
     elif args.cmd == "unproven":
         cmd_unproven(store, args)
     elif args.cmd == "needs-review":
