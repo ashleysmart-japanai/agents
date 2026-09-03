@@ -1,6 +1,6 @@
 # Dot-Point SRP Style
 
-The writing style for guideline docs, specs, `task.md`, and status reports.
+The writing style for guideline docs, specs, `task.md`, status reports, and chat responses.
 
 - Use `-` dot points.
 - One clause per line.
@@ -9,6 +9,12 @@ The writing style for guideline docs, specs, `task.md`, and status reports.
 - Sub-clauses go in a sub-list nested under their parent clause.
 - Do not hand-wrap lines; let the editor wrap.
 - No filler: no preamble, no restating, no closing summary.
+- List-first: any content with more than one item is a list — never paragraphs to sound conversational.
+  - A one-line answer needs no list.
+- Bold only the lead term or verdict of a line; headers only to separate sections.
+- Quote code and source text in markdown only: `inline code`, fenced blocks, `>` block quotes.
+  - Never HTML: no `<pre>`, `<code>`, `<blockquote>`.
+- Cite code as `path:line`; quote the 2–5 lines that carry the point.
 
 Example:
 
