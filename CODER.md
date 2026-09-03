@@ -6,11 +6,13 @@ Rules and expectations for all AI agents working in this repository tree. These 
 
 ## 1. Micro Spec Convention
 
-> How to write specs: `@design/SPECS.md`
+> Design, steering, and micro-spec guidelines — how to write them: `@design/SPECS.md`
 
 - Every non-trivial task begins with a micro spec written **before** any code.
 - No code is written until the micro spec exists and is committed.
 - Spec is the source of truth. Code to its intended target — do not rewrite it to match the code.
+- The spec is not a status tracker: no `DONE`/`Status:`/`REVERTED` markers or edit history in spec prose — state the settled contract only (`design/SPECS.md` § The spec is not a tracker).
+- Acceptance criteria are guides for groups of testing, not micro-detail inventories: each derives at least one test — usually more — at implementation; leave them as generalizations where appropriate and never treat or present them as the ceiling of testing (`design/SPECS.md` § Acceptance criteria are guides, not inventories).
 - Resolve gaps by size:
   - **In-scope gap** → apply conventions, record the assumption, continue. Never ask.
   - **Ambiguous** (conventions conflict or none applies) → ask.
@@ -223,7 +225,7 @@ Call the principle out by abbreviation in review comments and specs (e.g. "this 
 ### Before code
 
 1. **Read the bug report or task fully.** If the task references a review issue, read the entire `<ID>.md` detail file — description, evidence, fix guidance, and reverify steps. Do not skim summaries or titles. Do not make decisions, push back, or categorise an issue without reading the full detail file first.
-2. **Read** the relevant micro spec (or create one if absent).
+2. **Read** the relevant micro spec (or create one if absent, per `design/SPECS.md`).
 3. **Read** existing code in the affected area before writing anything.
 4. **Write or update** the micro spec if the task is new or scope changes.
 
@@ -283,30 +285,22 @@ Call the principle out by abbreviation in review comments and specs (e.g. "this 
 - Use the status tokens only (`OPEN`, `NEEDS_REVIEW:coder`, `CLOSED verified:<yyyy-mm-dd>`, …). **Never** describe a finding with a loose adjective like "present", "resolved", "done", or "handled".
 - A fix that is written but not yet verified is `OPEN`, not `CLOSED verified:` — "verified" requires a passing reverify command, test, or trace, not merely that the code is present.
 - Do **not** write to `review.md` or the `~/reviews/<repo>-pr-<number>/` directory. That persisted store is the reviewer/orchestrator's job (see `~/agents/review/ISSUE_TRACKING.md`). Your report is the in-chat list.
-  - **One exception:** the review-claim triage and red-light procedure below. When executing it, the coder records and updates the claims it is processing in the review store per ISSUE_TRACKING.md.
+  - **Exception 1:** the review-claim triage and red-light procedure below. When executing it, the coder records and updates the claims it is processing in the review store per ISSUE_TRACKING.md.
+  - **Exception 2:** `task.md` — the coder owns the file, the user owns the content (grammar: ISSUE_TRACKING.md § Task file). Never update it without the user's approval: propose the exact text in chat, write it only once approved, and keep the user's words near-verbatim — correcting only grammar, spelling, and shorthand. `# DECISIONS` entries are gated: only major actions and direction shifts qualify, each tagged with a short name (e.g. `record-not-resource`) — never task steps or work narration.
 
 ### Review-claim triage and red-light (mandatory after any review)
 
-Run this for every claim a review produces — self-review, reviewer findings, PR comments, feedback ingress. A review claim is **unproven** until a committed red test demonstrates it. Process each claim in order; the first failing gate ends that claim's processing.
-
-**Execute this via the review-triage skill (`~/agents/skills/REVIEW_TRIAGE.md`).** All store writes go through `~/agents/skills/review_triage.py` — it enforces the gate order, full IDs, and required evidence, and refuses out-of-order operations. Judgment gates run as narrow-goal subagents per the skill. Do not hand-edit the review store during triage, and do not work around a script refusal — a refusal means the procedure is being violated.
-
-1. **Record** the claim in the review store per `~/agents/review/ISSUE_TRACKING.md`: full ID (`<prefix><n>.<SID>`), status `OPEN`, detail field `redlight:pending`. Unproven-but-started is the recorded state — never triage a claim that isn't written down first.
-2. **Cascade pre-check.** Read `review.md` and the closed issues' detail files: was the code this claim points at changed by a prior review claim's fix (its fix commits, its `redlight:`/`commit:` shas, its files)? If yes, the claim is a **cascade**: mark it `NEEDS_REVIEW:cascade`, add `cascade-of:<full ID of the prior claim>` with an explanation of how that fix led to this claim, and stop processing it. **Cascading review items are never fixed without the user's explicit approval** — the user decides whether to fix the cascade, revert the prior fix, or rule otherwise.
-3. **Scope-check against the micro-spec.** If the claim is not in scope for the micro-spec, mark it `OUT_OF_SCOPE` with `scope:micro-spec - <reason>`.
-4. **Design-check against `steering.md`.** If the claim conflicts with the system design requirements in the repo's `steering.md`, mark it `OUT_OF_SCOPE` with `scope:steering - <reason>`.
-5. **Creep-check.** If fixing the claim requires changes beyond the files already changed on the branch, mark it `OUT_OF_SCOPE` with `scope:scope-creep - <files it would pull in>`.
-6. **Documentation nits:** correct the documentation *only if* the correction does not change the design stated in the micro-spec or `steering.md`. If it would, mark `NEEDS_REVIEW:coder` and explain the design conflict in the detail file. Doc-only fixes skip red-light — record `redlight:n/a-docs`.
-7. **Trace the claim against current HEAD.** Read the code at the claim's `file:line` and trace the path it depends on — where the value comes from, its types and DB constraints, existing guards, call sites. The claim's own description and stored snippets are **not** evidence; they describe the code as it was when the claim was written. Verdicts: defect **possible** (record the trace, proceed to red-light); defect **impossible** or **already fixed** (fix commit must be an ancestor of HEAD) — commit a **green disproof test** that pins why the claim cannot happen or guards the prior fix, and close with that test cited. Every claim resolves with a committed test in code, never agent speculation; `UNPROVEN` is only for claims where neither a red proof nor a green disproof is constructable. No red-light work before a trace verdict.
-8. **Red-light the claim.** Add a test to the real suite that proves the claimed defect and **commit it in its failing state** — the red commit is the proof of work, using the red-light `--no-verify` carve-out (§5 step 6) when hooks block it. Record `redlight:<sha> <file:case>` in the detail file. If no test can be made to fail from the claim, mark it `UNPROVEN`, keep the attempted probe and its passing output in the detail file, and do not write a fix.
-9. **Fix.** Change production code only to correct the proven issue. Never edit the red test to make it pass — hacking the test voids the proof and is fabricated evidence (T2).
-10. **Micro-review the fix diff** before committing. Check it for:
-   - anti-patterns (`~/agents/reference/anti-patterns/CHECKLIST.md`)
-   - security issues (security check groups when the diff touches APIs/auth/credentials)
-   - failure to follow `steering.md` / micro-spec requirements
-   - failure to meet the micro-spec acceptance criteria
-11. **Failure path.** If the fix does not turn the red test green, or the micro-review surfaces new claims against it, mark the issue `NEEDS_REVIEW:coder`, revert the production change, and document the problem plus the proposed correct code in the detail file. Record each new claim the fix caused as `NEEDS_REVIEW:cascade` per step 2 — do not fix them without user approval. The red test stays committed and stays red until the issue is resolved; never delete it and never mask it to make the suite green.
-12. **Commit** the verified fix as its own commit after the red commit, then update the issue to `CLOSED verified:<yyyy-mm-dd>` with both shas.
+- **Run the `review-triage` skill (`~/agents/skills/REVIEW_TRIAGE.md`) for every claim a review produces** — self-review, reviewer findings, PR comments, feedback ingress. The skill is the procedure; this section is the mandate and the invariants.
+- All store writes go through `~/agents/skills/review_triage.py` — it enforces the gate order (record → cascade pre-check → scope gates → trace against current HEAD → red proof or green disproof → fix → close), full IDs, and required evidence. Do not hand-edit the review store, and do not work around a script refusal — a refusal means the procedure is being violated.
+- Invariants the skill enforces:
+  - A claim is a hypothesis, not a fact — no verdict without reading the current code at the claimed location. The claim's analysis and framing are equally untrusted: re-derive the problem from the code yourself; reviewer prose never decides fix-vs-document or picks the remedy.
+  - Every claim resolves with a **committed test in code** — red proves it, green disproves it — never agent speculation. `UNPROVEN` is only for claims where neither is constructable. Only **doc-claims and style-claims** skip the test — claims against a non-executable artifact (spec prose, comments, naming) or style-only rewrites where no committed test can distinguish pre-fix from post-fix. Kind decides, not size: a doc-claim that rewrites a whole design section is still a doc-claim. They route from the scope gate straight to verify-and-fix — no trace, no red-light, never `UNPROVEN`.
+  - **A reviewer's suggested fix is untrusted input** — reviewers routinely flag their own suggestions as broken on the next pass. Design the fix from your own trace; audit any part of the suggestion you keep for compounding issues, design failures, out-of-scope bloat, and over-engineering against the happy path — especially when the fix targets an edge case, worst of all an edge case of an edge case.
+  - No fix until the defect class is fully understood and its mechanism exposed by the trace. Every close records a **justification** in the issue's detail file: why this fix resolves the class fully and will not compound.
+  - `NEEDS_REVIEW:cascade` items are never fixed without the user's explicit approval.
+  - A cascade means a prior fix's justification was wrong — re-read that justification, explain where it failed, follow each cascade link to its root, and redesign the fix from the ground up. Never patch the patch.
+  - Fixes never edit the proving test; a reverted fix's red test stays committed and red.
+  - Report each step in chat as it completes — a step with no report did not happen.
 
 10. **Push** to the PR branch after each completed change. Do not batch up commits — push proactively so the PR stays up to date.
 11. **Do not merge** PRs. Merging is done by the user. Do not expect to be involved in the merge process.

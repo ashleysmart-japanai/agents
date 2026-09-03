@@ -5,6 +5,7 @@ This document specifies the **persisted `review.md` store**: how the finding gra
 - Store review output in `~/reviews/<repo>-pr-<number>/`.
 - Use `review.md` as the index file. It contains only `# META` and `# SUMMARY`.
 - Use `feedback.md` as the external feedback ingress file.
+- Use `task.md` as the coder's task context file: goal, status, decision log.
 - Store every issue's detail record in its own `<ID>.md` file.
 - `review.md` never contains detail records.
 - Migrate legacy files from `~/reviews/<repo>-pr-<number>-review.md`.
@@ -33,6 +34,36 @@ Run this procedure during Stage 0, after reading existing review state:
    - Touch `feedback.md` to create a new blank file (external writers can resume appending immediately).
 4. Read `feedback.lock.md`, triage each feedback point, and open or update review issues using the normal opening flow.
 5. Delete `feedback.lock.md` after all entries have been processed.
+
+## Task file
+
+- `task.md` is a sibling of `review.md` in the review directory.
+- The coder owns `task.md`; reviewers and subagents read it, never edit it.
+- No update to `task.md` without the user's approval.
+  - Propose the exact text in chat; write it only after the user approves.
+- Record the user's text as close to verbatim as possible.
+  - Allowed corrections: grammar, spelling, and expanding shorthand.
+  - Not allowed: rephrasing, summarising in the agent's own words, or adding content the user did not say.
+- Create `task.md` at task start.
+- Write it in dot-point-srp style (`~/agents/style/DOT_POINT_SRP.md`).
+- Three top-level sections, always in this order: `# GOAL`, `# STATUS`, `# DECISIONS`.
+- No other top-level sections.
+- `# GOAL` — what the task is for this PR.
+  - Written at task start.
+  - Changes only when the user changes scope.
+- `# STATUS` — a summary of where the work is at.
+  - Rewritten in place at each update.
+  - Proposed after each push and at session end; written on approval.
+- `# DECISIONS` — a linear log of direction-affecting decisions and the reason(s) for each.
+  - Entry gate: only major actions and direction shifts qualify — calls that change what gets built.
+  - An entry that fails the gate is not appended.
+  - Minor choices, task steps, and work narration never pass the gate.
+  - Tag each entry with a short kebab-case name for the decision (e.g. `spec-before-code`, `record-not-resource`).
+  - Entry format: `- <yyyy-mm-dd> - <tag> - <decision> — <reason(s)>`.
+  - One entry per decision, trimmed to the call and its reason — no blather.
+  - Append-only: never rewrite, delete, or reorder entries.
+  - Appended when the decision is made, in the user's words — not reconstructed later.
+  - A reversed decision gets a new entry naming the entry it reverses.
 
 ## Review handling rules
 
@@ -132,9 +163,11 @@ When asked to provide a list of open `NEEDS_REVIEW` items, list `:reviewer`, `:c
 - Required field: `evidence:`.
 - Required field: `fix:`.
 - Required field: `reverify:`.
+- `fix:` records the reviewer's **suggested** fix — untrusted input kept for the record; the coder designs the actual fix from its own trace (CODER.md §5, review-triage skill).
 - The detail `status:` value must match the status in that issue's `# SUMMARY` item.
 - Valid detail statuses are `OPEN`, `NEEDS_REVIEW:reviewer`, `NEEDS_REVIEW:coder`, `NEEDS_REVIEW:cascade`, `DEFERRED`, `UNPROVEN`, `CLOSED verified:<yyyy-mm-dd>`, `WILL_NOT_FIX`, and `OUT_OF_SCOPE`.
-- Optional field `redlight:` — `pending`, `n/a-docs`, or `<sha> <file:case>` of the committed failing test, per the coder red-light procedure in `~/agents/CODER.md`.
+- Optional field `redlight:` — `pending`, `n/a-docs` (doc-claim or style-claim: a claim against a non-executable artifact, or a style-only code change with no observable behavior difference — no test constructable, whatever the size of the change), `<sha> <file:case>` of the committed failing test, or `disproof <sha> <file:case>` of the committed green disproof test, per the review-triage skill (`~/agents/skills/REVIEW_TRIAGE.md`).
+- Field `justification:` — required on every fix-path close (review-triage `close` refuses without it): why the fix resolves the defect class fully and will not compound. This is the record the cascade procedure audits when a later claim cascades from this fix.
 - Never delete a detail file.
 - Never truncate a detail file to a stub.
 - Update the detail file in place when status changes.
@@ -164,13 +197,14 @@ When asked to provide a list of open `NEEDS_REVIEW` items, list `:reviewer`, `:c
 - Change its `# SUMMARY` prefix to `- [x] <ID> - CLOSED verified:<yyyy-mm-dd> [<SEVERITY>] - `.
 - Update `status:` in `<ID>.md` to `CLOSED verified:<yyyy-mm-dd>`.
 - Add `commit:`, `reverify:`, and `fixed:` to `<ID>.md` if missing.
+- A fix-path close also records `justification:` — why the fix resolves the class fully and will not compound; a disproof close records the green test instead.
 - Keep the original summary, description, file reference, PR reference, and evidence intact.
 
 ## Changing an issue status
 
 - The reviewer may move an issue to `NEEDS_REVIEW:reviewer` when uncertain or needing human input.
 - The coder may move an issue to `NEEDS_REVIEW:coder` when pushing back on a fix with evidence.
-- The coder may move an issue to `OUT_OF_SCOPE` or `UNPROVEN` only via the review-claim triage and red-light procedure in `~/agents/CODER.md`, with the required evidence recorded.
+- The coder may move an issue to `OUT_OF_SCOPE` or `UNPROVEN` only via the review-triage skill (`~/agents/skills/REVIEW_TRIAGE.md`), with the required evidence recorded.
 - The agent performing triage may move an issue to `NEEDS_REVIEW:cascade` via the cascade pre-check, with `cascade-of:` recorded. Only the user may move it out of that state.
 - Only the user/human may move an issue to `DEFERRED`. Agents must never set this state.
 - Only the user/human may move an issue to `WILL_NOT_FIX`. Agents must never set this state.
@@ -273,6 +307,7 @@ If a fix is reverted or no longer holds:
 ~/reviews/<repo>-pr-<number>/
   review.md
   feedback.md
+  task.md
   B1.1Z0njAzGj6F7oezIwcQD7g.md
   B2.4RQ0TSM6xX75zFFiKHBoDj.md
   log.md
@@ -336,6 +371,21 @@ evidence:
 fix:<original fix guidance - preserved unchanged>
 reverify:<exact grep/read/test command or file:line to check>
 fixed:<one-line description of the change>
+justification:
+```evidence
+<why the fix resolves the defect class fully and will not compound>
+```
+
+# task.md
+# GOAL
+- Extract the record adapter behind a capability interface for this PR.
+
+# STATUS
+- Adapter extracted; create path green; browse slice pending.
+
+# DECISIONS
+- 2026-06-10 - spec-before-code - Write and commit the micro-spec, then stop before implementation.
+- 2026-06-11 - no-root-sentinel - No fake `current` value — it enables the create button and guarantees an upstream failure.
 
 # log.md
 2026-06-11 09:00:20 - df9fc5386 - B1.1Z0njAzGj6F7oezIwcQD7g:OPEN - path/file.ts - open issue still present

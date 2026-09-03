@@ -1,5 +1,19 @@
 # Writing Specs for AI Agents
 
+## Objective
+
+- Capture the design requirements and goals.
+- Capture the acceptance requirements.
+- Write in dot-point-srp style (`~/agents/style/DOT_POINT_SRP.md`): one terse clause per line, sub-clauses indented into a sub-list.
+- The spec is **not** a code-in-text-form document.
+  - It does not perfectly represent the exact code that is written.
+  - It documents the objective of the happy path.
+  - It documents the main exceptions to the happy path in a generalized way.
+- Use function and class names, not hand-waving terms, to discuss target code.
+- Use durable references.
+  - Do not use line numbers — they go stale.
+  - Use full repo paths for filenames.
+
 ## File location
 
 PR-scoped: `<project>/docs/<YYYYMMDD>_<short-task-slug>.md`
@@ -112,11 +126,14 @@ Expanded description for each task listed in the summary.
 
 ### 7. Test plan (agent)
 
-Maps 1-to-1 to requirements. No requirement without a test. No test without a requirement.
+Every requirement is covered. The plan is a floor, not a ceiling — implementation derives more tests than it names (see § Acceptance criteria are guides, not inventories).
 
+- Every requirement has at least one test.
+- The plan names groups of testing, never the test inventory.
 - Happy path per requirement
 - Error cases from section 1
 - Boundary conditions: zero, one, max
+- Design-mandated test constraints and pins earn a line; routine case enumeration does not.
 
 ### 8. Security checklist (agent, human reviews)
 
@@ -175,6 +192,34 @@ Provenance, prior art, and source material that informed the spec.
 - **External**: links to external docs, RFCs, standards, or tools referenced in the design.
 
 References are append-only during the spec lifecycle. Do not remove references even if the linked material becomes stale — they are the audit trail for design decisions.
+
+## Acceptance criteria are guides, not inventories
+
+- An acceptance criterion states a set of claims and clauses to check.
+- Each criterion defines a group of testing and checks, not a single test.
+- Each criterion derives at least one test at implementation — usually more.
+- Criteria list the important happy paths and the important edge cases.
+  - Including happy paths or edge cases found missing in a coding pass.
+- Criteria detail only what they need to; they are not exhaustive of the code.
+- Leave criteria as generalizations where appropriate.
+- The code and tests will exceed the criteria — the spec never reads as the ceiling of testing.
+- Do not enumerate the actual tests in the spec — that is the code-in-text-form failure.
+  - Only design-mandated test constraints and pins earn spec space.
+
+## The spec is not a tracker
+
+- The spec states the target contract — the settled truth, written as if it had always been so.
+- The spec is never a status tracker, changelog, worklog, or review-claim litigation record.
+- No status markers in spec prose: no `DONE`, `Status:`, `REVERTED`, `NOT IMPLEMENTED`, no "at spec phase".
+- No edit history in spec prose: no "corrected", "rewritten", "was X now Y", no rebuttal of review claims.
+- When a section changes, rewrite it to the new truth and delete the old text.
+- A reader must not be able to tell from any section what order it was written in.
+- Each kind of record has its own home — never the spec:
+  - What changed and when → git history of the spec file.
+  - Why a direction was chosen or reversed → `task.md` `# DECISIONS` (ISSUE_TRACKING.md § Task file).
+  - Review claims and their outcomes → the review store `<ID>.md` files (ISSUE_TRACKING.md).
+  - Implementation progress → the task breakdown checkboxes (`A<id>`), checkbox state only.
+- The only tracking surfaces in a spec are the numbered checklists (R/U/A/S/X and `A<id>`) — checkbox flips, never prose annotations.
 
 ## Rules
 

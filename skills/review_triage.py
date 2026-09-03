@@ -18,15 +18,21 @@ Commands:
   open      --type B|SEC|I|S|O|D|T|M --sev CRITICAL|HIGH|MEDIUM|LOW --title T --file 'path:line'
             --desc D --evidence E --fix F --reverify V        -> prints new full ID, warns on overlaps
   cascade-scan ID                                             -> prior issues overlapping this claim's files
-  gate      ID (--pass | --docs-nit |
+  gate      ID (--pass | --doc-claim | --style-claim |
                 --cascade-of FULLID --why W |
                 --out-of-scope micro-spec|steering|scope-creep --why W)
+            doc-claim / style-claim: claim against a non-executable artifact (spec prose,
+            comments, naming) or a style-only code change with no observable output
+            difference (e.g. require() -> import). Kind decides, not size. No red-light
+            test required (redlight:n/a-docs); route verify-and-fix, never UNPROVEN.
+            (--docs-nit / --no-behavior-change are deprecated aliases.)
   trace     ID (--possible --path P | --impossible --evidence E | --already-fixed SHA --evidence E)
             -> verdict from reading CURRENT HEAD code; red-light is refused until trace:possible.
                impossible/already-fixed do NOT close the claim — a committed green disproof test does.
   disprove  ID --sha SHA --test 'file:case' [--output O]      -> committed GREEN test disproving the claim; closes it
   redlight  ID --sha SHA --test 'file:case' [--output O]      -> records committed red proof
   unproven  ID --probe P --output O                           -> UNPROVEN with probe evidence
+            (refused for doc-claim / style-claim triage — no test is owed there)
   needs-review ID --why W                                     -> NEEDS_REVIEW:coder pushback
   close     ID --fix-sha SHA --verify V                       -> CLOSED verified (needs triage pass + redlight)
   reopen    ID --why W
@@ -300,24 +306,25 @@ def cmd_gate(store, args):
         store.set_detail_field(fid, "triage", "gated-scope")
         store.append_log(fid, "OUT_OF_SCOPE", "-", f"{args.out_of_scope}: {args.why}")
         print(f"{fid} -> OUT_OF_SCOPE ({args.out_of_scope})")
-    elif args.docs_nit:
+    elif args.docs_nit or args.no_behavior_change:
+        reason = "doc-claim" if args.docs_nit else "style-claim"
         store.set_detail_field(fid, "triage", "passed-docs")
         store.set_detail_field(fid, "redlight", "n/a-docs")
-        store.append_log(fid, "OPEN", "-", "triage passed as docs-nit; fix must not change micro-spec/steering design")
-        print(f"{fid} triage:passed-docs — doc fix allowed only if it does not change the design")
+        store.append_log(fid, "OPEN", "-", f"triage passed as {reason}; verify against current artifact, fix, close — no test owed, never UNPROVEN")
+        print(f"{fid} triage:passed-docs ({reason}) — no trace, no red-light, never UNPROVEN. Verify the claim against the current artifact, fix, and close. A fix that changes settled design direction goes to needs-review instead.")
     elif args.passed:
         store.set_detail_field(fid, "triage", "passed")
         store.append_log(fid, "OPEN", "-", "triage passed (cascade/micro-spec/steering/creep all clear)")
         print(f"{fid} triage:passed — proceed to red-light")
     else:
-        die("gate needs one of --pass / --docs-nit / --cascade-of / --out-of-scope")
+        die("gate needs one of --pass / --doc-claim / --style-claim / --cascade-of / --out-of-scope")
 
 
 def cmd_trace(store, args, repo):
     fid = require_id(args.id)
     t = require_triage_done(store, fid, "trace")
     if t == "passed-docs":
-        die("docs-nit claims do not need a trace", 1)
+        die("doc-claim / style-claim needs no trace — verify against the current artifact, fix, and close", 1)
     picked = [x for x in (args.possible, args.impossible, bool(args.already_fixed)) if x]
     if len(picked) != 1:
         die("trace needs exactly one of --possible / --impossible / --already-fixed SHA")
@@ -401,7 +408,9 @@ def cmd_redlight(store, args, repo):
 
 def cmd_unproven(store, args):
     fid = require_id(args.id)
-    require_triage_done(store, fid, "mark unproven")
+    t = require_triage_done(store, fid, "mark unproven")
+    if t == "passed-docs":
+        die(f"{fid} is a doc-claim / style-claim: no test is owed, so UNPROVEN does not apply. Verify the claim against the current artifact, fix, and close — or needs-review if the fix changes settled design direction.", 1)
     if not args.probe or not args.output:
         die("unproven requires --probe (test code/path) and --output (its passing output)")
     store.set_status(fid, "UNPROVEN", False,
@@ -426,15 +435,18 @@ def cmd_close(store, args, repo):
     if red == "pending":
         die(f"cannot close {fid}: no red-light recorded. A claim with no committed red test cannot be CLOSED (CODER.md §5).", 1)
     if triage == "passed" and red == "n/a-docs":
-        die(f"cannot close {fid}: redlight:n/a-docs is only valid for docs-nit triage", 1)
+        die(f"cannot close {fid}: redlight:n/a-docs is only valid for doc-claim / style-claim triage", 1)
     if not re.match(r"^[0-9a-f]{7,40}$", args.fix_sha):
         die("--fix-sha must be a commit sha")
+    if not args.justification or not args.justification.strip():
+        die("--justification must state why the fix resolves the defect class fully and will not compound (REVIEW_TRIAGE.md step 7)")
     if repo:
         r = subprocess.run(["git", "-C", repo, "cat-file", "-t", args.fix_sha], capture_output=True, text=True)
         if r.stdout.strip() != "commit":
             die(f"fix sha {args.fix_sha} not found in {repo}", 1)
     store.set_status(fid, f"CLOSED verified:{today()}", True,
-                     [f"commit:`{args.fix_sha}`", f"fixed:{args.verify}"])
+                     [f"commit:`{args.fix_sha}`", f"fixed:{args.verify}",
+                      "justification:", "```evidence", args.justification.strip(), "```"])
     store.append_log(fid, f"CLOSED verified:{today()}", "-", f"fix {args.fix_sha}; proven by {red}; {args.verify}")
     proof = "docs-only change (no test applicable)" if red == "n/a-docs" else f"proven by test {red}"
     print(f"{fid} -> CLOSED verified:{today()} — fix {args.fix_sha}; {proof}")
@@ -442,9 +454,12 @@ def cmd_close(store, args, repo):
 
 def cmd_reopen(store, args):
     fid = require_id(args.id)
+    was_cascade = store.detail_field(fid, "triage") == "gated-cascade"
     store.set_status(fid, "OPEN", False, [f"reopened:{today()} - {args.why or 'no reason given'}"])
     store.append_log(fid, "OPEN", "-", f"reopened: {args.why}")
     print(f"{fid} -> OPEN")
+    if was_cascade:
+        print(f"{fid} was cascade-gated: read the prior issue's justification, state where it went wrong, follow the cascade-of chain to its root, and redesign the fix from the ground up (REVIEW_TRIAGE.md § Cascade fixes). Then re-run gate/trace/red-light.")
 
 
 def cmd_list(store, args):
@@ -519,7 +534,10 @@ def main():
     p = sub.add_parser("gate")
     p.add_argument("id")
     p.add_argument("--pass", dest="passed", action="store_true")
-    p.add_argument("--docs-nit", action="store_true")
+    p.add_argument("--doc-claim", "--docs-nit", dest="docs_nit", action="store_true",
+                    help="claim against a non-executable artifact (spec prose, comments, naming) — kind decides, not size")
+    p.add_argument("--style-claim", "--no-behavior-change", dest="no_behavior_change", action="store_true",
+                    help="style-only code change with no observable output difference (e.g. require()->import)")
     p.add_argument("--cascade-of", default=None)
     p.add_argument("--out-of-scope", default=None)
     p.add_argument("--why", default=None)
@@ -557,6 +575,8 @@ def main():
     p.add_argument("id")
     p.add_argument("--fix-sha", required=True)
     p.add_argument("--verify", required=True)
+    p.add_argument("--justification", required=True,
+                   help="why the fix resolves the defect class fully and will not compound")
 
     p = sub.add_parser("reopen")
     p.add_argument("id")
