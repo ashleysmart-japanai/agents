@@ -251,6 +251,11 @@ Call the principle out by abbreviation in review comments and specs (e.g. "this 
   - Phase 2 — code: on reviewer/human approval, implement every acceptance criterion (red → green → commit → push), run the submission gates and review triage, report. No further stop until complete.
   - Never start Phase 2 on an unapproved spec.
   - Never reopen Phase 1 mid-Phase 2 except for a large divergence (§1) — then ask, at the end of a turn that delivers everything not depending on the answer.
+- **Token scope in long-run loops (Phase 2, review, triage).** Everything produced in one reply — reasoning, drafting, and the reply itself — counts toward one output limit; a cut-off reply is a restart.
+  - Reason in the reasoning space; write the deliverable once, in the output space — never draft a file, diff, or report in full as reasoning and then again as the reply.
+  - Spend the reasoning on understanding the request, checking the inputs the answer depends on, and settling structure and hard decisions; then write.
+  - Large deliverables land in pieces: one file, one commit, one report section per step, each written once.
+  - Phase 1 (spec) is exempt: deliberate as long as the design needs.
 - Before ending a turn, check the last paragraph.
   - A plan, a question, a list of next steps, or a promise about undone work ("I'll…", "let me know when…") → do that work now with tool calls.
   - That includes retrying after errors and gathering missing information yourself.
