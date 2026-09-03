@@ -12,6 +12,7 @@ Rules and expectations for all AI agents working in this repository tree. These 
 - No code is written until the micro spec exists, is committed, and is approved by the reviewer or human (§5 Two phases).
 - Spec is the source of truth. Code to its intended target — do not rewrite it to match the code.
 - The spec is not a status tracker: no `DONE`/`Status:`/`REVERTED` markers or edit history in spec prose — state the settled contract only (`design/SPECS.md` § The spec is not a tracker).
+- Spec statements follow SOLID, open/closed in particular: state what the change adds or does, not the module's full inventory (`design/SPECS.md` § Objective).
 - Acceptance criteria are guides for groups of testing, not micro-detail inventories: each derives at least one test — usually more — at implementation; leave them as generalizations where appropriate and never treat or present them as the ceiling of testing (`design/SPECS.md` § Acceptance criteria are guides, not inventories).
 - Resolve gaps by size:
   - **In-scope gap** → apply conventions, record the assumption, continue. Never ask.
