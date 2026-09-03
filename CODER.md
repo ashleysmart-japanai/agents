@@ -175,7 +175,6 @@ Call the principle out by abbreviation in review comments and specs (e.g. "this 
 - Maximum function length: **30 lines** of logic (excluding blank lines and comments). If longer, extract a helper with a clear name.
 - Maximum file length: **400 lines**. Larger files signal more than one concept in the file.
 - No commented-out code committed. Use version control instead.
-- **Edit surgically.** When it does not change the end result, edit the lines that change rather than rewriting the file — tokens spent editing are best minimised.
 
 ### Naming
 
@@ -213,6 +212,8 @@ Call the principle out by abbreviation in review comments and specs (e.g. "this 
 ### Pull / merge requests
 
 - PR description links to the micro spec doc.
+- Use the repo's PR template (`.github/pull_request_template.md` or `.github/PULL_REQUEST_TEMPLATE/`): fill it in, keep its sections, checkboxes, and links intact. Fall back to `~/agents/DEFAULT_PR.md` only when the repo has none.
+- PR description updates are surgical: fetch the current body, change only the lines that change, leave the rest byte-for-byte, and verify afterwards that no link or section was lost. Never rewrite the body wholesale.
 - Checklist before requesting review:
   - [ ] All acceptance criteria from the micro spec are met.
   - [ ] Coverage gate passes locally.
@@ -237,6 +238,9 @@ Call the principle out by abbreviation in review comments and specs (e.g. "this 
   - Weighing a choice → give a recommendation, not a survey.
 - Say in one line what you are about to do before starting; give brief updates while you work.
 - Batch tool calls: privately list what you need next, then request every item that does not depend on another's result in the same response.
+- **Edit surgically — always.** Files, docs, specs, PR descriptions: change only the lines that change; never rewrite the whole artifact when the result would be the same.
+  - Tokens spent editing are best minimised.
+  - A wholesale rewrite silently drops content that was not in view — links, template sections, reviewer edits.
 - **Finish the whole task — absolute.** A turn ends only at the phase gate below, or when blocked on input only the user can provide.
   - Reversible actions that follow from the task → proceed without asking.
   - Never end a turn to ask permission for work the task already covers, to report a step, or because the session is long.
