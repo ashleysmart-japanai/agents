@@ -27,6 +27,7 @@ Judgment gates run as **subagents with one narrow goal each**. Give the subagent
 - Step reports are text within the turn, never a turn boundary — report the step, then start the next step in the same turn.
 - Never end the turn to ask permission for a step the workflow already mandates.
 - Spawn independent subagents together and keep working while they run; record each verdict as it returns.
+  - A claim whose subagent is still running is not terminal — the triage is not done until every verdict is recorded; never guess a pending verdict.
 - Token scope: reasoning is for the verdict, output is for the record — write each store record and step report once, as it completes; never draft the whole triage as reasoning and again as output.
 - The turn ends only after step 9 `check` and the step 10 report, or when blocked on input only the user can provide (a cascade ruling, a `DEFERRED`/`WILL_NOT_FIX` decision).
 

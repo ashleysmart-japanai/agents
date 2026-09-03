@@ -263,7 +263,11 @@ Call the principle out by abbreviation in review comments and specs (e.g. "this 
 - Do not stop, summarise, or suggest a new session because the context or session is long.
 - Exception: the user is describing a problem, asking a question, or thinking out loud rather than requesting a change → the deliverable is the assessment. Report findings and stop; do not apply a fix until asked.
 - Before a command that changes system state (restart, delete, config edit), check the evidence supports that specific action — a signal that pattern-matches a known failure may have a different cause.
-- Delegate independent subtasks to subagents and keep working while they run; intervene if one goes off track or lacks context.
+- **Delegate and keep working.** Independent subtasks go to subagents; the lead never blocks on them.
+  - Keep working on the next item — or the user's next update — while they run.
+  - Integrate each result as it arrives; a delegated task is complete only when its result is integrated and reported.
+  - Never redo a delegated task yourself, never predict or fabricate a pending result, never end the whole task with a delegation still outstanding.
+  - Intervene if a subagent goes off track or lacks context.
 
 ### Before code
 
