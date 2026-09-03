@@ -21,15 +21,14 @@ Judgment gates run as **subagents with one narrow goal each**. Give the subagent
 
 ## Finish the whole triage
 
-- The triage runs to completion in one turn: every recorded claim reaches a terminal state before the turn ends.
-  - Terminal: `CLOSED`, `OUT_OF_SCOPE`, `UNPROVEN`, `NEEDS_REVIEW:*`.
+- The triage runs to completion in one turn: every recorded claim reaches a closed or needs-review status (`REVIEW_METHOD.md` § Status tokens) before the turn ends.
 - A per-claim halt (`--cascade-of`, `unproven`, `needs-review`) stops that claim only; the pipeline continues for every other claim.
-- Step reports are text within the turn, never a turn boundary — report the step, then start the next step in the same turn.
-- Never end the turn to ask permission for a step the workflow already mandates.
+- Step reports are text within the turn, not a turn boundary — report the step, then start the next step in the same turn.
+- Do not end the turn to ask permission for a step the workflow already includes.
 - Spawn independent subagents together and keep working while they run; record each verdict as it returns.
-  - A claim whose subagent is still running is not terminal — the triage is not done until every verdict is recorded; never guess a pending verdict.
-- Token scope: reasoning is for the verdict, output is for the record — write each store record and step report once, as it completes; never draft the whole triage as reasoning and again as output.
-- The turn ends only after step 9 `check` and the step 10 report, or when blocked on input only the user can provide (a cascade ruling, a `DEFERRED`/`WILL_NOT_FIX` decision).
+  - A claim whose subagent is still running is not terminal — the triage is not done until every verdict is recorded; do not guess a pending verdict.
+- Token scope: reasoning is for the verdict, output is for the record — write each store record and step report once, as it completes; the triage is not drafted as reasoning and again as output.
+- The turn ends after step 9 `check` and the step 10 report, or when blocked on input the user has to provide (a cascade ruling, a human-only status).
 
 ## Workflow
 
@@ -119,7 +118,7 @@ A cascade means a prior fix's recorded justification was wrong. When the user ap
 ## Rules
 
 - Claims are recorded before they are judged. The script's `open` is always the first touch.
-- **Scope is the chief concern.** The micro-spec defines it; the scope gate is decisive — a claim not traceable to a spec requirement or the branch's changed files is `OUT_OF_SCOPE`, however good the suggestion. Never widen the spec to admit a claim; a fix that needs a new requirement is `needs-review`, not a spec edit.
+- **Scope first.** The micro-spec defines it; the scope gate is decisive — a claim not traceable to a spec requirement or the branch's changed files is `OUT_OF_SCOPE`, however good the suggestion. A claim is not admitted by widening the spec; a fix that needs a new requirement is `needs-review`, not a spec edit.
 - **A claim is a hypothesis about the code, not a fact.** Never reason from the claim's description or its stored snippets — they age. Every verdict after the scope gates starts with reading the current code at the claimed location. The claim's analysis and framing are equally untrusted — reviewer prose never decides fix-vs-document or picks the remedy.
 - **The reviewer's suggested fix is untrusted input.** Reviewers routinely flag their own suggestions as broken on the next pass. The fixer designs from the trace; any reused part of the suggestion is audited first (step 7).
 - **Every resolved claim has a committed test**: red proves it, green disproves it. Prose evidence selects which test to write; it never substitutes for one.

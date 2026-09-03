@@ -36,7 +36,7 @@ Long-lived: `<project>/docs/<module-slug>.md`
 
 If the agent finds a gap or conflict in a human-authored section, it asks — it does not silently fix it.
 
-The spec phase ends the turn with an approval request; implementation starts only on approval (`CODER.md` §5 Two phases). Specs are exempt from the token-scope rule — deliberate as long as the design needs.
+The spec phase ends the turn with an approval request; implementation starts on approval (`CODER.md` §5 Two phases). Specs are exempt from the token-scope rule — deliberate as long as the design needs.
 
 ## Spec sections
 

@@ -67,7 +67,7 @@ Rules and expectations for all AI agents working in this repository tree. These 
   - Verify however you like — a one-off probe or script that only explores behaviour is not committed and is not evidence.
   - Every committed test traces to an acceptance criterion or a red-light claim (§5, §6).
   - Size tests like the neighbouring test files — roughly one focused test per stated behaviour.
-  - Never turn a scratch check into an extra permanent test file.
+  - A scratch check does not become a permanent test file.
 
 ---
 
@@ -84,6 +84,8 @@ This project applies all five SOLID principles:
 | **DIP** | Dependency Inversion | Depend on abstractions, not concretions |
 
 Call the principle out by abbreviation in review comments and specs (e.g. "this violates SRP — split the parse and persist steps").
+
+SOLID applies to statements too — docs, specs, PR descriptions, commit messages, chat. Open/closed is the usual failure: `style/DOT_POINT_SRP.md` § SOLID statements.
 
 ### SRP — Single Responsibility
 
@@ -213,7 +215,7 @@ Call the principle out by abbreviation in review comments and specs (e.g. "this 
 
 - PR description links to the micro spec doc.
 - Use the repo's PR template (`.github/pull_request_template.md` or `.github/PULL_REQUEST_TEMPLATE/`): fill it in, keep its sections, checkboxes, and links intact. Fall back to `~/agents/DEFAULT_PR.md` only when the repo has none.
-- PR description updates are surgical: fetch the current body, change only the lines that change, leave the rest byte-for-byte, and verify afterwards that no link or section was lost. Never rewrite the body wholesale.
+- PR description updates are surgical: fetch the current body, change only the lines that change, leave the rest byte-for-byte, and verify afterwards that no link or section was lost. A wholesale rewrite is not an update.
 - Checklist before requesting review:
   - [ ] All acceptance criteria from the micro spec are met.
   - [ ] Coverage gate passes locally.
@@ -238,35 +240,35 @@ Call the principle out by abbreviation in review comments and specs (e.g. "this 
   - Weighing a choice → give a recommendation, not a survey.
 - Say in one line what you are about to do before starting; give brief updates while you work.
 - Batch tool calls: privately list what you need next, then request every item that does not depend on another's result in the same response.
-- **Edit surgically — always.** Files, docs, specs, PR descriptions: change only the lines that change; never rewrite the whole artifact when the result would be the same.
+- **Edit surgically.** Files, docs, specs, PR descriptions: change the lines that change; a whole-artifact rewrite that produces the same result is waste.
   - Tokens spent editing are best minimised.
   - A wholesale rewrite silently drops content that was not in view — links, template sections, reviewer edits.
-- **Finish the whole task — absolute.** A turn ends only at the phase gate below, or when blocked on input only the user can provide.
+- **Finish the whole task.** A turn ends at the phase gate below, or when blocked on input the user has to provide.
   - Reversible actions that follow from the task → proceed without asking.
-  - Never end a turn to ask permission for work the task already covers, to report a step, or because the session is long.
+  - Ending a turn to ask permission for work the task already covers, to report a step, or because the session is long leaves the task undone.
   - Offering follow-ups after the work is fine; asking permission before doing requested work is not.
-  - A per-item halt (cascade, `UNPROVEN`, `NEEDS_REVIEW`, a large divergence on one item) is reported and the rest of the work continues; it never ends the turn on its own.
+  - A per-item halt (cascade, `UNPROVEN`, `NEEDS_REVIEW`, a large divergence on one item) is reported and the rest of the work continues; it does not end the turn.
 - **Two phases, one gate between them.**
-  - Phase 1 — spec: write or update the micro spec (`design/SPECS.md`), pass the process gates (P1–P3), commit, push, then end the turn asking for approval. This is the one turn that ends on a question.
-  - Phase 2 — code: on reviewer/human approval, implement every acceptance criterion (red → green → commit → push), run the submission gates and review triage, report. No further stop until complete.
-  - Never start Phase 2 on an unapproved spec.
-  - Never reopen Phase 1 mid-Phase 2 except for a large divergence (§1) — then ask, at the end of a turn that delivers everything not depending on the answer.
+  - Phase 1 — spec: write or update the micro spec (`design/SPECS.md`), pass the process gates (P1–P3), commit, push, then end the turn asking for approval. This turn ends on a question.
+  - Phase 2 — code: on reviewer/human approval, implement every acceptance criterion (red → green → commit → push), run the submission gates and review triage, report. Work continues to completion.
+  - Phase 2 starts on an approved spec.
+  - Phase 1 reopens mid-Phase 2 for a large divergence (§1) — ask, at the end of a turn that delivers everything not depending on the answer.
 - **Token scope in long-run loops (Phase 2, review, triage).** Everything produced in one reply — reasoning, drafting, and the reply itself — counts toward one output limit; a cut-off reply is a restart.
-  - Reason in the reasoning space; write the deliverable once, in the output space — never draft a file, diff, or report in full as reasoning and then again as the reply.
+  - Reason in the reasoning space; write the deliverable once, in the output space — a file, diff, or report is drafted once, not in full as reasoning and again as the reply.
   - Spend the reasoning on understanding the request, checking the inputs the answer depends on, and settling structure and hard decisions; then write.
   - Large deliverables land in pieces: one file, one commit, one report section per step, each written once.
   - Phase 1 (spec) is exempt: deliberate as long as the design needs.
 - Before ending a turn, check the last paragraph.
   - A plan, a question, a list of next steps, or a promise about undone work ("I'll…", "let me know when…") → do that work now with tool calls.
   - That includes retrying after errors and gathering missing information yourself.
-  - End the turn only when the task is complete or blocked on input only the user can provide.
+  - End the turn when the task is complete or blocked on input the user has to provide.
 - Do not stop, summarise, or suggest a new session because the context or session is long.
 - Exception: the user is describing a problem, asking a question, or thinking out loud rather than requesting a change → the deliverable is the assessment. Report findings and stop; do not apply a fix until asked.
 - Before a command that changes system state (restart, delete, config edit), check the evidence supports that specific action — a signal that pattern-matches a known failure may have a different cause.
-- **Delegate and keep working.** Independent subtasks go to subagents; the lead never blocks on them.
+- **Delegate and keep working.** Independent subtasks go to subagents; the lead does not block on them.
   - Keep working on the next item — or the user's next update — while they run.
-  - Integrate each result as it arrives; a delegated task is complete only when its result is integrated and reported.
-  - Never redo a delegated task yourself, never predict or fabricate a pending result, never end the whole task with a delegation still outstanding.
+  - Integrate each result as it arrives; a delegated task is complete when its result is integrated and reported.
+  - Do not redo a delegated task, predict a pending result, or end the whole task with a delegation outstanding.
   - Intervene if a subagent goes off track or lacks context.
 
 ### Before code
@@ -363,7 +365,7 @@ Call the principle out by abbreviation in review comments and specs (e.g. "this 
 11. **Do not merge** PRs. Merging is done by the user. Do not expect to be involved in the merge process.
 12. **Do not deploy** unless the user explicitly says so.
 
-An agent must surface an open question rather than guess — at the end of a turn that delivers everything not depending on the answer — when:
+An agent surfaces an open question rather than guessing — at the end of a turn that delivers everything not depending on the answer — when:
 - A spec section is ambiguous.
 - An interface from another module is missing or contradicts the spec.
 - The 97 % coverage target cannot be reached without unreasonable stubbing.
@@ -392,13 +394,13 @@ An agent must surface an open question rather than guess — at the end of a tur
 - A patch that exists only in a side workspace does not exist: it is unverifiable by others, not on the PR, and will be lost. Reporting such a patch as "addressed" is a false completion claim (violates T2).
 - Reviewers propose; the fix lands on the branch via the normal red → green → commit → push cycle (§5), or it is reported as an OPEN finding — never as done.
 
-### Scope creep — the hardest rule
+### Scope creep
 
 - The micro spec is the scope. Every change, test, and review fix traces to a spec line (`R<id>`, `A<id>`, an acceptance criterion) or an in-scope red-lighted claim — nothing else lands.
 - Scope-check feedback first and fast: every review claim, PR comment, or suggestion is checked against the micro spec before any trace or fix (§5 triage).
   - In scope → proceed.
-  - Out of scope → `OUT_OF_SCOPE` with the reason, listed as a follow-up in the summary; never fixed in this change.
-  - Never widen the spec to admit a claim — a fix that needs a new requirement is a large divergence (§1).
+  - Out of scope → `OUT_OF_SCOPE` with the reason, listed as a follow-up in the summary; not fixed in this change.
+  - A claim is not admitted by widening the spec — a fix that needs a new requirement is a large divergence (§1).
 - An agent works only on what was explicitly asked for. When in doubt whether something is in scope, leave it out and say so — finish the in-scope work rather than stopping to ask.
 - Violations erode trust and create hidden regressions.
 - **Do not add features** that were not in the current task or micro spec, even if they seem obviously useful.
@@ -410,7 +412,7 @@ An agent must surface an open question rather than guess — at the end of a tur
 - A pre-existing bug, performance concern, or behaviour the task does not mention → do not fix, optimise, or extend it unless the requested behaviour cannot work without it; report it as a follow-up in the summary.
 - An in-scope gap (§1) → implement the reading the wording and surrounding code most directly support, state the assumption in the summary, and do not build for the other readings too.
 - No error handling, fallbacks, or validation for scenarios that cannot happen — trust internal code and framework guarantees; validate at system boundaries only.
-- Extras only: every behaviour the task asks for is still implemented completely.
+- This governs extras: every behaviour the task asks for is still implemented completely.
 
 ---
 
