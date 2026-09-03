@@ -31,6 +31,7 @@ See [reference/design-principles/CHECKLIST.md](../reference/design-principles/CH
 - [ ] Are business rules free of HTTP, SQL, and framework types?
 - [ ] Are cross-cutting concerns (logging, auth, caching) handled at the boundary, not woven through logic?
 - [ ] Does changing the storage layer require touching the domain layer?
+- [ ] Are data and metadata carried separately? Metadata/control fields must not be smuggled into user rows or DTOs via reserved prefixes; use an explicit envelope such as `{ data, meta }`.
 - [ ] Are HTTP-layer error types (e.g., NestJS `HttpException`, Express `HttpError`) confined to controllers and error filters — never thrown inside service/domain/data layers? Throwing HTTP exceptions deep in the stack causes: (1) framework class dependencies in business logic, (2) broken `$transaction` / unit-of-work patterns when bundlers (webpack) destroy the class hierarchy, (3) premature formatting of errors before the system is ready to produce an HTTP response. Services should throw plain domain errors (e.g., `OntologyValidationError` with an error code); the controller or error filter maps them to HTTP status codes at the boundary.
 
 ### MVC / Layer Discipline
@@ -128,6 +129,26 @@ See [reference/design-principles/CHECKLIST.md](../reference/design-principles/CH
 - [ ] In a mixed system: is the boundary between the two models explicit, with a defined interface between them?
 - [ ] Is the object model being applied to a hot data path where it will cause cache misses or block vectorisation?
 - [ ] Is data flow being applied to a rich domain where logic will become scattered and unownable?
+
+### Scalability
+
+#### Query-level scoping (detect fetch-then-check)
+
+Principle: [Secure by Query](../reference/security-principles/secure-by-query.md). Detect where the code fetches a superset and filters in app code instead of scoping in the query.
+
+- [ ] Access rules (ownership, visibility, placement) are in the query WHERE clause, not a post-fetch filter.
+- [ ] The query returns only authorized rows — it does not fetch a superset and discard in app code.
+- [ ] List/search visibility filters (user-private vs shared vs org-wide) are in the query, not a post-query `.filter()`.
+- [ ] Any post-fetch gate is a defense-in-depth *second* layer, with the query still the primary authority.
+- [ ] Query scoping covers all access dimensions (org, project, user ownership, placement/visibility enum).
+- [ ] Unknown/unrecognized access values (e.g. a new placement enum variant) are excluded by the query, not checked later.
+
+#### Cursor pagination
+
+- [ ] Do all paginated endpoints use cursor-based pagination keyed on a stable record ID — not offset/page-number?
+- [ ] Is the response shape `{ items, nextCursor, hasMore }` with no `page`, `totalPages`, or `offset` fields?
+- [ ] Does the underlying query use `WHERE id > :cursor ORDER BY id LIMIT :size` (or equivalent) — not `OFFSET`?
+- [ ] If the UI needs page numbers, does the frontend synthesise them from cursor state rather than the API exposing offset semantics?
 
 ---
 

@@ -2,28 +2,85 @@
 
 Evidence-based review methodology. Every finding must be provable from code, output, or trace.
 
-## Issue States
+This document is the methodology and the **finding grammar** — how to review, and how to express every finding in one unambiguous line. It is self-contained: you do not need any other file to list findings.
 
-Canonical persisted status tokens and the `# SUMMARY` prefix grammar are defined in [ISSUE_TRACKING.md](ISSUE_TRACKING.md). Use that file when writing or updating review records.
+The persisted `review.md` store (the `~/reviews/<repo>-pr-<number>/` directory, its `# META`/`# SUMMARY`/`<ID>.md` files, and the rules for maintaining them) is a **separate concern**, specified in [ISSUE_TRACKING.md](ISSUE_TRACKING.md). Only the reviewer/orchestrator that owns a review directory reads that file.
 
-High-level states:
+## Finding Grammar
 
-- `OPEN` - coder must fix.
-- `NEEDS_REVIEW` - user/human needs to review because agents are uncertain or need input. Never discard a potential finding; if in doubt, use this state instead of omitting it.
-- `DEFERRED` - user has decided the issue is in scope but not needed now.
-- `CLOSED verified:<yyyy-mm-dd>` - coder has fixed the problem and the fix was verified on that date.
-- `WILL_NOT_FIX` - user has decided the issue is invalid, out of scope, or should be ignored.
+Every finding is expressed as one line. No prose adjectives — never say a finding is "present", "resolved", "done", or "handled". State is one of the tokens below, and only those tokens.
+
+### Line format
+
+```
+- [<x| >] <ID> - <STATUS> [<SEVERITY>] - <title> `file:line`
+```
+
+- `[ ]` for a not-closed finding, `[x]` for a closed one.
+- `<title>` is a short label with the location key(s) in backticks. Full detail is not needed to communicate the finding.
+
+### Status tokens
+
+- `OPEN` - must fix. No deferral. **A fix that is written but not yet verified is still `OPEN`** — do not upgrade to closed until verification evidence exists.
+- `NEEDS_REVIEW:reviewer` - reviewer is uncertain about a finding and needs the user/human to decide.
+- `NEEDS_REVIEW:coder` - coder is pushing back on a finding with evidence that the fix is problematic.
+- `NEEDS_REVIEW:cascade` - the claim was caused by a prior review claim's fix (found by the cascade pre-check). Requires a `cascade-of:<full ID>` line naming the prior claim. **Agents must never fix a cascade item without the user's explicit approval** — the user decides: fix it, revert the prior fix, or rule otherwise.
+- `DEFERRED` - user has decided the issue is in scope but not needed now. Human-only — agents must never set this state.
+- `CLOSED verified:<yyyy-mm-dd>` - the fix was applied **and verified** on that date (a passing reverify command, test, or trace). "Verified" is evidence-based; a fix merely present in the code is not verified.
+- `WILL_NOT_FIX` - user has decided the issue is invalid, out of scope, or should be ignored. Human-only — agents must never set this state.
+- `OUT_OF_SCOPE` - the claim failed a triage gate in the coder's review-claim procedure (micro-spec scope, `steering.md` design, or scope-creep beyond the branch's changed files). Coder-set only via that procedure; requires a `scope:<micro-spec|steering|scope-creep> - <reason>` line in the detail file. The user may reopen.
+- `UNPROVEN` - the coder attempted to red-light the claim and could not make a test fail from it. Requires the attempted probe and its passing output in the detail file. Awaits a human/reviewer decision: better evidence reopens it to `OPEN`, or the user closes it `WILL_NOT_FIX`.
+
+Not-closed = `OPEN`, `NEEDS_REVIEW:reviewer`, `NEEDS_REVIEW:coder`, `NEEDS_REVIEW:cascade`, `DEFERRED`, `UNPROVEN`. Closed = `CLOSED verified:<yyyy-mm-dd>`, `WILL_NOT_FIX`, `OUT_OF_SCOPE`.
+
+### Severity
+
+`CRITICAL`, `HIGH`, `MEDIUM`, `LOW`.
+
+### ID format
+
+Full ID: `<prefix><n>.<SID>` — e.g. `D4.2kQ7hVb1nZx0LpR4sT9WdC`.
+
+- `<prefix><n>` is the short ID: type prefix + per-review-directory sequence number. Convenient for humans to type and say.
+- `<SID>` is a UUIDv4 compressed to base62 `[0-9A-Za-z]`: 128 bits at fixed width 22, zero-padded, alphabet `0-9A-Za-z` most-significant first. Fixed width keeps it decodable back to the UUID and sortable. Generated once at issue creation, never changed, never reused — it follows the issue across PRs, code moves, and spec copies.
+- Generate a SID: `~/agents/bin/sid.py` (fresh UUIDv4; pass an existing UUID as the argument to encode it).
+- Persisted artifacts always use the full ID: `# SUMMARY` lines, `open:` in `# META`, `<ID>.md` filenames, code comments, test names and descriptions, micro-specs, commit messages, PR descriptions, and `log.md` lines.
+- **The short form is chat-only. Never write a bare short ID into any file.** `// M6 fail-closed` in a comment or `it("... (M6) ...")` in a test is a violation — write `M6.4gCr6bv3SakoOzx2jPYIvo`. The moment an ID leaves the conversation and lands in a file, it carries its SID.
+- Humans may use the short form (`D4`) in chat. Resolve it against the current review directory and echo back the full ID. If the short form matches more than one issue, list the matching full IDs and ask.
+- Short numbers repeat across PRs and review directories — the SID is the identity. Match, dedupe, and cross-reference issues by SID, never by short number alone. `rg <SID> ~/reviews` locates an issue's home directory.
+- Legacy IDs without a SID: assign one on first touch, rename the detail file, and update all references in the review directory.
+
+### ID prefixes
+
+`B` BUG, `SEC` SECURITY, `I` ISSUE, `S` SCOPING_AUTH, `O` OPTIMIZATION, `D` DESIGN, `T` TEST, `M` MINOR. Sort by that prefix order, then by sequence number within each prefix.
+
+### Example
+
+```
+- [x] S1.6a9mBxGFDEFwDkWxPmDfhe - CLOSED verified:2026-07-09 [HIGH] - scope resolved from row when expectedProviderName absent `resolver:71,100-103,127-128`
+- [x] S2.0kijmPsixwhmorp7i7rIFm - CLOSED verified:2026-07-09 [HIGH] - SHARED_ONLY denied in USER-scope branch before owner return `resolver:180-185`
+- [ ] S3.3IAOnuu74N5DDX97Fv0q2g - OPEN [HIGH] - assertUserScopeOwnership wired into update/reauthorize/delete; admin build unverified `base:342,355;credential-controller:256`
+```
+
+### Coder output
+
+The coder **does not write to `review.md`** and does not touch the review directory. The coder lists findings to the user in chat as this flat checkbox list, using the grammar above. Persisting to the review store is the reviewer/orchestrator's job.
+
+Never discard a potential finding. If in doubt, use `NEEDS_REVIEW:reviewer` instead of omitting it.
 
 ## Stage 0 — Read existing review state
 
+Store step — for the reviewer/orchestrator persisting to a `review.md` directory. A coder reporting findings in chat skips Stage 0. The file mechanics referenced here (`review.md`, `# META`, `open:`, `<ID>.md`) are specified in [ISSUE_TRACKING.md](ISSUE_TRACKING.md).
+
 Before making claims or editing the persisted review file:
 
-1. Read the current review index at `reviews/<repo>-pr-<number>/review.md` if it exists.
-2. If only a legacy `reviews/<repo>-pr-<number>-review.md` exists, read it and migrate it to the review directory without losing history.
-3. Read every archived closed issue detail file linked from the index `# DETAILS` section.
-4. Summarize to yourself:
+1. Read the current review index at `~/reviews/<repo>-pr-<number>/review.md` if it exists.
+2. If only a legacy `~/reviews/<repo>-pr-<number>-review.md` exists, read it and migrate it to the review directory without losing history.
+3. Process feedback using the procedure in [ISSUE_TRACKING.md § Feedback ingress](ISSUE_TRACKING.md#feedback-ingress).
+4. Read the `<ID>.md` detail files for not-closed issues listed in `open:`.
+5. Summarize to yourself:
    - what the current issue IDs are
-   - which issues are not-closed vs closed according to `open:` in `# META`, `# SUMMARY` checkboxes and status tokens, and detail record statuses
+   - which issues are not-closed vs closed according to `open:` in `# META`, `# SUMMARY` checkboxes and status tokens, and `<ID>.md` statuses
    - which entries include cross-PR parent/child context in `pr:`
 
 ## Stage 1 — Gather & Analyze
@@ -48,7 +105,16 @@ Before making claims or editing the persisted review file:
    - **Trace callers**: who calls the changed function? Do upstream preconditions contradict the new logic?
    - **Find parallel paths**: are there other code paths that perform the same operation? Does the fix apply to all of them?
 
-4. **Check for regressions** — compare old vs new for each changed function/endpoint:
+4. **CODER.md §4 compliance** — for every changed file, verify these are not violated:
+   - **Enums for closed sets**: no raw strings where a const enum or union type exists. Grep for string literals passed to typed parameters.
+   - **Booleans over string arrays**: fixed permission/flag sets use `{ key: boolean }` records, not `string[]`.
+   - **Fail-closed defaults**: filters, permission checks, and gates deny on empty or absent input unless a documented legacy exception exists. Present-but-empty is always deny.
+   - **No metadata in data namespaces**: system fields are under a reserved envelope key, not mixed into user data objects.
+   - **No compat shims for internal code**: no re-exports, adapter wrappers, or renaming shims for internal callers. Internal interface changes update all callers directly.
+   - **Cursor pagination**: all paginated endpoints use cursor-based pagination keyed on a record ID, not offset/page-number. Response shape is `{ items, nextCursor, hasMore }` — no `page`, `totalPages`, or `offset`.
+   - **No `any`**: no new `any` types without a disable comment explaining why.
+
+5. **Check for regressions** — compare old vs new for each changed function/endpoint:
    - What did the old function return? What shape/type?
    - What does the new function return? Same contract?
    - Did the old code have filters or guards? Are they preserved?
@@ -89,9 +155,11 @@ A full review that skips endpoints, defers findings, or only checks the happy pa
 
 ### Evidence of completion
 
-A full review must produce a **coverage evidence table** appended to the review output under `# FULL REVIEW EVIDENCE`. This table proves every file in scope was actually read and checked at the time of review. It is not a claim — it is a verifiable receipt.
+Store step — applies when persisting to a `review.md` directory (see [ISSUE_TRACKING.md](ISSUE_TRACKING.md)). A coder reporting in chat presents the same coverage as a plain table in its message.
 
-For every file in the PR diff (from `git diff main...HEAD --name-only`), record it in the table. The table must be written to `review.md` after `# DETAILS`.
+A full review must produce a **coverage evidence table** under `# FULL REVIEW EVIDENCE`. This table proves every file in scope was actually read and checked at the time of review. It is not a claim — it is a verifiable receipt.
+
+For every file in the PR diff (from `git diff main...HEAD --name-only`), record it in the table. When persisting, the table is written to `review.md` after `# SUMMARY`.
 
 Format:
 
@@ -140,16 +208,78 @@ Rules:
 - Verify data flow end-to-end: endpoint -> service -> data layer -> response.
 - For any refactored data-fetching: verify the old filters, mappings, and return types are all preserved.
 - The review document contract (output format, issue tracking) is separate from the review judgment. The codebase is the source of truth for findings, not this file.
-- Do not invent ad hoc review sections if the existing review tracking format already has a place for the information.
-- If the user says "find the list", inspect the actual review file structure first — the primary state list is the flat checkbox list under `# SUMMARY`.
-- If you add a new issue ID, also add its detailed issue body inline under `# DETAILS`.
-- If you change severity or wording in a summary list item, reflect the same change in the detailed issue entry.
+- When persisting to a `review.md` store, follow [ISSUE_TRACKING.md](ISSUE_TRACKING.md) for all file mechanics (`<ID>.md` detail files, `# SUMMARY`, keeping titles and detail in sync). Those rules do not apply to in-chat finding reports.
+
+## Acceptance Gate Verification
+
+Before accepting a PR as review-complete, verify the acceptance gates from
+CODER.md §5. Each gate requires an artifact — no artifact means the gate
+was not run.
+
+### Process gates (verify artifacts exist)
+
+- [ ] **P1 Spec-with-matrix**: if the PR adds filters, permissions, gates, or
+  fallbacks — the spec contains the input-state × behavior table with absent
+  and present-but-empty as separate rows. No TBD cells. If absent, open as a
+  finding.
+- [ ] **P2 Executable ACs**: every acceptance criterion names a test. Check
+  that the named tests exist and pass. Prose-only ACs are a finding.
+- [ ] **P3 Anti-pattern catalog check**: the spec or PR description includes a
+  pass/fail/N-A list against `anti-patterns/CHECKLIST.md`. If absent, run the
+  check yourself and open findings for any hits.
+
+### Code gates (verify in the diff)
+
+- [ ] **C1 Fail-closed posture**: every gate in the diff has its posture
+  documented. `grep` for filter/permission/guard logic and verify absent →
+  deny (or documented compat), empty → deny.
+- [ ] **C2 No raw strings for closed sets**: `grep` new fields for bare
+  `string` types where a union/enum exists. Any hit is a finding.
+- [ ] **C3 Invalid states unrepresentable**: flags use booleans not string
+  arrays; domain values use named types not primitives.
+- [ ] **C4 No metadata in data namespace**: system fields are under a reserved
+  envelope key, not mixed into user data. Run smuggler checklist against diff.
+- [ ] **C5 One owner per contract**: types crossing boundaries are declared
+  once and imported, or carry `KEEP-IN-SYNC` references with a shape-pinning
+  test.
+- [ ] **C6 Only functional code**: every new symbol has a caller in the diff.
+  No speculative fields, params, shims, or fallbacks without a current
+  consumer named in the spec.
+- [ ] **Cursor pagination**: any new paginated endpoint uses cursor-based
+  pagination keyed on record ID, not offset/page-number.
+
+### Truth gates (verify claims match code)
+
+- [ ] **T1 No reviewer bait**: scan the diff for comments, docblocks, test
+  names, and log messages that describe behavior the code does not implement.
+  Each hit is a finding.
+- [ ] **T2 Failures reported verbatim**: check that test output, skipped
+  steps, and unverified paths are stated plainly — not editorialised.
+
+### Submission gates (verify before marking review complete)
+
+- [ ] **S1 Checklists executed with artifacts**: `REVIEW_METHOD.md` checklist
+  was run (this file). `SECURITY_REVIEW.md` check groups ran if the diff
+  touches APIs/auth/credentials. `anti-patterns/CHECKLIST.md` ran against the
+  diff. Each has a filled item → pass/fail/N-A → `file:line` record.
+- [ ] **S2 Findings classified before fixes**: every finding is tagged
+  on-objective / robustness-layer / out-of-scope. Robustness layers default to
+  rejected pending user decision.
+- [ ] **S3 Fresh state**: review ran against current HEAD after `git fetch`.
+  HEAD SHA is recorded.
 
 ## Done Criteria
 
-A review update is only complete when all of the following are true:
+A review is only complete when:
 
 - the review conclusions came from your own code review of the actual codebase
+- every finding is expressed in the finding grammar above, with `file:line` evidence
+- no potential finding was silently dropped
+
+### Store done criteria (when persisting to `review.md`)
+
+When the review is persisted to a `review.md` directory, additionally verify — full mechanics in [ISSUE_TRACKING.md](ISSUE_TRACKING.md):
+
 - the persisted review directory follows the output format and issue tracking contract in [ISSUE_TRACKING.md](ISSUE_TRACKING.md)
 - the `open:` line in `# META` matches `# SUMMARY` checkboxes/status tokens and detail statuses
 - any state changes are visible in the existing tracker and detailed entries

@@ -170,9 +170,23 @@ Verify none of the following exist in the code under review. See [anti-patterns.
 - [ ] No singleton is accessed as global state throughout the codebase.
 - [ ] Dependencies that happen to be single instances are injected, not fetched globally.
 
+#### Smuggler
+- [ ] Metadata/control fields are not mixed into user data rows or DTOs.
+- [ ] User data and system metadata use separate fields or an explicit envelope.
+- [ ] No reserved prefix convention (`_foo`, `__meta`, etc.) is required to distinguish data from metadata.
+- [ ] No early return bypasses projection, validation, or sanitization.
+- [ ] No allowlist exists only to make mixed metadata/data safe.
+
 #### Star-Alias
 - [ ] No implementation widens interface parameter types via intersection (`Type & { extra }`).
 - [ ] Implementation method signatures match the interface exactly.
 - [ ] No variable or column holds two distinct pieces of data (e.g. `"userId:orgId"`).
 - [ ] No variable is reused for a different purpose than its name suggests.
 - [ ] One variable, one meaning. One column, one value.
+
+#### Gold Plating (Over-Engineering)
+- [ ] No durability, abstraction, or protection is added beyond what a stated requirement justifies.
+- [ ] No alias, re-export, shim, or dual-read/write is added to bridge a rolling-deploy transition whose gap is seconds at worst.
+- [ ] No "temporary" transition scaffolding is smuggled into a refactor PR without a stated zero-downtime requirement justifying it.
+- [ ] Any genuine zero-downtime transition is done as a deliberate two-PR expand/contract (additive PR adds both, contract PR removes the old), not a shim in one PR.
+- [ ] Every bridging construct has a named removal step; none is left as an orphaned "remove later" alias.

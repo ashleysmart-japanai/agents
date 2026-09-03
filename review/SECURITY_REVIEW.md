@@ -1,6 +1,7 @@
 # Security Review Check Groups
 
 > **Method**: Follow the review methodology in [REVIEW_METHOD.md](REVIEW_METHOD.md) before running these check groups.
+> **Principles**: These check groups *detect* violations of the security principles in [`reference/security-principles.md`](../reference/security-principles.md) — the instructive "how to build it right" catalog. Cite the principle when opening a finding.
 
 Run against every PR that touches APIs, credentials, auth, or external service integrations.
 
@@ -63,6 +64,22 @@ Before running any checklist, map how security actually works. No assumptions. T
 - [ ] credentialId in sourceMappings validated at entity upsert time (belongs to same org, correct provider)
 - [ ] Cross-tenant credential test: entity in org A cannot use credential from org B
 - [ ] Moving credential resolution to a new service preserves all scoping — audit after refactors
+
+## IDOR / Object Ownership
+
+Insecure Direct Object Reference — an endpoint accepts an ID from the
+caller and returns or mutates the object without verifying the caller is
+allowed to touch it. Org-level scoping is necessary but not sufficient;
+user-level ownership checks are required for user-private resources.
+
+- [ ] Every GET-by-ID endpoint that returns a user-scoped resource verifies `resource.userId === callerUserId` (not just org match)
+- [ ] Every UPDATE/DELETE-by-ID endpoint for user-scoped resources verifies ownership before mutating
+- [ ] List endpoints apply visibility filters: user-private rows only returned to the owner; shared rows returned to all org members
+- [ ] Visibility/ownership enum values (USER_PRIVATE, SHARED, ORG_WIDE, etc.) are enforced in queries, not just stored as labels
+- [ ] Ownership checks happen at the object level after fetch, not just at the query level — a query bug must not expose private objects
+- [ ] Cross-user tests exist within the same org: user A cannot read/update/delete user B's private resources
+- [ ] Credential resolver enforces ownership — a user-scoped credential cannot be resolved for a different user even if the credentialId is known
+- [ ] Filter/search endpoints do not leak private resource existence (e.g., count, facets, autocomplete returning private items)
 
 ## Credential Exposure
 
