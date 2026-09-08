@@ -10,13 +10,19 @@ Rules and expectations for all AI agents working in this repository tree. These 
 >
 > | Document | Written by | Read by | Where |
 > |---|---|---|---|
-> | Micro spec (`microspec.md`, or `quick-spec.md` / `standard-spec.md` / `full-spec.md`) | Human | Agent, read-only | `<project>/docs/<YYYYMMDD>_<slug>/` |
+> | Micro spec (`microspec.md`, or `quick-spec.md` / `standard-spec.md` / `full-spec.md`) | Human's words; the agent formats and writes on approval | Agent | `<project>/docs/<YYYYMMDD>_<slug>/` |
 > | Tasking file (`agent_tasking.md`, "tasking") | Agent | Human, approves | Same directory, next to the spec |
 
 ### The spec — what the agent does with it
 
 - The agent reads the spec end to end before tasking; shape and tiers are in `design/AGENT_SPECS.md` § Tier shapes.
-- The agent does not edit it — not to fix typos, fill gaps, or record drift. The same holds for `steering.md` and every other spec-tier document.
+- The spec carries the human's words — the same contract as `task.md` (ISSUE_TRACKING.md § Task file): the human owns the content, the agent may hold the pen.
+  - When asked, the agent drafts the spec from what the human said, near-verbatim, formatted into the tier shape (`design/AGENT_SPECS.md` § Tier shapes).
+  - Allowed corrections: grammar, spelling, expanding shorthand, placing text under the right heading.
+  - Not allowed: rephrasing, summarising in the agent's words, adding requirements, design, or alternatives the human did not say.
+  - The draft is shown in chat; the file is written on approval. The same holds for every later change to it.
+  - The agent's own analysis — assumptions, risks, proposed design, open questions — goes in the tasking file, not the spec.
+  - The same contract holds for `steering.md` and every other spec-tier document.
 - Spec is the source of truth. Code to its intended target — do not rewrite it to match the code.
 - The spec is the scope (§6 Scope creep).
 - A gap or conflict in the spec → the agent asks; the human edits.
@@ -418,11 +424,11 @@ An agent surfaces an open question rather than guessing — at the end of a turn
 - A patch that exists only in a side workspace does not exist: it is unverifiable by others, not on the PR, and will be lost. Reporting such a patch as "addressed" is a false completion claim (violates T2).
 - Reviewers propose; the fix lands on the branch via the normal red → green → commit → push cycle (§5), or it is reported as an OPEN finding — never as done.
 
-### Spec documents are human-writable
+### Spec documents carry the human's words
 
-- The agent reads spec documents; it does not write to them — micro spec, `steering.md`, quick/standard/full specs, or any spec-tier document.
+- Spec documents — micro spec, `steering.md`, quick/standard/full specs — hold the human's content; the agent formats and writes it on approval (§1), and adds nothing of its own.
 - The agent's spec work goes in the tasking file (`design/AGENT_SPECS.md` § Tasking file), committed separately from code.
-- A commit by the agent that touches a spec document is a finding for the reviewer (REVIEWER.md).
+- Spec content with no approval behind it is a finding for the reviewer (REVIEWER.md).
 - AI-generated output is a draft until a human has read it end to end; the agent presents the tasking file as a draft for reading, not as a reviewed spec.
 
 ### Scope creep

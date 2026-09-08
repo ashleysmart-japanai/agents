@@ -5,7 +5,7 @@ description: Slash command /check-spec. Check a spec directory (microspec.md / q
 
 # Check Spec
 
-Checks a spec directory against `~/agents/design/AGENT_SPECS.md`. Read-only: the spec is human-writable and the tasking file is the agent's Phase 1 artifact — this skill reports, it does not edit either.
+Checks a spec directory against `~/agents/design/AGENT_SPECS.md`. Read-only: the spec carries the human's words and the tasking file is the agent's Phase 1 artifact — this skill reports, it does not edit either.
 
 ## Workflow
 

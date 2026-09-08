@@ -59,22 +59,25 @@ Tasking file: `agent_tasking.md`, in the same directory as the spec it serves �
 
 ## Authorship
 
-- Spec documents are human-writable. The agent reads them; it does not add, remove, reword, or fill gaps in any section.
-- The agent writes its spec work to the tasking file (§ Tasking file).
-- A gap or conflict in the spec → the agent asks; the human edits.
+- The human owns the spec's content; the agent may hold the pen — the `task.md` contract (ISSUE_TRACKING.md § Task file).
+  - The agent drafts from the human's words, near-verbatim, formatted into the tier shape; it shows the draft and writes on approval.
+  - Allowed: grammar, spelling, expanding shorthand, placing text under the right heading.
+  - Not allowed: rephrasing, summarising, or adding content the human did not say — no invented requirements, design, or alternatives.
+- The agent's own analysis goes in the tasking file (§ Tasking file).
+- A gap or conflict in the spec → the agent asks; the human supplies the words.
 
 | # | Section | Lives in | Author | Agent rule |
 |---|---|---|---|---|
-| 1 | Requirements | Spec | Human | Read-only. Missing or empty → tasking does not start; ask. |
-| 2 | Design | Spec | Human | Read-only. Missing → the agent proposes one in the tasking file and asks. |
-| 3 | Use cases — summary | Spec | Human | Read-only. Numbered checklist (`U<id>`). |
-| 4 | Use cases — detail | Spec | Human | Read-only. |
+| 1 | Requirements | Spec | Human | Human's words. Missing or empty → tasking does not start; ask. |
+| 2 | Design | Spec | Human | Human's words. Missing → the agent proposes one in the tasking file and asks. |
+| 3 | Use cases — summary | Spec | Human | Human's words. Numbered checklist (`U<id>`). |
+| 4 | Use cases — detail | Spec | Human | Human's words. |
 | 5 | Task breakdown — summary | Tasking file | Agent | Numbered checklist (`A<id>`). Ordered by dependency. Human reads end to end before work starts. |
 | 6 | Task breakdown — detail | Tasking file | Agent | Expanded task descriptions with modules, tests, dependencies. |
 | 7 | Test plan | Tasking file | Agent | Derive from requirements. Human reads for completeness. |
 | 8 | Security checklist | Tasking file | Agent | Agent checks before completion. Human verifies. |
-| 9 | Acceptance checklist | Spec | Human | Read-only. |
-| 10 | References | Spec | Human | Read-only. Append-only. |
+| 9 | Acceptance checklist | Spec | Human | Human's words. |
+| 10 | References | Spec | Human | Human's words. Append-only. |
 
 ## Tasking file
 

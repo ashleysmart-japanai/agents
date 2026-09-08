@@ -43,7 +43,7 @@ Sections per tier: `design/AGENT_SPECS.md` § Tier shapes. The human micro spec 
 ### Rules
 
 - No code is written until the human spec exists and the agent's tasking file is committed and approved.
-- The spec is the source of truth. If code diverges, record it in the tasking file (small drift) or ask (large divergence) — spec documents are human-writable (`design/AGENT_SPECS.md` § Authorship).
+- The spec is the source of truth. If code diverges, record it in the tasking file (small drift) or ask (large divergence) — a spec change is proposed in the human's words and written on approval (`design/AGENT_SPECS.md` § Authorship).
 - In markdown docs, do not manually hard-wrap prose lines; keep paragraph text on a single line and let the editor handle visual wrapping.
 - Acceptance criteria drive the test plan — every criterion maps to at least
   one test. Missing test → missing criterion or vice versa.
