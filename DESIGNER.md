@@ -2,7 +2,7 @@
 
 Software design knowledge required of all agents operating in a design or architecture capacity.
 
-> Spec authoring guide: `@design/SPECS.md`
+> Spec authoring guide: `@design/AGENT_SPECS.md`
 
 ---
 

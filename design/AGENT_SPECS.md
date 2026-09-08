@@ -1,4 +1,6 @@
-# Writing Specs for AI Agents
+# Agent Specs — reading the spec, writing the tasking file
+
+Agent rules for the two spec documents. The human spec's authoritative convention is the project's own spec guide; this document states what the agent expects to find in it, what the agent checks (`/check-spec`), and what the agent writes in the tasking file.
 
 ## Objective
 

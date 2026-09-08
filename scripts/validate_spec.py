@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Validate a spec directory against design/SPECS.md.
+"""Validate a spec directory against design/AGENT_SPECS.md.
 
 Checks the human tier file (microspec.md, quick-spec.md, standard-spec.md, full-spec.md)
 and, when present, the agent's agent_tasking.md beside it.
@@ -109,9 +109,9 @@ def common_prose_checks(path, lines, violations):
         if l.lstrip().startswith("```"):
             continue
         if TRACKER_RE.search(l):
-            violations.append(Violation(path, f"line {i}: tracker marker in spec prose (SPECS.md § The spec is not a tracker)"))
+            violations.append(Violation(path, f"line {i}: tracker marker in spec prose (AGENT_SPECS.md § The spec is not a tracker)"))
         if LINE_NUMBER_REF_RE.search(l):
-            violations.append(Violation(path, f"line {i}: line-number citation — use durable references (SPECS.md § Objective)"))
+            violations.append(Violation(path, f"line {i}: line-number citation — use durable references (AGENT_SPECS.md § Objective)"))
 
 
 def validate_tier_file(path, tier, violations):
@@ -126,12 +126,12 @@ def validate_tier_file(path, tier, violations):
 
     for kw in REQUIRED_SECTIONS[tier]:
         if not has_section(sections, kw):
-            violations.append(Violation(path, f"{tier} spec is missing section '{kw}' (SPECS.md § Tier shapes)"))
+            violations.append(Violation(path, f"{tier} spec is missing section '{kw}' (AGENT_SPECS.md § Tier shapes)"))
     for kw in AGENT_SECTIONS:
         if has_section(sections, kw):
             violations.append(Violation(path, f"section '{kw}' is agent-authored and belongs in {TASKING_FILE}, not the spec"))
     if tier == "micro" and has_section(sections, "design"):
-        violations.append(Violation(path, "micro spec has a Design section — the fix is the design (SPECS.md § Tier shapes)"))
+        violations.append(Violation(path, "micro spec has a Design section — the fix is the design (AGENT_SPECS.md § Tier shapes)"))
 
     # Scope: out of scope + boundary.
     if tier in ("micro", "quick"):
@@ -173,7 +173,7 @@ def validate_tasking_file(path, spec_r_ids, violations):
 
     for kw in TASKING_REQUIRED:
         if not has_section(sections, kw):
-            violations.append(Violation(path, f"tasking file is missing section '{kw}' (SPECS.md § Tasking file)"))
+            violations.append(Violation(path, f"tasking file is missing section '{kw}' (AGENT_SPECS.md § Tasking file)"))
     for kw in HUMAN_ONLY_SECTIONS:
         if has_section(sections, kw):
             violations.append(Violation(path, f"section '{kw}' is human-authored and belongs in the spec — the tasking file references R<id>, it does not restate them"))
@@ -225,7 +225,7 @@ def validate_spec_dir(spec_dir):
 
 
 def main():
-    parser = argparse.ArgumentParser(description="Validate spec directories against design/SPECS.md")
+    parser = argparse.ArgumentParser(description="Validate spec directories against design/AGENT_SPECS.md")
     parser.add_argument("paths", nargs="+", help="spec directory (or a file inside it)")
     args = parser.parse_args()
 

@@ -27,7 +27,7 @@ explicitly overrides a section.
 
 ## Spec and Tasking
 
-Every task with blast radius begins with a human-written micro spec and the agent's tasking file (`design/SPECS.md` § Tasking file), both **before** any code.
+Every task with blast radius begins with a human-written micro spec and the agent's tasking file (`design/AGENT_SPECS.md` § Tasking file), both **before** any code.
 
 ### File location
 
@@ -38,12 +38,12 @@ Every task with blast radius begins with a human-written micro spec and the agen
 
 ### Required sections
 
-Sections per tier: `design/SPECS.md` § Tier shapes. The human micro spec opens with what ships, when, and who owns it, then carries Goal, Scope (with boundary), Behaviour, Error cases, Alternatives, and Open questions; the test plan and task breakdown are the agent's, in the tasking file.
+Sections per tier: `design/AGENT_SPECS.md` § Tier shapes. The human micro spec opens with what ships, when, and who owns it, then carries Goal, Scope (with boundary), Behaviour, Error cases, Alternatives, and Open questions; the test plan and task breakdown are the agent's, in the tasking file.
 
 ### Rules
 
 - No code is written until the human spec exists and the agent's tasking file is committed and approved.
-- The spec is the source of truth. If code diverges, record it in the tasking file (small drift) or ask (large divergence) — spec documents are human-writable (`design/SPECS.md` § Authorship).
+- The spec is the source of truth. If code diverges, record it in the tasking file (small drift) or ask (large divergence) — spec documents are human-writable (`design/AGENT_SPECS.md` § Authorship).
 - In markdown docs, do not manually hard-wrap prose lines; keep paragraph text on a single line and let the editor handle visual wrapping.
 - Acceptance criteria drive the test plan — every criterion maps to at least
   one test. Missing test → missing criterion or vice versa.
