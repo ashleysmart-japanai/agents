@@ -6,7 +6,7 @@ Rules and expectations for all AI agents working in this repository tree. These 
 
 ## 1. Spec and Tasking
 
-> Agent rules for the two spec documents. Their shape and sections: `@design/AGENT_SPECS.md`.
+> Agent rules for the two spec documents. Their shape and sections: `@design/AGENT_TASKING.md`.
 >
 > | Document | Written by | Read by | Where |
 > |---|---|---|---|
@@ -15,9 +15,9 @@ Rules and expectations for all AI agents working in this repository tree. These 
 
 ### The spec — what the agent does with it
 
-- The agent reads the spec end to end before tasking; shape and tiers are in `design/AGENT_SPECS.md` § Tier shapes.
+- The agent reads the spec end to end before tasking; shape and tiers are in `design/AGENT_TASKING.md` § Tier shapes.
 - The spec carries the human's words — the same contract as `task.md` (`review/TASK_FILE.md`): the human owns the content, the agent may hold the pen.
-  - When asked, the agent drafts the spec from what the human said, near-verbatim, formatted into the tier shape (`design/AGENT_SPECS.md` § Tier shapes).
+  - When asked, the agent drafts the spec from what the human said, near-verbatim, formatted into the tier shape (`design/AGENT_TASKING.md` § Tier shapes).
   - Allowed corrections: grammar, spelling, expanding shorthand, placing text under the right heading.
   - Not allowed: rephrasing, summarising in the agent's words, adding requirements, design, or alternatives the human did not say.
   - The draft is shown in chat; the file is written on approval. The same holds for every later change to it.
@@ -29,17 +29,17 @@ Rules and expectations for all AI agents working in this repository tree. These 
 
 ### The tasking file — what the agent writes
 
-- The tasking file is the agent's spec: task breakdown (`A<id>`), test plan, security checklist, gap assumptions, the P1 matrix when the spec lacks one, the P3 check, the AC → test mapping, open questions (`design/AGENT_SPECS.md` § Tasking file).
-- Every task with blast radius (`design/AGENT_SPECS.md` § Whether and which spec) has both documents **before** any code.
+- The tasking file is the agent's spec: task breakdown (`A<id>`), test plan, security checklist, gap assumptions, the P1 matrix when the spec lacks one, the P3 check, the AC → test mapping, open questions (`design/AGENT_TASKING.md` § Tasking file).
+- Every task with blast radius (`design/AGENT_TASKING.md` § Whether and which spec) has both documents **before** any code.
 - No code is written until the human spec exists and the tasking file is committed and explicitly approved (§5 Two phases).
 - The tasking file references the spec by `R<id>`; it does not restate requirements.
 
 ### How the agent writes the tasking file
 
-- Not a status tracker: no `DONE`/`Status:`/`REVERTED` markers or edit history in prose — state the settled contract only (`design/AGENT_SPECS.md` § The spec is not a tracker).
-- Statements follow SOLID, open/closed in particular: state what the change adds or does, not the module's full inventory (`design/AGENT_SPECS.md` § Objective).
-- Acceptance criteria are guides for groups of testing, not micro-detail inventories: each derives at least one test — usually more — at implementation; leave them as generalizations where appropriate and never treat or present them as the ceiling of testing (`design/AGENT_SPECS.md` § Acceptance criteria are guides, not inventories).
-- `/check-spec` (`skills/CHECK_SPEC.md`) checks both against `design/AGENT_SPECS.md`.
+- Not a status tracker: no `DONE`/`Status:`/`REVERTED` markers or edit history in prose — state the settled contract only (`design/AGENT_TASKING.md` § The spec is not a tracker).
+- Statements follow SOLID, open/closed in particular: state what the change adds or does, not the module's full inventory (`design/AGENT_TASKING.md` § Objective).
+- Acceptance criteria are guides for groups of testing, not micro-detail inventories: each derives at least one test — usually more — at implementation; leave them as generalizations where appropriate and never treat or present them as the ceiling of testing (`design/AGENT_TASKING.md` § Acceptance criteria are guides, not inventories).
+- `/check-spec` (`skills/CHECK_SPEC.md`) checks both against `design/AGENT_TASKING.md`.
 
 ### Resolving gaps
 
@@ -279,7 +279,7 @@ SOLID applies to statements too — docs, specs, PR descriptions, commit message
   - Offering follow-ups after the work is fine; asking permission before doing requested work is not.
   - A per-item halt (cascade, `UNPROVEN`, `NEEDS_REVIEW`, a large divergence on one item) is reported and the rest of the work continues; it does not end the turn.
 - **Two phases, one gate between them.**
-  - Phase 1 — tasking: read the human spec end to end, write or update the tasking file (`design/AGENT_SPECS.md` § Tasking file), run `/check-spec`, pass the process gates (P1–P3), commit the tasking file on its own, push, then end the turn asking for approval. This turn ends on a question.
+  - Phase 1 — tasking: read the human spec end to end, write or update the tasking file (`design/AGENT_TASKING.md` § Tasking file), run `/check-spec`, pass the process gates (P1–P3), commit the tasking file on its own, push, then end the turn asking for approval. This turn ends on a question.
   - Phase 2 — code: on explicit human approval recorded in the thread or PR (silence is not approval), implement every acceptance criterion (red → green → commit → push), run the submission gates and review triage, report. Work continues to completion.
   - Phase 2 starts on an approved tasking file.
   - Phase 1 reopens mid-Phase 2 for a large divergence (§1) — ask, at the end of a turn that delivers everything not depending on the answer.
@@ -428,7 +428,7 @@ An agent surfaces an open question rather than guessing — at the end of a turn
 ### Spec documents carry the human's words
 
 - Spec documents — micro spec, `steering.md`, quick/standard/full specs — hold the human's content; the agent formats and writes it on approval (§1), and adds nothing of its own.
-- The agent's spec work goes in the tasking file (`design/AGENT_SPECS.md` § Tasking file), committed separately from code.
+- The agent's spec work goes in the tasking file (`design/AGENT_TASKING.md` § Tasking file), committed separately from code.
 - Spec content with no approval behind it is a finding for the reviewer (REVIEWER.md).
 - AI-generated output is a draft until a human has read it end to end; the agent presents the tasking file as a draft for reading, not as a reviewed spec.
 
