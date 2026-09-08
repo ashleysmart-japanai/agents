@@ -305,8 +305,9 @@ SOLID applies to statements too — docs, specs, PR descriptions, commit message
 
 1. **Read the bug report or task fully.** If the task references a review issue, read the entire `<ID>.md` detail file — description, evidence, fix guidance, and reverify steps. Do not skim summaries or titles. Do not make decisions, push back, or categorise an issue without reading the full detail file first.
 2. **Read** the human spec end to end. Absent, or an empty Requirements section → ask for it; the agent does not write it.
-3. **Read** existing code in the affected area before writing anything.
-4. **Write or update** the tasking file if the task is new or scope changes.
+3. **Create or read `task.md`** in the review directory per `review/TASK_FILE.md`: propose `# GOAL` in the user's words, write on approval; propose a `# STATUS` update after each push.
+4. **Read** existing code in the affected area before writing anything.
+5. **Write or update** the tasking file if the task is new or scope changes.
 
 **Process gates — Phase 1 ends here; no implementation until all pass and the spec is approved:**
 

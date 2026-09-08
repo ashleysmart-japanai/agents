@@ -281,7 +281,7 @@ If a fix is reverted or no longer holds:
 ~/reviews/<repo>-pr-<number>/
   review.md
   feedback.md
-  task.md
+  task.md            # grammar: TASK_FILE.md
   B1.1Z0njAzGj6F7oezIwcQD7g.md
   B2.4RQ0TSM6xX75zFFiKHBoDj.md
   log.md
