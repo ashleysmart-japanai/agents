@@ -36,6 +36,8 @@
 
 Human-written in every tier; the agent's task breakdown and test plan go in the tasking file.
 
+Every tier opens with the three questions, answered in one line each: what ships, when, and who owns it. A spec that cannot answer them is a draft.
+
 - Micro spec — a bug fix, docs, or config change:
   - **Goal**: one sentence — what problem this solves, for whom, and why.
   - **Scope**: what is in, what is explicitly out, and the boundary — which modules change and which do not.

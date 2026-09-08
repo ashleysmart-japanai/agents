@@ -38,7 +38,7 @@ Every task with blast radius begins with a human-written micro spec and the agen
 
 ### Required sections
 
-Sections per tier: `design/SPECS.md` § Tier shapes. The human micro spec carries Goal, Scope (with boundary), Behaviour, Error cases, Alternatives, and Open questions; the test plan and task breakdown are the agent's, in the tasking file.
+Sections per tier: `design/SPECS.md` § Tier shapes. The human micro spec opens with what ships, when, and who owns it, then carries Goal, Scope (with boundary), Behaviour, Error cases, Alternatives, and Open questions; the test plan and task breakdown are the agent's, in the tasking file.
 
 ### Rules
 
