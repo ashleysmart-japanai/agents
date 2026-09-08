@@ -4,6 +4,9 @@
 
 - Capture the design requirements and goals.
 - Capture the acceptance requirements.
+- The spec is where the problem is thought through before building — not a task brief for an agent.
+  - It states what is being solved, what is assumed, where the boundary is, and how success is measured.
+  - It names the alternatives considered and why they were not chosen.
 - Write in dot-point-srp style (`~/agents/style/DOT_POINT_SRP.md`): one terse clause per line, sub-clauses indented into a sub-list.
 - The spec is **not** a code-in-text-form document.
   - It does not perfectly represent the exact code that is written.
@@ -23,8 +26,11 @@
 
 - Blast radius decides whether: one file, no new interface, no cross-module impact, no team decision → no spec; fix it and open the PR.
 - Touches core, the data model, or more than one service → a spec, read end to end and explicitly reviewed before work starts.
-- Effort decides the tier: micro under a day, quick one to three days, standard or full beyond.
-- Tier mismatch (a multi-service change under a micro spec) is a large divergence → the agent asks before tasking.
+- Kind and complexity decide the tier; hours are a proxy, not the line.
+  - Micro spec: bug fixes, docs, and config changes — under a day.
+  - Quick spec: a small feature that can be summed up in a few words — one to three days.
+  - Standard or full spec: beyond that, or anything that changes core, the data model, or more than one service.
+- Tier mismatch (a multi-service change under a micro or quick spec) is a large divergence → the agent asks before tasking.
 
 ## File location
 
@@ -84,6 +90,8 @@ What the system must do. Describe the **outputs and outcomes**, not the implemen
 - No code names or internal jargon.
 - Group related requirements under subheadings.
 - List what is **out of scope**.
+- State the boundary: which modules change and which do not.
+  - A change that crosses the boundary (an "extension" that rewrites core) is a large divergence → ask.
 - List every error case: what triggers it, what the caller sees.
 
 Format:
