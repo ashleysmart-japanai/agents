@@ -25,7 +25,7 @@ explicitly overrides a section.
 
 # Spec
 
-## Micro Spec Convention
+## Spec and Tasking
 
 Every task with blast radius begins with a human-written micro spec and the agent's tasking file (`design/SPECS.md` § Tasking file), both **before** any code.
 

@@ -4,17 +4,39 @@ Rules and expectations for all AI agents working in this repository tree. These 
 
 ---
 
-## 1. Micro Spec Convention
+## 1. Spec and Tasking
 
-> Design, steering, and micro-spec guidelines — how to write them: `@design/SPECS.md`
+> Agent rules for the two spec documents. Their shape and sections: `@design/SPECS.md`.
+>
+> | Document | Written by | Read by | Where |
+> |---|---|---|---|
+> | Micro spec (`microspec.md`, or `quick-spec.md` / `standard-spec.md` / `full-spec.md`) | Human | Agent, read-only | `<project>/docs/<YYYYMMDD>_<slug>/` |
+> | Tasking file (`agent_tasking.md`, "tasking") | Agent | Human, approves | Same directory, next to the spec |
 
-- Every task with blast radius (`design/SPECS.md` § Whether and which spec) begins with a human-written spec and the agent's tasking file, both **before** any code.
-- No code is written until the human spec exists and the tasking file is committed and explicitly approved (§5 Two phases).
+### The spec — what the agent does with it
+
+- The agent reads the spec end to end before tasking; shape and tiers are in `design/SPECS.md` § Tier shapes.
+- The agent does not edit it — not to fix typos, fill gaps, or record drift. The same holds for `steering.md` and every other spec-tier document.
 - Spec is the source of truth. Code to its intended target — do not rewrite it to match the code.
-- Spec documents are human-writable. The agent does not edit the micro spec, `steering.md`, or any other spec document — not to fix typos, fill gaps, or record drift. The agent writes to the tasking file (`design/SPECS.md` § Tasking file).
-- The spec is not a status tracker: no `DONE`/`Status:`/`REVERTED` markers or edit history in spec prose — state the settled contract only (`design/SPECS.md` § The spec is not a tracker).
-- Spec statements follow SOLID, open/closed in particular: state what the change adds or does, not the module's full inventory (`design/SPECS.md` § Objective).
+- The spec is the scope (§6 Scope creep).
+- A gap or conflict in the spec → the agent asks; the human edits.
+
+### The tasking file — what the agent writes
+
+- The tasking file is the agent's spec: task breakdown (`A<id>`), test plan, security checklist, gap assumptions, the P1 matrix when the spec lacks one, the P3 check, the AC → test mapping, open questions (`design/SPECS.md` § Tasking file).
+- Every task with blast radius (`design/SPECS.md` § Whether and which spec) has both documents **before** any code.
+- No code is written until the human spec exists and the tasking file is committed and explicitly approved (§5 Two phases).
+- The tasking file references the spec by `R<id>`; it does not restate requirements.
+
+### How the agent writes the tasking file
+
+- Not a status tracker: no `DONE`/`Status:`/`REVERTED` markers or edit history in prose — state the settled contract only (`design/SPECS.md` § The spec is not a tracker).
+- Statements follow SOLID, open/closed in particular: state what the change adds or does, not the module's full inventory (`design/SPECS.md` § Objective).
 - Acceptance criteria are guides for groups of testing, not micro-detail inventories: each derives at least one test — usually more — at implementation; leave them as generalizations where appropriate and never treat or present them as the ceiling of testing (`design/SPECS.md` § Acceptance criteria are guides, not inventories).
+- `/check-spec` (`skills/CHECK_SPEC.md`) checks both against `design/SPECS.md`.
+
+### Resolving gaps
+
 - Resolve gaps by size:
   - **In-scope gap** → apply conventions, record the assumption, continue. Never ask.
   - **Ambiguous** (conventions conflict or none applies) → ask.
