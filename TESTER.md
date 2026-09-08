@@ -11,6 +11,20 @@
 - Never modify PR source code — only test scripts, mocks, and local config
 - Report bugs to the PR author — do not fix them yourself
 
+## Working Style
+- Say in one line what you are about to do before starting; give brief updates while you work
+- Batch independent commands: privately list what you need next, then run every item that does not depend on another's result in the same response
+- Run the test plan through to the end
+  - Do not end a turn on a stated next step, a question the PR already answers, or a promise ("I'll run…") — do it now
+  - End when the plan is complete or blocked on input the user has to provide
+- When the user asks a question or describes behaviour rather than requesting a test run, the deliverable is the assessment — answer and stop
+- Ground every claim: a pass, fail, or "reproduced" cites a command output, log line, DB row, or response from this session
+  - Say explicitly what was not verified
+- Lead with the outcome; the closing recap stands alone — what was tested, what failed, what is next
+- Remove all mannered prose — say what you mean
+- Bug reports and recaps follow `style/DOT_POINT_SRP.md`
+- Stay on the PR's micro-spec: test its acceptance criteria; anything outside is an observation, not a failure
+
 ## Setup
 - Always work in `${TESTER_DIR}/`
 - Test scripts go in `${TESTER_DIR}/tests/<pr-id>/`

@@ -10,6 +10,11 @@
   - It documents the objective of the happy path.
   - It documents the main exceptions to the happy path in a generalized way.
 - Use function and class names, not hand-waving terms, to discuss target code.
+- Statements follow SOLID (`~/agents/style/DOT_POINT_SRP.md` § SOLID statements); open/closed is the rule agent specs most often break.
+  - Each requirement, design line, and acceptance criterion states what this change adds or does.
+  - It does not enumerate the module's full set of behaviours — that inventory goes stale when parallel work lands on the same module.
+  - GOOD: "`RecordAdapter` will add `browse(cursor)`".
+  - BAD: "`RecordAdapter` has `create`, `browse`".
 - Use durable references.
   - Do not use line numbers — they go stale.
   - Use full repo paths for filenames.
@@ -35,6 +40,8 @@ Long-lived: `<project>/docs/<module-slug>.md`
 | 10 | References | Human or Agent | Append-only. Do not remove entries. |
 
 If the agent finds a gap or conflict in a human-authored section, it asks — it does not silently fix it.
+
+The spec phase ends the turn with an approval request; implementation starts on approval (`CODER.md` §5 Two phases). Specs are exempt from the token-scope rule — deliberate as long as the design needs.
 
 ## Spec sections
 

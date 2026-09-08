@@ -9,15 +9,16 @@ Rules and expectations for all AI agents working in this repository tree. These 
 > Design, steering, and micro-spec guidelines — how to write them: `@design/SPECS.md`
 
 - Every non-trivial task begins with a micro spec written **before** any code.
-- No code is written until the micro spec exists and is committed.
+- No code is written until the micro spec exists, is committed, and is approved by the reviewer or human (§5 Two phases).
 - Spec is the source of truth. Code to its intended target — do not rewrite it to match the code.
 - The spec is not a status tracker: no `DONE`/`Status:`/`REVERTED` markers or edit history in spec prose — state the settled contract only (`design/SPECS.md` § The spec is not a tracker).
+- Spec statements follow SOLID, open/closed in particular: state what the change adds or does, not the module's full inventory (`design/SPECS.md` § Objective).
 - Acceptance criteria are guides for groups of testing, not micro-detail inventories: each derives at least one test — usually more — at implementation; leave them as generalizations where appropriate and never treat or present them as the ceiling of testing (`design/SPECS.md` § Acceptance criteria are guides, not inventories).
 - Resolve gaps by size:
   - **In-scope gap** → apply conventions, record the assumption, continue. Never ask.
   - **Ambiguous** (conventions conflict or none applies) → ask.
   - **Small drift** (naming, local structure) → update spec, continue.
-  - **Large divergence** (new approach, changed contract, added/dropped requirement) → stop and ask. Do not self-approve by editing the spec.
+  - **Large divergence** (new approach, changed contract, added/dropped requirement) → ask, at the end of a turn that delivers everything not depending on the answer. Do not self-approve by editing the spec.
   - Unsure if large → treat as large, ask.
 - Fill in-scope gaps with the established conventions:
   - Security → [security-principles](reference/security-principles.md):
@@ -63,6 +64,11 @@ Rules and expectations for all AI agents working in this repository tree. These 
 - **Deterministic**: no randomness, no wall-clock time, no network — stub at the boundary
 - **CI gate**: coverage below 97% fails the PR
 - **Automation**: unit tests, lints, and formatting are enforced by deterministic tools via CI and pre-commit hooks — never run manually or by the agent. If a check can be automated, it must be.
+- **Scratch checks stay out of the suite.**
+  - Verify however you like — a one-off probe or script that only explores behaviour is not committed and is not evidence.
+  - Every committed test traces to an acceptance criterion or a red-light claim (§5, §6).
+  - Size tests like the neighbouring test files — roughly one focused test per stated behaviour.
+  - A scratch check does not become a permanent test file.
 
 ---
 
@@ -79,6 +85,8 @@ This project applies all five SOLID principles:
 | **DIP** | Dependency Inversion | Depend on abstractions, not concretions |
 
 Call the principle out by abbreviation in review comments and specs (e.g. "this violates SRP — split the parse and persist steps").
+
+SOLID applies to statements too — docs, specs, PR descriptions, commit messages, chat. Open/closed is the usual failure: `style/DOT_POINT_SRP.md` § SOLID statements.
 
 ### SRP — Single Responsibility
 
@@ -207,6 +215,8 @@ Call the principle out by abbreviation in review comments and specs (e.g. "this 
 ### Pull / merge requests
 
 - PR description links to the micro spec doc.
+- Use the repo's PR template (`.github/pull_request_template.md` or `.github/PULL_REQUEST_TEMPLATE/`): fill it in, keep its sections, checkboxes, and links intact. Fall back to `~/agents/DEFAULT_PR.md` only when the repo has none.
+- PR description updates are surgical: fetch the current body, change only the lines that change, leave the rest byte-for-byte, and verify afterwards that no link or section was lost. A wholesale rewrite is not an update.
 - Checklist before requesting review:
   - [ ] All acceptance criteria from the micro spec are met.
   - [ ] Coverage gate passes locally.
@@ -222,6 +232,46 @@ Call the principle out by abbreviation in review comments and specs (e.g. "this 
 - Every gate demands an artifact — instructions that produce nothing get skipped; instructions whose absence is visible cannot.
 - No agent claims work complete until every applicable gate has a recorded artifact.
 
+### Working style
+
+- When you have enough information to act, act.
+  - Do not re-derive facts already established in the conversation.
+  - Do not re-litigate a decision the user has already made.
+  - Do not narrate options you will not pursue.
+  - Weighing a choice → give a recommendation, not a survey.
+- Say in one line what you are about to do before starting; give brief updates while you work.
+- Batch tool calls: privately list what you need next, then request every item that does not depend on another's result in the same response.
+- **Edit surgically.** Files, docs, specs, PR descriptions: change the lines that change; a whole-artifact rewrite that produces the same result is waste.
+  - Tokens spent editing are best minimised.
+  - A wholesale rewrite silently drops content that was not in view — links, template sections, reviewer edits.
+- **Finish the whole task.** A turn ends at the phase gate below, or when blocked on input the user has to provide.
+  - Reversible actions that follow from the task → proceed without asking.
+  - Ending a turn to ask permission for work the task already covers, to report a step, or because the session is long leaves the task undone.
+  - Offering follow-ups after the work is fine; asking permission before doing requested work is not.
+  - A per-item halt (cascade, `UNPROVEN`, `NEEDS_REVIEW`, a large divergence on one item) is reported and the rest of the work continues; it does not end the turn.
+- **Two phases, one gate between them.**
+  - Phase 1 — spec: write or update the micro spec (`design/SPECS.md`), pass the process gates (P1–P3), commit, push, then end the turn asking for approval. This turn ends on a question.
+  - Phase 2 — code: on reviewer/human approval, implement every acceptance criterion (red → green → commit → push), run the submission gates and review triage, report. Work continues to completion.
+  - Phase 2 starts on an approved spec.
+  - Phase 1 reopens mid-Phase 2 for a large divergence (§1) — ask, at the end of a turn that delivers everything not depending on the answer.
+- **Token scope in long-run loops (Phase 2, review, triage).** Everything produced in one reply — reasoning, drafting, and the reply itself — counts toward one output limit; a cut-off reply is a restart.
+  - Reason in the reasoning space; write the deliverable once, in the output space — a file, diff, or report is drafted once, not in full as reasoning and again as the reply.
+  - Spend the reasoning on understanding the request, checking the inputs the answer depends on, and settling structure and hard decisions; then write.
+  - Large deliverables land in pieces: one file, one commit, one report section per step, each written once.
+  - Phase 1 (spec) is exempt: deliberate as long as the design needs.
+- Before ending a turn, check the last paragraph.
+  - A plan, a question, a list of next steps, or a promise about undone work ("I'll…", "let me know when…") → do that work now with tool calls.
+  - That includes retrying after errors and gathering missing information yourself.
+  - End the turn when the task is complete or blocked on input the user has to provide.
+- Do not stop, summarise, or suggest a new session because the context or session is long.
+- Exception: the user is describing a problem, asking a question, or thinking out loud rather than requesting a change → the deliverable is the assessment. Report findings and stop; do not apply a fix until asked.
+- Before a command that changes system state (restart, delete, config edit), check the evidence supports that specific action — a signal that pattern-matches a known failure may have a different cause.
+- **Delegate and keep working.** Independent subtasks go to subagents; the lead does not block on them.
+  - Keep working on the next item — or the user's next update — while they run.
+  - Integrate each result as it arrives; a delegated task is complete when its result is integrated and reported.
+  - Do not redo a delegated task, predict a pending result, or end the whole task with a delegation outstanding.
+  - Intervene if a subagent goes off track or lacks context.
+
 ### Before code
 
 1. **Read the bug report or task fully.** If the task references a review issue, read the entire `<ID>.md` detail file — description, evidence, fix guidance, and reverify steps. Do not skim summaries or titles. Do not make decisions, push back, or categorise an issue without reading the full detail file first.
@@ -229,7 +279,7 @@ Call the principle out by abbreviation in review comments and specs (e.g. "this 
 3. **Read** existing code in the affected area before writing anything.
 4. **Write or update** the micro spec if the task is new or scope changes.
 
-**Process gates — stop here until all pass:**
+**Process gates — Phase 1 ends here; no implementation until all pass and the spec is approved:**
 
 | # | Gate | Evidence |
 |---|------|----------|
@@ -287,6 +337,16 @@ Call the principle out by abbreviation in review comments and specs (e.g. "this 
 - Do **not** write to `review.md` or the `~/reviews/<repo>-pr-<number>/` directory. That persisted store is the reviewer/orchestrator's job (see `~/agents/review/ISSUE_TRACKING.md`). Your report is the in-chat list.
   - **Exception 1:** the review-claim triage and red-light procedure below. When executing it, the coder records and updates the claims it is processing in the review store per ISSUE_TRACKING.md.
   - **Exception 2:** `task.md` — the coder owns the file, the user owns the content (grammar: ISSUE_TRACKING.md § Task file). Never update it without the user's approval: propose the exact text in chat, write it only once approved, and keep the user's words near-verbatim — correcting only grammar, spelling, and shorthand. `# DECISIONS` entries are gated: only major actions and direction shifts qualify, each tagged with a short name (e.g. `record-not-resource`) — never task steps or work narration.
+- Ground every claim: audit each progress claim against a tool result from this session before reporting it.
+  - Report only work you can point to evidence for.
+  - Say explicitly what is not yet verified.
+- Lead with the outcome: the first sentence answers "what happened" or "what was found"; detail after.
+- The final message stands alone — a reader who sees only it gets what was found, what was done, and what is next.
+  - Drop working shorthand, arrow chains, and labels coined mid-task.
+  - Give each file, commit, or flag its own plain clause saying what it is or what changed.
+- Remove all mannered prose. Say what you mean; when a literal phrase is available, use it.
+- Keep output short by selecting what to include — drop details that do not change what the reader does next — not by compressing into fragments or jargon.
+- Chat replies and reports follow `style/DOT_POINT_SRP.md`: list-first, markdown-only quoting.
 
 ### Review-claim triage and red-light (mandatory after any review)
 
@@ -306,7 +366,7 @@ Call the principle out by abbreviation in review comments and specs (e.g. "this 
 11. **Do not merge** PRs. Merging is done by the user. Do not expect to be involved in the merge process.
 12. **Do not deploy** unless the user explicitly says so.
 
-An agent must stop and surface an open question rather than guess when:
+An agent surfaces an open question rather than guessing — at the end of a turn that delivers everything not depending on the answer — when:
 - A spec section is ambiguous.
 - An interface from another module is missing or contradicts the spec.
 - The 97 % coverage target cannot be reached without unreasonable stubbing.
@@ -335,9 +395,14 @@ An agent must stop and surface an open question rather than guess when:
 - A patch that exists only in a side workspace does not exist: it is unverifiable by others, not on the PR, and will be lost. Reporting such a patch as "addressed" is a false completion claim (violates T2).
 - Reviewers propose; the fix lands on the branch via the normal red → green → commit → push cycle (§5), or it is reported as an OPEN finding — never as done.
 
-### Scope creep — the hardest rule
+### Scope creep
 
-- An agent works only on what was explicitly asked for. When in doubt, do less and ask.
+- The micro spec is the scope. Every change, test, and review fix traces to a spec line (`R<id>`, `A<id>`, an acceptance criterion) or an in-scope red-lighted claim — nothing else lands.
+- Scope-check feedback first and fast: every review claim, PR comment, or suggestion is checked against the micro spec before any trace or fix (§5 triage).
+  - In scope → proceed.
+  - Out of scope → `OUT_OF_SCOPE` with the reason, listed as a follow-up in the summary; not fixed in this change.
+  - A claim is not admitted by widening the spec — a fix that needs a new requirement is a large divergence (§1).
+- An agent works only on what was explicitly asked for. When in doubt whether something is in scope, leave it out and say so — finish the in-scope work rather than stopping to ask.
 - Violations erode trust and create hidden regressions.
 - **Do not add features** that were not in the current task or micro spec, even if they seem obviously useful.
 - **Do not refactor code** outside the files directly touched by the task.
@@ -345,6 +410,10 @@ An agent must stop and surface an open question rather than guess when:
 - **Do not add logging, metrics, or instrumentation** beyond what the spec requires.
 - **Do not add comments or documentation** to code that was not part of the change, even to "improve" it.
 - **Do not change formatting** in lines that were not otherwise modified.
+- A pre-existing bug, performance concern, or behaviour the task does not mention → do not fix, optimise, or extend it unless the requested behaviour cannot work without it; report it as a follow-up in the summary.
+- An in-scope gap (§1) → implement the reading the wording and surrounding code most directly support, state the assumption in the summary, and do not build for the other readings too.
+- No error handling, fallbacks, or validation for scenarios that cannot happen — trust internal code and framework guarantees; validate at system boundaries only.
+- This governs extras: every behaviour the task asks for is still implemented completely.
 
 ---
 

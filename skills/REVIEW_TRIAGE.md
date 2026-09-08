@@ -19,6 +19,17 @@ The script refuses out-of-order operations (red-light before gate, close without
 
 Judgment gates run as **subagents with one narrow goal each**. Give the subagent only its question and the minimal context; it returns a structured verdict, and the orchestrator records it via the script. A subagent never edits the store, never fixes code outside its goal, and never answers a question it wasn't asked.
 
+## Finish the whole triage
+
+- The triage runs to completion in one turn: every recorded claim reaches a closed or needs-review status (`REVIEW_METHOD.md` § Status tokens) before the turn ends.
+- A per-claim halt (`--cascade-of`, `unproven`, `needs-review`) stops that claim only; the pipeline continues for every other claim.
+- Step reports are text within the turn, not a turn boundary — report the step, then start the next step in the same turn.
+- Do not end the turn to ask permission for a step the workflow already includes.
+- Spawn independent subagents together and keep working while they run; record each verdict as it returns.
+  - A claim whose subagent is still running is not terminal — the triage is not done until every verdict is recorded; do not guess a pending verdict.
+- Token scope: reasoning is for the verdict, output is for the record — write each store record and step report once, as it completes; the triage is not drafted as reasoning and again as output.
+- The turn ends after step 9 `check` and the step 10 report, or when blocked on input the user has to provide (a cascade ruling, a human-only status).
+
 ## Workflow
 
 1. **Init** the store (idempotent — refreshes `head:`/`reviewed:` if it exists):
@@ -33,9 +44,9 @@ Judgment gates run as **subagents with one narrow goal each**. Give the subagent
    `--fix` records the **reviewer's suggested fix** — untrusted input stored for the record, never the implementation plan (see step 7).
 3. **Cascade gate** — spawn a cascade-judge subagent per claim. Goal: given this claim, the `cascade-scan <ID>` output, and the overlapping issues' detail files — was the code this claim points at changed by a prior claim's fix? Verdict: `cascade-of:<full ID> + why`, or `not-cascade`. Record:
    ```bash
-   review_triage.py --dir <DIR> gate <ID> --cascade-of <FULLID> --why "..."   # cascade → stops here, user decides
+   review_triage.py --dir <DIR> gate <ID> --cascade-of <FULLID> --why "..."   # cascade → this claim halts for the user; the pipeline continues with the others
    ```
-4. **Scope gates** — spawn a scope-judge subagent per surviving claim. Goal: given the claim, the micro-spec, `steering.md`, and the branch's changed-file list — does it fail micro-spec scope, steering design, or scope-creep? Verdict: first failing gate + reason, or pass. Record:
+4. **Scope gates** — spawn a scope-judge subagent per surviving claim. Goal: given the claim, the micro-spec, `steering.md`, and the branch's changed-file list — does it fail micro-spec scope, steering design, or scope-creep? Verdict: first failing gate + reason, or pass. Decide fast — the verdict is a lookup against the spec and the changed-file list, not a design discussion; a good suggestion with no spec line behind it is `scope-creep`. Record:
    ```bash
    review_triage.py --dir <DIR> gate <ID> --out-of-scope micro-spec|steering|scope-creep --why "..."
    review_triage.py --dir <DIR> gate <ID> --doc-claim     # claim against a non-executable artifact (spec prose, comments, naming)
@@ -63,7 +74,7 @@ Judgment gates run as **subagents with one narrow goal each**. Give the subagent
    review_triage.py --dir <DIR> --repo <checkout> redlight <ID> --sha <sha> --test "file:case" --output "<raw failure>"
    ```
    If the subagent cannot make a test fail: `unproven <ID> --probe "<test code>" --output "<passing output>"` — no fix happens.
-7. **Fix** — spawn a fixer subagent per red-lighted claim. Goal: design the fix **from the trace, not from the reviewer's suggestion**, then make the minimum production change to turn that one test green; never edit the test; micro-review the diff (anti-patterns, security, steering/micro-spec, acceptance criteria). Before writing code the fixer must:
+7. **Fix** — spawn a fixer subagent per red-lighted claim. Goal: design the fix **from the trace, not from the reviewer's suggestion**, then make the minimum production change, within the micro-spec's scope, to turn that one test green; never edit the test; micro-review the diff (anti-patterns, security, steering/micro-spec, acceptance criteria). Before writing code the fixer must:
    - Re-examine the problem itself — the trace's mechanism is the spec, the claim's prose is not.
    - Audit the recorded `fix:` suggestion before reusing any part of it: compounding issues and design failures; out-of-scope additions and code bloat; over-engineering measured against the happy path most code takes — especially when the fix targets an edge case, worst of all an edge case of an edge case.
    - Return, with the diff, a **justification**: why this fix resolves the defect class fully and why it will not compound — including why it differs from (or is smaller than) the suggestion.
@@ -91,7 +102,7 @@ A cascade means a prior fix's recorded justification was wrong. When the user ap
 
 ## Step reporting — no shortcuts
 
-- **Report every step as it completes, before starting the next.** One line per claim per step, in chat:
+- **Report every step as it completes, before starting the next — in the same turn.** One line per claim per step, in chat:
   ```
   [triage] step 2 record  — I43.<SID> opened (OPEN, redlight:pending)
   [triage] step 3 cascade — I43.<SID>: not-cascade
@@ -107,6 +118,7 @@ A cascade means a prior fix's recorded justification was wrong. When the user ap
 ## Rules
 
 - Claims are recorded before they are judged. The script's `open` is always the first touch.
+- **Scope first.** The micro-spec defines it; the scope gate is decisive — a claim not traceable to a spec requirement or the branch's changed files is `OUT_OF_SCOPE`, however good the suggestion. A claim is not admitted by widening the spec; a fix that needs a new requirement is `needs-review`, not a spec edit.
 - **A claim is a hypothesis about the code, not a fact.** Never reason from the claim's description or its stored snippets — they age. Every verdict after the scope gates starts with reading the current code at the claimed location. The claim's analysis and framing are equally untrusted — reviewer prose never decides fix-vs-document or picks the remedy.
 - **The reviewer's suggested fix is untrusted input.** Reviewers routinely flag their own suggestions as broken on the next pass. The fixer designs from the trace; any reused part of the suggestion is audited first (step 7).
 - **Every resolved claim has a committed test**: red proves it, green disproves it. Prose evidence selects which test to write; it never substitutes for one.
