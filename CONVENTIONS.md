@@ -32,20 +32,13 @@ Every task with blast radius begins with a human-written micro spec and the agen
 ### File location
 
 ```
-<project>/docs/<YYYYMMDD>_<short-task-slug>.md
+<project>/docs/<YYYYMMDD>_<short-task-slug>/microspec.md
+<project>/docs/<YYYYMMDD>_<short-task-slug>/agent_tasking.md
 ```
 
 ### Required sections
 
-| Section | Purpose |
-|---|---|
-| **Goal** | One sentence — what problem this solves and why |
-| **Scope** | What is in and explicitly out of scope |
-| **Interfaces** | Public API / data shapes / events exposed by this work |
-| **Behaviour** | Numbered acceptance criteria, written as observable facts |
-| **Error cases** | How each failure mode is detected and surfaced |
-| **Test plan** | List of unit tests required; maps 1-to-1 to Behaviour items |
-| **Open questions** | Assumptions that need a decision before or during implementation |
+Sections per tier: `design/SPECS.md` § Tier shapes. The human micro spec carries Goal, Scope (with boundary), Behaviour, Error cases, Alternatives, and Open questions; the test plan and task breakdown are the agent's, in the tasking file.
 
 ### Rules
 

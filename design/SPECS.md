@@ -32,6 +32,21 @@
   - Standard or full spec: beyond that, or anything that changes core, the data model, or more than one service.
 - Tier mismatch (a multi-service change under a micro or quick spec) is a large divergence → the agent asks before tasking.
 
+## Tier shapes
+
+Human-written in every tier; the agent's task breakdown and test plan go in the tasking file.
+
+- Micro spec — a bug fix, docs, or config change:
+  - **Goal**: one sentence — what problem this solves, for whom, and why.
+  - **Scope**: what is in, what is explicitly out, and the boundary — which modules change and which do not.
+  - **Behaviour**: numbered acceptance criteria (`R<id>`), written as observable facts.
+  - **Error cases**: how each failure mode is detected and surfaced.
+  - **Alternatives**: the other ways considered and why not those, one line each; the minimal fix is one of them.
+  - **Open questions**: assumptions that need a human decision before or during implementation.
+  - **Interfaces** appears when a public shape changes; there is no Design section — the fix is the design.
+- Quick spec — a small feature summed up in a few words: the micro sections plus Design (§2) and Use cases — summary (§3).
+- Standard or full spec: sections 1–4, 9, and 10 in full.
+
 ## File location
 
 PR-scoped: `<project>/docs/<YYYYMMDD>_<short-task-slug>/<tier>.md` — the tier file is `microspec.md`, `quick-spec.md`, or the standard/full equivalent.
