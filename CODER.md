@@ -87,7 +87,7 @@ Rules and expectations for all AI agents working in this repository tree. These 
 
 - **Target**: 97% line coverage, 100% branch coverage on public interfaces
 - **Cycle**: Red → Green → Refactor. Never write production code before seeing a red test.
-- **Red means committed red**: the failing test is added to the real suite and committed *while it fails*, before any production-code change. A "temporary" test that is run once and never committed is not a red light — it is fabricated evidence. The commit history must show the red-test commit preceding the fix commit. Hooks that run the suite will reject the red commit by design — that is the one sanctioned use of `--no-verify` (§5 step 6).
+- **Red means committed red**: the failing test is added to the real suite and committed *while it fails*, before any production-code change. A "temporary" test that is run once and never committed is not a red light — it is fabricated evidence. The commit history must show the red-test commit preceding the fix commit. Hooks that run the suite will reject the red commit by design — that is the one sanctioned use of `--no-verify` (§5 step 7).
 - **Pattern**: AAA (Arrange, Act, Assert). One assertion per test. No shared mutable state.
 - **Structure**: `tests/unit/` (every save), `tests/integration/` (on PR), `tests/e2e/` (on merge). Mirror source paths.
 - **Deterministic**: no randomness, no wall-clock time, no network — stub at the boundary
@@ -319,13 +319,13 @@ SOLID applies to statements too — docs, specs, PR descriptions, commit message
 
 ### During implementation
 
-5. **Red** — write one test in the real suite (committed file paths, not scratch/temp files), run the suite, confirm that test fails for the right reason, and **commit the failing test** with its raw red output referenced in the commit message. A test that cannot be seen to fail proves nothing; a red run with no committed test is unverifiable and does not count.
-6. **Green** — write the minimum production code needed to make that test pass. No more. The fix is a separate commit after the red-test commit, so history proves the test failed before the code changed.
+6. **Red** — write one test in the real suite (committed file paths, not scratch/temp files), run the suite, confirm that test fails for the right reason, and **commit the failing test** with its raw red output referenced in the commit message. A test that cannot be seen to fail proves nothing; a red run with no committed test is unverifiable and does not count.
+7. **Green** — write the minimum production code needed to make that test pass. No more. The fix is a separate commit after the red-test commit, so history proves the test failed before the code changed.
    - A pre-commit hook that runs the suite (see §2 Automation) will reject a red commit by design. **In this case only, `--no-verify` is sanctioned**: the redness is the proof being committed, and the coder knows it. This is the sole permitted use of `--no-verify` — red-light commits are standing policy, pre-authorized by the user.
    - Before using it, run the suite and confirm the only failures are the red-light test(s) being committed plus already-tracked red-light tests (their `redlight:` records). Any other failure is unrelated breakage — fix that first; `--no-verify` never smuggles it through.
    - The green stage is likewise not blocked by other issues' still-red tests: when committing a fix, the fixed test must pass, and hook failures caused solely by tracked red-light tests do not force clearing them first — commit with `--no-verify` and continue the cycle.
-7. **Repeat** steps 5–6 for each acceptance criterion in the micro spec.
-8. **Refactor** — with all tests green, clean names, split large functions, remove duplication. Run the suite after every refactor step.
+8. **Repeat** steps 6–7 for each acceptance criterion in the micro spec.
+9. **Refactor** — with all tests green, clean names, split large functions, remove duplication. Run the suite after every refactor step.
 
 **Code gates — every new or changed symbol must satisfy all that apply:**
 
@@ -347,7 +347,7 @@ SOLID applies to statements too — docs, specs, PR descriptions, commit message
 | T1 | **Every prose claim is verified in the same pass that touches the behavior.** Comments, docblocks, test names, spec assertions — if the claim describes behavior, either point it at a test or re-verify it when the behavior changes. A claim that cannot be checked gets deleted. | No reviewer-bait items survive the diff review. |
 | T2 | **Report failures verbatim.** Failing tests, skipped steps, and unverified paths are stated plainly, never smoothed over. | Raw output included — no editorialised summaries of failures. |
 
-9. **Commit** in atomic commits following the git hygiene rules above.
+10. **Commit** in atomic commits following the git hygiene rules above.
 
 ### Before push / claiming complete
 
@@ -392,9 +392,9 @@ SOLID applies to statements too — docs, specs, PR descriptions, commit message
   - Fixes never edit the proving test; a reverted fix's red test stays committed and red.
   - Report each step in chat as it completes — a step with no report did not happen.
 
-10. **Push** to the PR branch after each completed change. Do not batch up commits — push proactively so the PR stays up to date.
-11. **Do not merge** PRs. Merging is done by the user. Do not expect to be involved in the merge process.
-12. **Do not deploy** unless the user explicitly says so.
+11. **Push** to the PR branch after each completed change. Do not batch up commits — push proactively so the PR stays up to date.
+12. **Do not merge** PRs. Merging is done by the user. Do not expect to be involved in the merge process.
+13. **Do not deploy** unless the user explicitly says so.
 
 An agent surfaces an open question rather than guessing — at the end of a turn that delivers everything not depending on the answer — when:
 - A spec section is ambiguous.
@@ -414,7 +414,7 @@ An agent surfaces an open question rather than guessing — at the end of a turn
 ### No phantom tests — red evidence is committed evidence
 
 - **Never fake the red light with a temporary test.** A test written in a scratch file, run once, and deleted, reverted, or left uncommitted is not red-light evidence — it is untraceable and unverifiable, and claiming it as a red run is a false completion claim (violates T2).
-- Every red test lands in the real suite and is committed while failing, before the fix commit (§2, §5 step 5).
+- Every red test lands in the real suite and is committed while failing, before the fix commit (§2, §5 step 6).
 - This applies to red-lighting review findings, not just new features: the probe that proves a bug **is** the regression test for its fix. Commit it red, keep it in the suite, let the fix turn it green. "Temporary probes, since reverted" means the findings have no evidence and the fixes will have no regression guard.
 - A red-light results table (🔴 verdicts) is only valid if every RED row cites a committed test `file:case` and its commit sha. If running the suite right now shows no failures, nothing is red-lighted — reporting it as confirmed is fabricated evidence.
 - If a test used to prove a bug turns out not to belong in the suite, that decision is the user's — surface it, do not silently delete it.

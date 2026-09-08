@@ -70,7 +70,7 @@ Judgment gates run as **subagents with one narrow goal each**. Give the subagent
    review_triage.py --dir <DIR> --repo <checkout> disprove <ID> --sha <sha> --test "file:case" --output "<green run output>"
    ```
    `UNPROVEN` is reserved for the rare claim where neither a red proof nor a green disproof is constructable — it stays open for the user.
-6. **Red-light** — spawn a red-light subagent per traced-possible claim. Goal: write ONE failing test in the real suite proving this claim, commit it red (the `--no-verify` carve-out, CODER.md §5 step 6), return `sha + file:case + raw red output`. Record (the script verifies the sha exists and touches the test file):
+6. **Red-light** — spawn a red-light subagent per traced-possible claim. Goal: write ONE failing test in the real suite proving this claim, commit it red (the `--no-verify` carve-out, CODER.md §5 step 7), return `sha + file:case + raw red output`. Record (the script verifies the sha exists and touches the test file):
    ```bash
    review_triage.py --dir <DIR> --repo <checkout> redlight <ID> --sha <sha> --test "file:case" --output "<raw failure>"
    ```
