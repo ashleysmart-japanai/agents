@@ -32,13 +32,13 @@ Every task with blast radius begins with a human-written micro spec and the agen
 ### File location
 
 ```
-<project>/docs/<YYYYMMDD>_<short-task-slug>/microspec.md
-<project>/docs/<YYYYMMDD>_<short-task-slug>/agent_tasking.md
+specs/<YYYYMMDD>-<slug>/micro-spec.md        # or quick-spec.md, or requirements.md + design.md + tasks.md
+specs/<YYYYMMDD>-<slug>/agent_tasking.md
 ```
 
 ### Required sections
 
-Sections per tier: `design/AGENT_TASKING.md` § Tier shapes. The human micro spec opens with what ships, when, and who owns it, then carries Goal, Scope (with boundary), Behaviour, Error cases, Alternatives, and Open questions; the test plan and task breakdown are the agent's, in the tasking file.
+Sections per tier: `design/HUMAN_SPECS.md`. The micro spec carries What / When / Owner / Why / How / Acceptance / Not changing / Alternatives and `## Related`; the agent's task breakdown, test plan, and security checklist are in `agent_tasking.md` (`design/AGENT_TASKING.md`).
 
 ### Rules
 

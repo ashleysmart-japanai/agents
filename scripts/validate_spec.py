@@ -1,12 +1,12 @@
 #!/usr/bin/env python3
-"""Validate a spec directory against design/AGENT_TASKING.md.
+"""Validate a spec directory against design/HUMAN_SPECS.md and design/AGENT_TASKING.md.
 
-Checks the human tier file (microspec.md, quick-spec.md, standard-spec.md, full-spec.md)
+Checks the human spec (micro-spec.md, quick-spec.md, or requirements.md/design.md/tasks.md)
 and, when present, the agent's agent_tasking.md beside it.
 
 Usage:
     python3 validate_spec.py <spec-dir> [<spec-dir> ...]
-    python3 validate_spec.py <project>/docs/20260908_my-task/microspec.md   # file path also accepted
+    python3 validate_spec.py specs/20260908-my-task/micro-spec.md   # file path also accepted
 
 Exit codes:
     0 = all checks passed
@@ -18,36 +18,20 @@ import sys
 import argparse
 from pathlib import Path
 
-TIER_FILES = {
-    "microspec.md": "micro",
-    "quick-spec.md": "quick",
-    "standard-spec.md": "standard",
-    "full-spec.md": "full",
-}
 TASKING_FILE = "agent_tasking.md"
-
-# Section keywords matched against normalized headings (numbering and parentheticals stripped, lowercased).
-REQUIRED_SECTIONS = {
-    "micro": ["goal", "scope", "behaviour", "error cases", "alternatives", "open questions"],
-    "quick": ["goal", "scope", "behaviour", "error cases", "alternatives", "open questions", "design", "use cases"],
-    "standard": ["requirements", "design", "use cases", "acceptance checklist", "references"],
-    "full": ["requirements", "design", "use cases", "acceptance checklist", "references"],
-}
-# Agent-authored sections never appear in a human spec.
-AGENT_SECTIONS = ["task breakdown", "test plan", "security checklist"]
-# Human-authored sections never appear in the tasking file.
-HUMAN_ONLY_SECTIONS = ["requirements", "acceptance checklist"]
-TASKING_REQUIRED = ["task breakdown", "test plan", "security checklist"]
-
-HEADER_KEYS = ("What", "When", "Owner")
-DEFAULT_S = [f"S{i}" for i in range(1, 11)]
-DEFAULT_X = [f"X{i}" for i in range(1, 7)]
-
+DIR_NAME_RE = re.compile(r"^\d{8}-[a-z0-9][a-z0-9-]*$")
 HEADING_RE = re.compile(r"^(#{1,3})\s+(.*\S)\s*$")
-CHECK_ID_RE = re.compile(r"^- \[[ x]\] ([RUAXS])(\d+):")
+CHECK_ID_RE = re.compile(r"^- \[[ x]\] \**([RUTAXS])(\d+)\b")
 TRACKER_RE = re.compile(r"\bDONE\b|\bStatus:|\bREVERTED\b|NOT IMPLEMENTED|at spec phase")
 LINE_NUMBER_REF_RE = re.compile(r"\b[\w./-]+\.[A-Za-z]{1,5}:\d+\b")
-DIR_NAME_RE = re.compile(r"^(\d{8}_)?[a-z0-9][a-z0-9-]*$")
+
+MICRO_FIELDS = ["What", "When", "Owner", "Why", "How", "Acceptance", "Not changing", "Alternatives"]
+QUICK_SECTIONS = ["problem", "requirements", "implementation approach", "implementation tasks", "verification", "related"]
+STANDARD_FILES = ["requirements.md", "design.md", "tasks.md"]
+AGENT_SECTIONS = ["task breakdown", "test plan", "security checklist"]
+TASKING_REQUIRED = ["task breakdown", "test plan", "security checklist"]
+HUMAN_ONLY_SECTIONS = ["requirements", "acceptance checklist"]
+DEFAULT_S = [f"S{i}" for i in range(1, 11)]
 
 
 class Violation:
@@ -62,25 +46,19 @@ class Violation:
 def normalize_heading(text):
     text = re.sub(r"^\d+\.\s*", "", text)
     text = re.sub(r"\s*\(.*?\)\s*", " ", text)
-    text = text.replace("behavior", "behaviour")
     return " ".join(text.lower().split())
 
 
 def parse_sections(lines):
-    """Return list of (normalized heading, level, [body lines])."""
-    sections = []
-    preamble = []
-    current = None
+    sections, current = [], None
     for line in lines:
         m = HEADING_RE.match(line)
         if m and len(m.group(1)) >= 2:
             current = (normalize_heading(m.group(2)), len(m.group(1)), [])
             sections.append(current)
-        elif current is None:
-            preamble.append(line)
-        else:
+        elif current is not None:
             current[2].append(line)
-    return preamble, sections
+    return sections
 
 
 def has_section(sections, keyword):
@@ -88,20 +66,11 @@ def has_section(sections, keyword):
 
 
 def section_body(sections, keyword):
-    body = []
-    for name, _, lines in sections:
-        if keyword in name:
-            body.extend(lines)
-    return body
+    return [l for name, _, lines in sections if keyword in name for l in lines]
 
 
 def check_ids(lines, prefix):
-    ids = []
-    for l in lines:
-        m = CHECK_ID_RE.match(l)
-        if m and m.group(1) == prefix:
-            ids.append(int(m.group(2)))
-    return ids
+    return [int(m.group(2)) for l in lines if (m := CHECK_ID_RE.match(l)) and m.group(1) == prefix]
 
 
 def common_prose_checks(path, lines, violations):
@@ -109,93 +78,114 @@ def common_prose_checks(path, lines, violations):
         if l.lstrip().startswith("```"):
             continue
         if TRACKER_RE.search(l):
-            violations.append(Violation(path, f"line {i}: tracker marker in spec prose (AGENT_TASKING.md § The spec is not a tracker)"))
+            violations.append(Violation(path, f"line {i}: tracker marker in spec prose (HUMAN_SPECS.md § The spec is not a tracker)"))
         if LINE_NUMBER_REF_RE.search(l):
-            violations.append(Violation(path, f"line {i}: line-number citation — use durable references (AGENT_TASKING.md § Objective)"))
+            violations.append(Violation(path, f"line {i}: line-number citation — use durable references (HUMAN_SPECS.md § Every tier)"))
 
 
-def validate_tier_file(path, tier, violations):
+def field_lines(lines, key):
+    return [l for l in lines if re.match(rf"^\**{re.escape(key)}:\**\s*\S", l)]
+
+
+def check_when_owner(path, lines, violations):
+    for key in ("When", "Owner"):
+        if len(field_lines(lines, key)) != 1:
+            violations.append(Violation(path, f"must carry '**{key}:** <text>' exactly once (HUMAN_SPECS.md § Every tier)"))
+
+
+def validate_micro(path, violations):
     lines = path.read_text(encoding="utf-8").splitlines()
-    preamble, sections = parse_sections(lines)
-
-    # Three questions in the header, before the first section.
-    for key in HEADER_KEYS:
-        hits = [l for l in preamble if re.match(rf"^- {key}: \S", l)]
-        if len(hits) != 1:
-            violations.append(Violation(path, f"header must answer '- {key}: <text>' exactly once before the first section (found {len(hits)})"))
-
-    for kw in REQUIRED_SECTIONS[tier]:
-        if not has_section(sections, kw):
-            violations.append(Violation(path, f"{tier} spec is missing section '{kw}' (AGENT_TASKING.md § Tier shapes)"))
+    for key in MICRO_FIELDS:
+        n = len(field_lines(lines, key))
+        if n != 1:
+            violations.append(Violation(path, f"micro spec must carry '**{key}:**' exactly once (found {n}) (HUMAN_SPECS.md § Micro spec)"))
+    if not any(l.strip().lower().startswith("## related") for l in lines):
+        violations.append(Violation(path, "micro spec is missing '## Related'"))
+    sections = parse_sections(lines)
     for kw in AGENT_SECTIONS:
         if has_section(sections, kw):
-            violations.append(Violation(path, f"section '{kw}' is agent-authored and belongs in {TASKING_FILE}, not the spec"))
-    if tier == "micro" and has_section(sections, "design"):
-        violations.append(Violation(path, "micro spec has a Design section — the fix is the design (AGENT_TASKING.md § Tier shapes)"))
+            violations.append(Violation(path, f"section '{kw}' is agent-authored and belongs in {TASKING_FILE}"))
+    common_prose_checks(path, lines, violations)
+    return set()
 
-    # Scope: out of scope + boundary.
-    if tier in ("micro", "quick"):
-        scope = section_body(sections, "scope")
-        if not any("out of scope" in l.lower() for l in scope):
-            violations.append(Violation(path, "Scope must list what is out of scope"))
-        if not any("boundary" in l.lower() for l in scope):
-            violations.append(Violation(path, "Scope must state the boundary — which modules change and which do not"))
-    else:
-        req = section_body(sections, "requirements")
-        if not any("out of scope" in l.lower() for l in req):
-            violations.append(Violation(path, "Requirements must list what is out of scope"))
-        if not any("boundary" in l.lower() for l in req):
-            violations.append(Violation(path, "Requirements must state the boundary — which modules change and which do not"))
 
-    # R ids: at least one, unique.
+def validate_quick(path, violations):
+    lines = path.read_text(encoding="utf-8").splitlines()
+    sections = parse_sections(lines)
+    check_when_owner(path, lines, violations)
+    for key in ("Decision", "Success", "Next"):
+        if not field_lines(lines, key):
+            violations.append(Violation(path, f"quick spec Problem block must carry '**{key}:**' (HUMAN_SPECS.md § Quick spec)"))
+    for kw in QUICK_SECTIONS:
+        if not has_section(sections, kw):
+            violations.append(Violation(path, f"quick spec is missing section '{kw}' (HUMAN_SPECS.md § Quick spec)"))
+    text = "\n".join(lines).lower()
+    if "out of scope" not in text:
+        violations.append(Violation(path, "quick spec must state what is out of scope"))
+    if "boundary" not in text:
+        violations.append(Violation(path, "quick spec must state the boundary — which modules change and which do not"))
+    if "alternative" not in text:
+        violations.append(Violation(path, "quick spec must name the alternatives considered and why not"))
     r_ids = check_ids(lines, "R")
     if not r_ids:
-        violations.append(Violation(path, "no acceptance criteria — expected '- [ ] R<n>: ...' lines"))
+        violations.append(Violation(path, "no requirements — expected '- [ ] **R<n> — <title>:** ...' lines"))
     elif len(r_ids) != len(set(r_ids)):
-        violations.append(Violation(path, f"duplicate R ids: {sorted(set(i for i in r_ids if r_ids.count(i) > 1))}"))
-
-    if tier in ("quick", "standard", "full") and not check_ids(lines, "U"):
-        violations.append(Violation(path, "no use cases — expected '- [ ] U<n>: ...' lines"))
-    if tier in ("standard", "full"):
-        present = {f"X{i}" for i in check_ids(lines, "X")}
-        missing = [x for x in DEFAULT_X if x not in present]
-        if missing:
-            violations.append(Violation(path, f"acceptance checklist missing default items: {missing}"))
-
+        violations.append(Violation(path, "duplicate R ids"))
+    for kw in AGENT_SECTIONS:
+        if has_section(sections, kw):
+            violations.append(Violation(path, f"section '{kw}' is agent-authored and belongs in {TASKING_FILE}"))
     common_prose_checks(path, lines, violations)
     return set(r_ids)
+
+
+def validate_standard(spec_dir, violations):
+    r_ids = set()
+    missing = [f for f in STANDARD_FILES if not (spec_dir / f).exists()]
+    if missing:
+        violations.append(Violation(spec_dir, f"standard/full spec is missing {missing} (HUMAN_SPECS.md § Standard and full specs)"))
+    req = spec_dir / "requirements.md"
+    if req.exists():
+        lines = req.read_text(encoding="utf-8").splitlines()
+        check_when_owner(req, lines, violations)
+        text = "\n".join(lines).lower()
+        if "out of scope" not in text:
+            violations.append(Violation(req, "requirements must list what is out of scope"))
+        if "boundary" not in text:
+            violations.append(Violation(req, "requirements must state the boundary — which modules change and which do not"))
+        ids = check_ids(lines, "R")
+        if not ids:
+            violations.append(Violation(req, "no requirements — expected '- [ ] R<n>: ...' lines"))
+        r_ids = set(ids)
+        common_prose_checks(req, lines, violations)
+    for f in ("design.md", "tasks.md"):
+        if (spec_dir / f).exists():
+            common_prose_checks(spec_dir / f, (spec_dir / f).read_text(encoding="utf-8").splitlines(), violations)
+    return r_ids
 
 
 def validate_tasking_file(path, spec_r_ids, violations):
     lines = path.read_text(encoding="utf-8").splitlines()
     text = "\n".join(lines)
-    _, sections = parse_sections(lines)
-
+    sections = parse_sections(lines)
     for kw in TASKING_REQUIRED:
         if not has_section(sections, kw):
             violations.append(Violation(path, f"tasking file is missing section '{kw}' (AGENT_TASKING.md § Tasking file)"))
     for kw in HUMAN_ONLY_SECTIONS:
         if has_section(sections, kw):
             violations.append(Violation(path, f"section '{kw}' is human-authored and belongs in the spec — the tasking file references R<id>, it does not restate them"))
-
     a_ids = check_ids(lines, "A")
     if not a_ids:
         violations.append(Violation(path, "no task breakdown — expected '- [ ] A<n>: ...' lines"))
     elif len(a_ids) != len(set(a_ids)):
         violations.append(Violation(path, "duplicate A ids"))
-
     present_s = {f"S{i}" for i in check_ids(lines, "S")}
     missing_s = [s for s in DEFAULT_S if s not in present_s]
     if missing_s:
         violations.append(Violation(path, f"security checklist missing default items: {missing_s}"))
-
     referenced = {int(n) for n in re.findall(r"\bR(\d+)\b", text)}
-    if spec_r_ids and not referenced:
-        violations.append(Violation(path, "tasking file references no R<id> from the spec"))
     uncovered = sorted(spec_r_ids - referenced)
     if uncovered:
         violations.append(Violation(path, f"requirements not referenced by any task or test: {['R%d' % i for i in uncovered]}"))
-
     common_prose_checks(path, lines, violations)
 
 
@@ -207,16 +197,22 @@ def validate_spec_dir(spec_dir):
     if not spec_dir.is_dir():
         return [Violation(spec_dir, "not a directory")]
     if not DIR_NAME_RE.match(spec_dir.name):
-        violations.append(Violation(spec_dir, "directory name must be <YYYYMMDD>_<slug> or <module-slug> (lowercase, digits, hyphens)"))
+        violations.append(Violation(spec_dir, "directory name must be <YYYYMMDD>-<slug> under specs/ (HUMAN_SPECS.md § File location)"))
 
-    tiers = [(f, t) for f, t in TIER_FILES.items() if (spec_dir / f).exists()]
-    if not tiers:
-        violations.append(Violation(spec_dir, f"no tier file — expected one of {', '.join(TIER_FILES)}"))
+    micro, quick = spec_dir / "micro-spec.md", spec_dir / "quick-spec.md"
+    standard = any((spec_dir / f).exists() for f in STANDARD_FILES)
+    present = [n for n, ok in (("micro-spec.md", micro.exists()), ("quick-spec.md", quick.exists()), ("requirements.md/design.md/tasks.md", standard)) if ok]
+    if not present:
+        violations.append(Violation(spec_dir, "no spec file — expected micro-spec.md, quick-spec.md, or requirements.md + design.md + tasks.md"))
         return violations
-    if len(tiers) > 1:
-        violations.append(Violation(spec_dir, f"more than one tier file: {[f for f, _ in tiers]}"))
-    fname, tier = tiers[0]
-    r_ids = validate_tier_file(spec_dir / fname, tier, violations)
+    if len(present) > 1:
+        violations.append(Violation(spec_dir, f"more than one tier present: {present}"))
+    if micro.exists():
+        r_ids = validate_micro(micro, violations)
+    elif quick.exists():
+        r_ids = validate_quick(quick, violations)
+    else:
+        r_ids = validate_standard(spec_dir, violations)
 
     tasking = spec_dir / TASKING_FILE
     if tasking.exists():
@@ -225,10 +221,9 @@ def validate_spec_dir(spec_dir):
 
 
 def main():
-    parser = argparse.ArgumentParser(description="Validate spec directories against design/AGENT_TASKING.md")
+    parser = argparse.ArgumentParser(description="Validate spec directories against design/HUMAN_SPECS.md and design/AGENT_TASKING.md")
     parser.add_argument("paths", nargs="+", help="spec directory (or a file inside it)")
     args = parser.parse_args()
-
     total = 0
     for p in args.paths:
         violations = validate_spec_dir(p)

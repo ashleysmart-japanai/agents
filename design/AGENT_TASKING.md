@@ -1,6 +1,6 @@
 # Agent Tasking — reading the spec, writing the tasking file
 
-Agent rules for the two spec documents. The human spec's authoritative convention is the project's own spec guide; this document states what the agent expects to find in it, what the agent checks (`/check-spec`), and what the agent writes in the tasking file.
+Agent rules for the tasking file. The human spec's convention — tiers, location, shape — is `HUMAN_SPECS.md`; the agent reads that spec and writes `agent_tasking.md` beside it.
 
 ## Objective
 
@@ -23,39 +23,6 @@ Agent rules for the two spec documents. The human spec's authoritative conventio
 - Use durable references.
   - Do not use line numbers — they go stale.
   - Use full repo paths for filenames.
-
-## Whether and which spec
-
-- Blast radius decides whether: one file, no new interface, no cross-module impact, no team decision → no spec; fix it and open the PR.
-- Touches core, the data model, or more than one service → a spec, read end to end and explicitly reviewed before work starts.
-- Kind and complexity decide the tier; hours are a proxy, not the line.
-  - Micro spec: bug fixes, docs, and config changes — under a day.
-  - Quick spec: a small feature that can be summed up in a few words — one to three days.
-  - Standard or full spec: beyond that, or anything that changes core, the data model, or more than one service.
-- Tier mismatch (a multi-service change under a micro or quick spec) is a large divergence → the agent asks before tasking.
-
-## Tier shapes
-
-Human-written in every tier; the agent's task breakdown and test plan go in the tasking file.
-
-Every tier opens with the three questions, one line each before the first section heading: `- What: <what ships>`, `- When: <date>`, `- Owner: <who>`. A spec that cannot answer them is a draft.
-
-- Micro spec — a bug fix, docs, or config change:
-  - **Goal**: one sentence — what problem this solves, for whom, and why.
-  - **Scope**: what is in, what is explicitly out, and the boundary — which modules change and which do not.
-  - **Behaviour**: numbered acceptance criteria (`R<id>`), written as observable facts.
-  - **Error cases**: how each failure mode is detected and surfaced.
-  - **Alternatives**: the other ways considered and why not those, one line each; the minimal fix is one of them.
-  - **Open questions**: assumptions that need a human decision before or during implementation.
-  - **Interfaces** appears when a public shape changes; there is no Design section — the fix is the design.
-- Quick spec — a small feature summed up in a few words: the micro sections plus Design (§2) and Use cases — summary (§3).
-- Standard or full spec: sections 1–4, 9, and 10 in full.
-
-## File location
-
-PR-scoped: `<project>/docs/<YYYYMMDD>_<short-task-slug>/<tier>.md` — the tier file is `microspec.md`, `quick-spec.md`, or the standard/full equivalent.
-Long-lived: `<project>/docs/<module-slug>/<tier>.md`
-Tasking file: `agent_tasking.md`, in the same directory as the spec it serves — next to `microspec.md`.
 
 ## Authorship
 
@@ -81,7 +48,7 @@ Tasking file: `agent_tasking.md`, in the same directory as the spec it serves �
 
 ## Tasking file
 
-- The tasking file ("tasking") is the agent's spec — the spec document the agent writes.
+- The tasking file ("tasking") is the agent's spec — the spec document the agent writes: `specs/<YYYYMMDD>-<slug>/agent_tasking.md`, beside the human spec (`HUMAN_SPECS.md` § File location).
 - The agent owns it; humans read and approve it.
 - It references the human spec by `R<id>` / `U<id>`; it does not restate requirements.
 - It holds the agent-authored sections (5–8) and the agent's derived artifacts, including:
@@ -98,74 +65,9 @@ Tasking file: `agent_tasking.md`, in the same directory as the spec it serves �
   - The agent records where the approval is.
 - Spec and tasking work is exempt from the token-scope rule — deliberate as long as the design needs.
 
-## Spec sections
+## Tasking file sections
 
-### 1. Requirements (human)
-
-What the system must do. Describe the **outputs and outcomes**, not the implementation.
-
-- Answer up front: who the user is, what problem this solves, the alternatives and why not those, how success is measured.
-
-- One requirement per bullet, numbered for tracking: `- [ ] R1: The system must...`
-- Terse. One sentence per requirement. If it needs explanation, it's two requirements.
-- Enough detail to be unambiguous. Not so much that it dictates implementation.
-- No code names or internal jargon.
-- Group related requirements under subheadings.
-- List what is **out of scope**.
-- State the boundary: which modules change and which do not.
-  - A change that crosses the boundary (an "extension" that rewrites core) is a large divergence → ask.
-- List every error case: what triggers it, what the caller sees.
-
-Format:
-
-```markdown
-### Subheading
-- [ ] R1: The system accepts any OCI container image that listens on a port.
-- [ ] R2: No infrastructure implementation detail is exposed to clients.
-
-### Out of Scope
-- Thing we are not building
-```
-
-The `R<id>` numbers are stable identifiers. Use cases, test plans, and task breakdowns reference them. Do not renumber after review — append new requirements at the end.
-
-### 2. Design (human)
-
-How to meet the requirements. Sets direction without micromanaging.
-
-- Interfaces: API shape, data in/out, events
-- Components: what is involved, how they connect
-- Data flow: inputs, outputs, where state lives
-- Constraints: performance, security, compatibility
-- Key decisions: technology/pattern choices with reasoning
-
-The agent has flexibility in how it implements the design. The design defines the shape of the solution, not every line of code.
-
-### 3. Use cases — summary (human)
-
-Terse list of named scenarios that exercise the requirements. One line per use case, numbered for tracking.
-
-Format:
-
-```markdown
-- [ ] U1: Developer creates and deploys a hello world app (R1, R13, R17)
-- [ ] U2: Developer adds Custom Objects capability (R19, R23)
-- [ ] U3: Agent deploys an app through the API (R8, R10)
-```
-
-Each use case references the requirements it exercises. The summary is the checklist — reviewers scan it to confirm coverage. Every requirement should appear in at least one use case.
-
-### 4. Use cases — detail (human)
-
-Expanded walkthrough for each use case listed in the summary.
-
-- Identify the actor (user, agent, system, external service)
-- Describe the trigger — what starts it
-- Walk through the steps — what happens, in what order, through which components
-- State the outcome — what the actor sees when it succeeds
-- State the failure cases — what happens when it fails, what the actor sees
-
-Use cases bridge requirements and design. Requirements say *what* the system must do. Design says *how* the system is structured. Use cases show *how actors interact with the system* in practice — they validate that the requirements are complete and the design supports real workflows.
+The agent-authored sections. Human sections (requirements, design, use cases, acceptance checklist, references) are `HUMAN_SPECS.md`.
 
 ### 5. Task breakdown — summary (agent — tasking file)
 
@@ -227,38 +129,6 @@ Default items (include in every tasking file):
 
 Add project-specific items from `@review/SECURITY_REVIEW.md` when applicable. Continue numbering from S11.
 
-### 9. Acceptance checklist (human)
-
-What a human verifies when reviewing the delivered code. Numbered for tracking.
-
-Format:
-
-```markdown
-- [ ] X1: Code solves the stated goal
-- [ ] X2: Behaviour matches each requirement
-```
-
-Default items (include in every spec):
-
-- [ ] X1: Code solves the stated goal
-- [ ] X2: Behaviour matches each requirement
-- [ ] X3: Scope boundaries respected — nothing extra added
-- [ ] X4: Interfaces match the design
-- [ ] X5: Error cases handled as specified
-- [ ] X6: No TODOs or placeholders left
-
-Add project-specific items as needed. Continue numbering from X7.
-
-### 10. References
-
-Provenance, prior art, and source material that informed the spec.
-
-- **Research**: prior specs, design reviews, Slack threads, PRs, git history, and investigations that shaped the requirements and design. Include dates and authors so decisions can be traced.
-- **Modules affected**: repos, directories, and services this spec touches.
-- **External**: links to external docs, RFCs, standards, or tools referenced in the design.
-
-References are append-only during the spec lifecycle. Do not remove references even if the linked material becomes stale — they are the audit trail for design decisions.
-
 ## Validation
 
 - `/check-spec` (`~/agents/skills/CHECK_SPEC.md`) checks a spec directory against this document: `scripts/validate_spec.py` for the mechanical rules, then a judgment pass.
@@ -278,9 +148,9 @@ References are append-only during the spec lifecycle. Do not remove references e
 - Do not enumerate the actual tests in the spec — that is the code-in-text-form failure.
   - Only design-mandated test constraints and pins earn spec space.
 
-## The spec is not a tracker
+## The tasking file is not a tracker
 
-- The spec states the target contract — the settled truth, written as if it had always been so.
+- Like the spec (`HUMAN_SPECS.md` § The spec is not a tracker), the tasking file states the target contract — the settled truth, written as if it had always been so.
 - The spec is never a status tracker, changelog, worklog, or review-claim litigation record.
 - No status markers in spec prose: no `DONE`, `Status:`, `REVERTED`, `NOT IMPLEMENTED`, no "at spec phase".
 - No edit history in spec prose: no "corrected", "rewritten", "was X now Y", no rebuttal of review claims.

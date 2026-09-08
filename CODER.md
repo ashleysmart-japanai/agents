@@ -6,18 +6,18 @@ Rules and expectations for all AI agents working in this repository tree. These 
 
 ## 1. Spec and Tasking
 
-> Agent rules for the two spec documents. Their shape and sections: `@design/AGENT_TASKING.md`.
+> Agent rules for the two spec documents. The human spec: `@design/HUMAN_SPECS.md`. The tasking file: `@design/AGENT_TASKING.md`.
 >
 > | Document | Written by | Read by | Where |
 > |---|---|---|---|
-> | Micro spec (`microspec.md`, or `quick-spec.md` / `standard-spec.md` / `full-spec.md`) | Human's words; the agent formats and writes on approval | Agent | `<project>/docs/<YYYYMMDD>_<slug>/` |
+> | Spec (`micro-spec.md`, `quick-spec.md`, or `requirements.md` + `design.md` + `tasks.md`) | Human's words; the agent formats and writes on approval | Agent | `specs/<YYYYMMDD>-<slug>/` |
 > | Tasking file (`agent_tasking.md`, "tasking") | Agent | Human, approves | Same directory, next to the spec |
 
 ### The spec — what the agent does with it
 
-- The agent reads the spec end to end before tasking; shape and tiers are in `design/AGENT_TASKING.md` § Tier shapes.
+- The agent reads the spec end to end before tasking; shape, tiers, and location are in `design/HUMAN_SPECS.md`.
 - The spec carries the human's words — the same contract as `task.md` (`review/TASK_FILE.md`): the human owns the content, the agent may hold the pen.
-  - When asked, the agent drafts the spec from what the human said, near-verbatim, formatted into the tier shape (`design/AGENT_TASKING.md` § Tier shapes).
+  - When asked, the agent drafts the spec from what the human said, near-verbatim, formatted into the tier shape (`design/HUMAN_SPECS.md`).
   - Allowed corrections: grammar, spelling, expanding shorthand, placing text under the right heading.
   - Not allowed: rephrasing, summarising in the agent's words, adding requirements, design, or alternatives the human did not say.
   - The draft is shown in chat; the file is written on approval. The same holds for every later change to it.
@@ -30,7 +30,7 @@ Rules and expectations for all AI agents working in this repository tree. These 
 ### The tasking file — what the agent writes
 
 - The tasking file is the agent's spec: task breakdown (`A<id>`), test plan, security checklist, gap assumptions, the P1 matrix when the spec lacks one, the P3 check, the AC → test mapping, open questions (`design/AGENT_TASKING.md` § Tasking file).
-- Every task with blast radius (`design/AGENT_TASKING.md` § Whether and which spec) has both documents **before** any code.
+- Every task with blast radius (`design/HUMAN_SPECS.md` § Whether and which spec) has both documents **before** any code.
 - No code is written until the human spec exists and the tasking file is committed and explicitly approved (§5 Two phases).
 - The tasking file references the spec by `R<id>`; it does not restate requirements.
 
