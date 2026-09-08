@@ -36,7 +36,7 @@
 
 Human-written in every tier; the agent's task breakdown and test plan go in the tasking file.
 
-Every tier opens with the three questions, answered in one line each: what ships, when, and who owns it. A spec that cannot answer them is a draft.
+Every tier opens with the three questions, one line each before the first section heading: `- What: <what ships>`, `- When: <date>`, `- Owner: <who>`. A spec that cannot answer them is a draft.
 
 - Micro spec — a bug fix, docs, or config change:
   - **Goal**: one sentence — what problem this solves, for whom, and why.
@@ -253,6 +253,12 @@ Provenance, prior art, and source material that informed the spec.
 - **External**: links to external docs, RFCs, standards, or tools referenced in the design.
 
 References are append-only during the spec lifecycle. Do not remove references even if the linked material becomes stale — they are the audit trail for design decisions.
+
+## Validation
+
+- `/check-spec` (`~/agents/skills/CHECK_SPEC.md`) checks a spec directory against this document: `scripts/validate_spec.py` for the mechanical rules, then a judgment pass.
+- The coder runs it before asking for tasking approval; the reviewer runs it before verifying P1–P3.
+- A spec that fails it is a draft.
 
 ## Acceptance criteria are guides, not inventories
 

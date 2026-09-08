@@ -1,6 +1,6 @@
 ---
 name: local-agent-skills
-description: Load and use Ashley's local single-file agent skills from ~/agents/skills. Use when the user references @~/agents/skills, asks to read/install/use local skills, invokes slash commands such as /clean-check, /acs-review, /update-main, /cherry-pick, /squash-rebase, /rebase-squash, or names the corresponding commands without a slash.
+description: Load and use Ashley's local single-file agent skills from ~/agents/skills. Use when the user references @~/agents/skills, asks to read/install/use local skills, invokes slash commands such as /clean-check, /acs-review, /update-main, /cherry-pick, /squash-rebase, /rebase-squash, /check-spec, or names the corresponding commands without a slash.
 ---
 
 # Local Agent Skills
@@ -30,6 +30,7 @@ Use these aliases:
 - `/cherry-pick` or `cherry-pick` -> `CHERRY_PICK.md`
 - `/squash-rebase`, `/rebase-squash`, or `squash-rebase` -> `SQUASH_REBASE.md`
 - `/review-triage` or `review-triage` -> `REVIEW_TRIAGE.md`
+- `/check-spec` or `check-spec` -> `CHECK_SPEC.md`
 
 ## Execution Rules
 

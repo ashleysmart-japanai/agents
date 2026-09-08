@@ -251,7 +251,7 @@ SOLID applies to statements too — docs, specs, PR descriptions, commit message
   - Offering follow-ups after the work is fine; asking permission before doing requested work is not.
   - A per-item halt (cascade, `UNPROVEN`, `NEEDS_REVIEW`, a large divergence on one item) is reported and the rest of the work continues; it does not end the turn.
 - **Two phases, one gate between them.**
-  - Phase 1 — tasking: read the human spec end to end, write or update the tasking file (`design/SPECS.md` § Tasking file), pass the process gates (P1–P3), commit the tasking file on its own, push, then end the turn asking for approval. This turn ends on a question.
+  - Phase 1 — tasking: read the human spec end to end, write or update the tasking file (`design/SPECS.md` § Tasking file), run `/check-spec`, pass the process gates (P1–P3), commit the tasking file on its own, push, then end the turn asking for approval. This turn ends on a question.
   - Phase 2 — code: on explicit human approval recorded in the thread or PR (silence is not approval), implement every acceptance criterion (red → green → commit → push), run the submission gates and review triage, report. Work continues to completion.
   - Phase 2 starts on an approved tasking file.
   - Phase 1 reopens mid-Phase 2 for a large divergence (§1) — ask, at the end of a turn that delivers everything not depending on the answer.
@@ -437,3 +437,5 @@ An agent surfaces an open question rather than guessing — at the end of a turn
 - `/update-main`: `~/agents/skills/MAIN_UPDATE.md`
 - `review-triage`: `~/agents/skills/REVIEW_TRIAGE.md`
 - `/review-triage`: `~/agents/skills/REVIEW_TRIAGE.md`
+- `check-spec`: `~/agents/skills/CHECK_SPEC.md`
+- `/check-spec`: `~/agents/skills/CHECK_SPEC.md`
