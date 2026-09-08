@@ -47,7 +47,7 @@ Run this procedure during Stage 0, after reading existing review state:
   - Not allowed: rephrasing, summarising in the agent's own words, or adding content the user did not say.
 - Create `task.md` at task start.
 - Write it in dot-point-srp style (`~/agents/style/DOT_POINT_SRP.md`).
-- Three top-level sections, always in this order: `# GOAL`, `# STATUS`, `# DECISIONS`.
+- Four top-level sections, in this order: `# GOAL`, `# STATUS`, `# DECISIONS`, `# JUSTIFICATION`.
 - No other top-level sections.
 - `# GOAL` — what the task is for this PR.
   - Written at task start.
@@ -65,6 +65,10 @@ Run this procedure during Stage 0, after reading existing review state:
   - Append-only: never rewrite, delete, or reorder entries.
   - Appended when the decision is made, in the user's words — not reconstructed later.
   - A reversed decision gets a new entry naming the entry it reverses.
+- `# JUSTIFICATION` — why this task exists, as the three questions plus the problem.
+  - One line each: `- What: <what ships>`, `- When: <date>`, `- Owner: <who>`, `- Problem: <what it solves, for whom>`.
+  - Written at task start from the spec's header; rewritten in place when the human changes any answer.
+  - A task that cannot answer all four is not ready to start — surface it, do not guess.
 
 ## Review handling rules
 
@@ -387,6 +391,12 @@ justification:
 # DECISIONS
 - 2026-06-10 - tasking-before-code - Write and commit the tasking file, then stop before implementation.
 - 2026-06-11 - no-root-sentinel - No fake `current` value — it enables the create button and guarantees an upstream failure.
+
+# JUSTIFICATION
+- What: record adapter behind a capability interface
+- When: 2026-06-14
+- Owner: ashley
+- Problem: page owners cannot see which external user consumed credits
 
 # log.md
 2026-06-11 09:00:20 - df9fc5386 - B1.1Z0njAzGj6F7oezIwcQD7g:OPEN - path/file.ts - open issue still present
