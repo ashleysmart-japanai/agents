@@ -2,7 +2,7 @@
 
 Software design knowledge required of all agents operating in a design or architecture capacity.
 
-> Spec authoring guide: `@design/AGENT_SPECS.md`
+> Specs — what the agent reads (the human spec) and what it writes (the tasking file): `@design/AGENT_SPECS.md`
 
 ---
 
