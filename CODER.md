@@ -16,7 +16,7 @@ Rules and expectations for all AI agents working in this repository tree. These 
 ### The spec — what the agent does with it
 
 - The agent reads the spec end to end before tasking; shape and tiers are in `design/AGENT_SPECS.md` § Tier shapes.
-- The spec carries the human's words — the same contract as `task.md` (ISSUE_TRACKING.md § Task file): the human owns the content, the agent may hold the pen.
+- The spec carries the human's words — the same contract as `task.md` (`review/TASK_FILE.md`): the human owns the content, the agent may hold the pen.
   - When asked, the agent drafts the spec from what the human said, near-verbatim, formatted into the tier shape (`design/AGENT_SPECS.md` § Tier shapes).
   - Allowed corrections: grammar, spelling, expanding shorthand, placing text under the right heading.
   - Not allowed: rephrasing, summarising in the agent's words, adding requirements, design, or alternatives the human did not say.
@@ -365,7 +365,7 @@ SOLID applies to statements too — docs, specs, PR descriptions, commit message
 - A fix that is written but not yet verified is `OPEN`, not `CLOSED verified:` — "verified" requires a passing reverify command, test, or trace, not merely that the code is present.
 - Do **not** write to `review.md` or the `~/reviews/<repo>-pr-<number>/` directory. That persisted store is the reviewer/orchestrator's job (see `~/agents/review/ISSUE_TRACKING.md`). Your report is the in-chat list.
   - **Exception 1:** the review-claim triage and red-light procedure below. When executing it, the coder records and updates the claims it is processing in the review store per ISSUE_TRACKING.md.
-  - **Exception 2:** `task.md` — the coder owns the file, the user owns the content (grammar: ISSUE_TRACKING.md § Task file). Never update it without the user's approval: propose the exact text in chat, write it only once approved, and keep the user's words near-verbatim — correcting only grammar, spelling, and shorthand. `# DECISIONS` entries are gated: only major actions and direction shifts qualify, each tagged with a short name (e.g. `record-not-resource`) — never task steps or work narration. `# JUSTIFICATION` answers what ships, when, who owns it, and the problem — from the spec header; a task that cannot answer them is not ready to start.
+  - **Exception 2:** `task.md` — the coder owns the file, the user owns the content (grammar: `review/TASK_FILE.md`). Never update it without the user's approval: propose the exact text in chat, write it only once approved, and keep the user's words near-verbatim — correcting only grammar, spelling, and shorthand. `# DECISIONS` entries are gated: only major actions and direction shifts qualify, each tagged with a short name (e.g. `record-not-resource`) — never task steps or work narration.
 - Ground every claim: audit each progress claim against a tool result from this session before reporting it.
   - Report only work you can point to evidence for.
   - Say explicitly what is not yet verified.

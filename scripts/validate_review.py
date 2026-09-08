@@ -112,29 +112,20 @@ def validate_review_dir(review_dir):
         if key not in meta:
             violations.append(Violation(review_md, f"META missing required key: {key}"))
 
-    # --- Check task.md structure (file is optional; structure is not) ---
+    # --- Check task.md structure per review/TASK_FILE.md (file is optional; structure is not) ---
     task_md = review_dir / "task.md"
     if task_md.exists():
         task_lines = task_md.read_text(encoding="utf-8").splitlines()
         task_sections = [l.rstrip() for l in task_lines if l.startswith("# ")]
-        if task_sections != ["# GOAL", "# STATUS", "# DECISIONS", "# JUSTIFICATION"]:
-            violations.append(Violation(task_md, f"top-level sections must be exactly # GOAL, # STATUS, # DECISIONS, # JUSTIFICATION in order (found: {task_sections})"))
-        section = None
-        just_keys = []
+        if task_sections != ["# GOAL", "# STATUS", "# DECISIONS"]:
+            violations.append(Violation(task_md, f"top-level sections must be exactly # GOAL, # STATUS, # DECISIONS in order (found: {task_sections})"))
+        in_decisions = False
         for i, l in enumerate(task_lines):
             if l.startswith("# "):
-                section = l.rstrip()
-            elif section == "# DECISIONS" and l.strip():
+                in_decisions = l.rstrip() == "# DECISIONS"
+            elif in_decisions and l.strip():
                 if not re.match(r"^- \d{4}-\d{2}-\d{2} - [a-z0-9][a-z0-9-]* - ", l):
                     violations.append(Violation(task_md, f"line {i+1}: DECISIONS entry must be '- <yyyy-mm-dd> - <tag> - <decision> — <reason(s)>'"))
-            elif section == "# JUSTIFICATION" and l.strip():
-                m = re.match(r"^- (What|When|Owner|Problem): \S", l)
-                if not m:
-                    violations.append(Violation(task_md, f"line {i+1}: JUSTIFICATION entry must be '- What|When|Owner|Problem: <text>'"))
-                else:
-                    just_keys.append(m.group(1))
-        if "# JUSTIFICATION" in task_sections and sorted(just_keys) != ["Owner", "Problem", "What", "When"]:
-            violations.append(Violation(task_md, f"JUSTIFICATION must have exactly one each of What, When, Owner, Problem (found: {just_keys})"))
 
     # --- Check no DETAILS section exists ---
     for line in lines:

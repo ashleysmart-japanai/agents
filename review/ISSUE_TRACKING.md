@@ -5,7 +5,7 @@ This document specifies the **persisted `review.md` store**: how the finding gra
 - Store review output in `~/reviews/<repo>-pr-<number>/`.
 - Use `review.md` as the index file. It contains only `# META` and `# SUMMARY`.
 - Use `feedback.md` as the external feedback ingress file.
-- Use `task.md` as the coder's task context file: goal, status, decision log.
+- Use `task.md` as the coder's task context file ([TASK_FILE.md](TASK_FILE.md)).
 - Store every issue's detail record in its own `<ID>.md` file.
 - `review.md` never contains detail records.
 - Migrate legacy files from `~/reviews/<repo>-pr-<number>-review.md`.
@@ -37,38 +37,7 @@ Run this procedure during Stage 0, after reading existing review state:
 
 ## Task file
 
-- `task.md` is a sibling of `review.md` in the review directory.
-- `task.md` is not the tasking file: `agent_tasking.md` is the agent's spec in the repo (`design/AGENT_SPECS.md` § Tasking file); `task.md` is the review-store context file with user-owned content.
-- The coder owns `task.md`; reviewers and subagents read it, never edit it.
-- No update to `task.md` without the user's approval.
-  - Propose the exact text in chat; write it only after the user approves.
-- Record the user's text as close to verbatim as possible.
-  - Allowed corrections: grammar, spelling, and expanding shorthand.
-  - Not allowed: rephrasing, summarising in the agent's own words, or adding content the user did not say.
-- Create `task.md` at task start.
-- Write it in dot-point-srp style (`~/agents/style/DOT_POINT_SRP.md`).
-- Four top-level sections, in this order: `# GOAL`, `# STATUS`, `# DECISIONS`, `# JUSTIFICATION`.
-- No other top-level sections.
-- `# GOAL` — what the task is for this PR.
-  - Written at task start.
-  - Changes only when the user changes scope.
-- `# STATUS` — a summary of where the work is at.
-  - Rewritten in place at each update.
-  - Proposed after each push and at session end; written on approval.
-- `# DECISIONS` — a linear log of direction-affecting decisions and the reason(s) for each.
-  - Entry gate: only major actions and direction shifts qualify — calls that change what gets built.
-  - An entry that fails the gate is not appended.
-  - Minor choices, task steps, and work narration never pass the gate.
-  - Tag each entry with a short kebab-case name for the decision (e.g. `spec-before-code`, `record-not-resource`).
-  - Entry format: `- <yyyy-mm-dd> - <tag> - <decision> — <reason(s)>`.
-  - One entry per decision, trimmed to the call and its reason — no blather.
-  - Append-only: never rewrite, delete, or reorder entries.
-  - Appended when the decision is made, in the user's words — not reconstructed later.
-  - A reversed decision gets a new entry naming the entry it reverses.
-- `# JUSTIFICATION` — why this task exists, as the three questions plus the problem.
-  - One line each: `- What: <what ships>`, `- When: <date>`, `- Owner: <who>`, `- Problem: <what it solves, for whom>`.
-  - Written at task start from the spec's header; rewritten in place when the human changes any answer.
-  - A task that cannot answer all four is not ready to start — surface it, do not guess.
+- `task.md` grammar and rules: [TASK_FILE.md](TASK_FILE.md).
 
 ## Review handling rules
 
@@ -382,21 +351,7 @@ justification:
 ```
 
 # task.md
-# GOAL
-- Extract the record adapter behind a capability interface for this PR.
-
-# STATUS
-- Adapter extracted; create path green; browse slice pending.
-
-# DECISIONS
-- 2026-06-10 - tasking-before-code - Write and commit the tasking file, then stop before implementation.
-- 2026-06-11 - no-root-sentinel - No fake `current` value — it enables the create button and guarantees an upstream failure.
-
-# JUSTIFICATION
-- What: record adapter behind a capability interface
-- When: 2026-06-14
-- Owner: ashley
-- Problem: page owners cannot see which external user consumed credits
+<grammar and example: TASK_FILE.md>
 
 # log.md
 2026-06-11 09:00:20 - df9fc5386 - B1.1Z0njAzGj6F7oezIwcQD7g:OPEN - path/file.ts - open issue still present

@@ -59,7 +59,7 @@ Tasking file: `agent_tasking.md`, in the same directory as the spec it serves �
 
 ## Authorship
 
-- The human owns the spec's content; the agent may hold the pen — the `task.md` contract (ISSUE_TRACKING.md § Task file).
+- The human owns the spec's content; the agent may hold the pen — the `task.md` contract (`review/TASK_FILE.md`).
   - The agent drafts from the human's words, near-verbatim, formatted into the tier shape; it shows the draft and writes on approval.
   - Allowed: grammar, spelling, expanding shorthand, placing text under the right heading.
   - Not allowed: rephrasing, summarising, or adding content the human did not say — no invented requirements, design, or alternatives.
@@ -288,7 +288,7 @@ References are append-only during the spec lifecycle. Do not remove references e
 - A reader must not be able to tell from any section what order it was written in.
 - Each kind of record has its own home — never the spec:
   - What changed and when → git history of the spec file.
-  - Why a direction was chosen or reversed → `task.md` `# DECISIONS` (ISSUE_TRACKING.md § Task file).
+  - Why a direction was chosen or reversed → `task.md` `# DECISIONS` (`review/TASK_FILE.md`).
   - Review claims and their outcomes → the review store `<ID>.md` files (ISSUE_TRACKING.md).
   - Implementation progress → the task breakdown checkboxes (`A<id>`) in the tasking file, checkbox state only.
 - The tracking surfaces are the numbered checklists — R/U/X in the spec, A/S in the tasking file — checkbox flips, not prose annotations.
