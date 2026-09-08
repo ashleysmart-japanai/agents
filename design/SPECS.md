@@ -28,9 +28,9 @@
 
 ## File location
 
-PR-scoped: `<project>/docs/<YYYYMMDD>_<short-task-slug>.md`
-Long-lived: `<project>/docs/<module-slug>.md`
-Tasking file: `<project>/docs/<YYYYMMDD>_<short-task-slug>_agent_tasking.md`, beside the spec it serves.
+PR-scoped: `<project>/docs/<YYYYMMDD>_<short-task-slug>/<tier>.md` — the tier file is `microspec.md`, `quick-spec.md`, or the standard/full equivalent.
+Long-lived: `<project>/docs/<module-slug>/<tier>.md`
+Tasking file: `agent_tasking.md`, in the same directory as the spec it serves — next to `microspec.md`.
 
 ## Authorship
 
