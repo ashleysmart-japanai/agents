@@ -8,17 +8,18 @@ Rules and expectations for all AI agents working in this repository tree. These 
 
 > Design, steering, and micro-spec guidelines — how to write them: `@design/SPECS.md`
 
-- Every non-trivial task begins with a micro spec written **before** any code.
-- No code is written until the micro spec exists, is committed, and is approved by the reviewer or human (§5 Two phases).
+- Every task with blast radius (`design/SPECS.md` § Whether and which spec) begins with a human-written spec and the agent's tasking file, both **before** any code.
+- No code is written until the human spec exists and the tasking file is committed and explicitly approved (§5 Two phases).
 - Spec is the source of truth. Code to its intended target — do not rewrite it to match the code.
+- Spec documents are human-writable. The agent does not edit the micro spec, `steering.md`, or any other spec document — not to fix typos, fill gaps, or record drift. The agent writes to the tasking file (`design/SPECS.md` § Tasking file).
 - The spec is not a status tracker: no `DONE`/`Status:`/`REVERTED` markers or edit history in spec prose — state the settled contract only (`design/SPECS.md` § The spec is not a tracker).
 - Spec statements follow SOLID, open/closed in particular: state what the change adds or does, not the module's full inventory (`design/SPECS.md` § Objective).
 - Acceptance criteria are guides for groups of testing, not micro-detail inventories: each derives at least one test — usually more — at implementation; leave them as generalizations where appropriate and never treat or present them as the ceiling of testing (`design/SPECS.md` § Acceptance criteria are guides, not inventories).
 - Resolve gaps by size:
   - **In-scope gap** → apply conventions, record the assumption, continue. Never ask.
   - **Ambiguous** (conventions conflict or none applies) → ask.
-  - **Small drift** (naming, local structure) → update spec, continue.
-  - **Large divergence** (new approach, changed contract, added/dropped requirement) → ask, at the end of a turn that delivers everything not depending on the answer. Do not self-approve by editing the spec.
+  - **Small drift** (naming, local structure) → record it in the tasking file, continue.
+  - **Large divergence** (new approach, changed contract, added/dropped requirement) → ask, at the end of a turn that delivers everything not depending on the answer. Do not self-approve by editing the spec; the spec edit, if any, is the human's.
   - Unsure if large → treat as large, ask.
 - Fill in-scope gaps with the established conventions:
   - Security → [security-principles](reference/security-principles.md):
@@ -144,7 +145,7 @@ SOLID applies to statements too — docs, specs, PR descriptions, commit message
 - **Present-but-empty means deny.** An empty permission set, an empty filter list, or an empty role array grants nothing — never treat empty the same as absent.
 - **Absent may mean "legacy, allow" only if the spec documents it.** If there is no documented legacy exception, absent also means deny.
 - **Missing declarations exclude.** An item without a permission or type declaration is excluded from results, not included by default.
-- **State the posture in the spec.** Every gate or filter in a micro spec must say what happens when input is absent, empty, or unrecognized.
+- **State the posture.** Every gate or filter says, in the spec or the tasking file, what happens when input is absent, empty, or unrecognized.
 
 ### Booleans over string arrays for fixed permission sets
 
@@ -221,7 +222,7 @@ SOLID applies to statements too — docs, specs, PR descriptions, commit message
   - [ ] All acceptance criteria from the micro spec are met.
   - [ ] Coverage gate passes locally.
   - [ ] No new lint warnings introduced.
-  - [ ] Micro spec updated if scope changed during implementation. Any large divergence from the spec's intent was raised with the user and approved before proceeding — not self-approved by editing the spec (see §1).
+  - [ ] Tasking file updated if scope changed during implementation; spec changes were requested from the human, not made by the agent. Any large divergence from the spec's intent was raised with the user and approved before proceeding — not self-approved by editing the spec (see §1).
   - [ ] CHANGELOG entry added for user-visible changes.
 
 ---
@@ -250,9 +251,9 @@ SOLID applies to statements too — docs, specs, PR descriptions, commit message
   - Offering follow-ups after the work is fine; asking permission before doing requested work is not.
   - A per-item halt (cascade, `UNPROVEN`, `NEEDS_REVIEW`, a large divergence on one item) is reported and the rest of the work continues; it does not end the turn.
 - **Two phases, one gate between them.**
-  - Phase 1 — spec: write or update the micro spec (`design/SPECS.md`), pass the process gates (P1–P3), commit, push, then end the turn asking for approval. This turn ends on a question.
-  - Phase 2 — code: on reviewer/human approval, implement every acceptance criterion (red → green → commit → push), run the submission gates and review triage, report. Work continues to completion.
-  - Phase 2 starts on an approved spec.
+  - Phase 1 — tasking: read the human spec end to end, write or update the tasking file (`design/SPECS.md` § Tasking file), pass the process gates (P1–P3), commit the tasking file on its own, push, then end the turn asking for approval. This turn ends on a question.
+  - Phase 2 — code: on explicit human approval recorded in the thread or PR (silence is not approval), implement every acceptance criterion (red → green → commit → push), run the submission gates and review triage, report. Work continues to completion.
+  - Phase 2 starts on an approved tasking file.
   - Phase 1 reopens mid-Phase 2 for a large divergence (§1) — ask, at the end of a turn that delivers everything not depending on the answer.
 - **Token scope in long-run loops (Phase 2, review, triage).** Everything produced in one reply — reasoning, drafting, and the reply itself — counts toward one output limit; a cut-off reply is a restart.
   - Reason in the reasoning space; write the deliverable once, in the output space — a file, diff, or report is drafted once, not in full as reasoning and again as the reply.
@@ -275,17 +276,17 @@ SOLID applies to statements too — docs, specs, PR descriptions, commit message
 ### Before code
 
 1. **Read the bug report or task fully.** If the task references a review issue, read the entire `<ID>.md` detail file — description, evidence, fix guidance, and reverify steps. Do not skim summaries or titles. Do not make decisions, push back, or categorise an issue without reading the full detail file first.
-2. **Read** the relevant micro spec (or create one if absent, per `design/SPECS.md`).
+2. **Read** the human spec end to end. Absent, or an empty Requirements section → ask for it; the agent does not write it.
 3. **Read** existing code in the affected area before writing anything.
-4. **Write or update** the micro spec if the task is new or scope changes.
+4. **Write or update** the tasking file if the task is new or scope changes.
 
 **Process gates — Phase 1 ends here; no implementation until all pass and the spec is approved:**
 
 | # | Gate | Evidence |
 |---|------|----------|
-| P1 | **Spec-with-matrix exists.** For any feature that filters, permits, gates, or falls back: the spec contains the full input-state × behavior table — with absent and present-but-empty as separate rows — and no cell reads TBD. | The table in the spec doc, committed before implementation. |
+| P1 | **Spec-with-matrix exists.** For any feature that filters, permits, gates, or falls back: the spec contains the full input-state × behavior table — with absent and present-but-empty as separate rows — and no cell reads TBD. | The table in the spec, or derived by the agent in the tasking file, committed before implementation. |
 | P2 | **Acceptance criteria are executable.** Every AC names a test file/case that fails before implementation and passes after. Prose-only ACs are invalid. | Red run before, green run after — both captured, and the red test is a committed suite file (commit sha), not a temporary/uncommitted file. |
-| P3 | **Design is checked against the anti-pattern catalog before coding.** Named check of `anti-patterns/CHECKLIST.md` sections relevant to the design (smuggler for any new field on shared objects, primitive-obsession for any new string, boat-anchor for anything speculative). | Pass/fail/N-A list in the spec. |
+| P3 | **Design is checked against the anti-pattern catalog before coding.** Named check of `anti-patterns/CHECKLIST.md` sections relevant to the design (smuggler for any new field on shared objects, primitive-obsession for any new string, boat-anchor for anything speculative). | Pass/fail/N-A list in the tasking file. |
 
 ### During implementation
 
@@ -301,12 +302,12 @@ SOLID applies to statements too — docs, specs, PR descriptions, commit message
 
 | # | Gate | Evidence |
 |---|------|----------|
-| C1 | **Fail closed, stated explicitly.** Every gate declares its posture in the spec: absent → documented compat or deny; empty → deny; undeclared item → excluded. Fail-open requires a written justification. | Posture declaration in the spec for every gate. |
+| C1 | **Fail closed, stated explicitly.** Every gate declares its posture in the spec or the tasking file: absent → documented compat or deny; empty → deny; undeclared item → excluded. Fail-open requires a written justification. | Posture declaration in the spec for every gate. |
 | C2 | **No closed set as a raw string.** Every finite value set is a named union/enum at every layer it crosses. | `grep` new fields for bare `string` types — zero hits. |
 | C3 | **Invalid states unrepresentable.** Flags are booleans, not membership arrays; domain types over primitives. `{ read: true }` cannot typo; `["raed"]` can. | Type definitions in the diff use records/enums, not string arrays. |
 | C4 | **System metadata never shares a namespace with user data.** One reserved envelope key, written after user data, stripped from user input at the boundary. | Smuggler checklist against the diff. |
 | C5 | **One owner per contract.** A type crossing N boundaries is declared once and imported, or each copy carries a `KEEP-IN-SYNC` reference to the master, and a test pins the wire shape. | Single declaration site, or `KEEP-IN-SYNC` references plus a shape-pinning test. |
-| C6 | **Only functional code.** No field, param, shim, or fallback without a current consumer named in the spec. Reviewer suggestions are proposals — they get scope-checked against objectives, not implemented by default. | Every new symbol has a caller in the diff; spec lists no unused additions. |
+| C6 | **Only functional code.** No field, param, shim, or fallback without a current consumer named in the spec or the tasking file. Reviewer suggestions are proposals — they get scope-checked against objectives, not implemented by default. | Every new symbol has a caller in the diff; spec lists no unused additions. |
 
 ### Before commit
 
@@ -394,6 +395,13 @@ An agent surfaces an open question rather than guessing — at the end of a turn
 - All code changes happen on the PR branch checkout. **Never** apply fixes in a separate clone, worktree, or "review workspace".
 - A patch that exists only in a side workspace does not exist: it is unverifiable by others, not on the PR, and will be lost. Reporting such a patch as "addressed" is a false completion claim (violates T2).
 - Reviewers propose; the fix lands on the branch via the normal red → green → commit → push cycle (§5), or it is reported as an OPEN finding — never as done.
+
+### Spec documents are human-writable
+
+- The agent reads spec documents; it does not write to them — micro spec, `steering.md`, quick/standard/full specs, or any spec-tier document.
+- The agent's spec work goes in the tasking file (`design/SPECS.md` § Tasking file), committed separately from code.
+- A commit by the agent that touches a spec document is a finding for the reviewer (REVIEWER.md).
+- AI-generated output is a draft until a human has read it end to end; the agent presents the tasking file as a draft for reading, not as a reviewed spec.
 
 ### Scope creep
 

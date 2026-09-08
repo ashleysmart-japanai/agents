@@ -49,9 +49,8 @@ Every non-trivial task begins with a micro spec written **before** any code.
 
 ### Rules
 
-- No code is written until the micro spec exists and is committed.
-- The spec is the source of truth. If code diverges, update the spec first
-  and get acknowledgement before continuing.
+- No code is written until the human spec exists and the agent's tasking file is committed and approved.
+- The spec is the source of truth. If code diverges, record it in the tasking file (small drift) or ask (large divergence) — spec documents are human-writable (`design/SPECS.md` § Authorship).
 - In markdown docs, do not manually hard-wrap prose lines; keep paragraph text on a single line and let the editor handle visual wrapping.
 - Acceptance criteria drive the test plan — every criterion maps to at least
   one test. Missing test → missing criterion or vice versa.
@@ -233,7 +232,7 @@ the composition root — never constructed inside business logic.
   - [ ] All acceptance criteria from the micro spec are met.
   - [ ] Coverage gate passes locally.
   - [ ] No new lint warnings introduced.
-  - [ ] Micro spec updated if scope changed during implementation.
+  - [ ] Tasking file updated if scope changed during implementation.
   - [ ] CHANGELOG entry added for user-visible changes.
 
 ---
@@ -242,9 +241,9 @@ the composition root — never constructed inside business logic.
 
 When an AI agent picks up a task it **must** follow this order:
 
-1. **Read** the relevant micro spec (or create one if absent).
+1. **Read** the human spec end to end (absent → ask; the agent does not write it).
 2. **Read** existing code in the affected area before writing anything.
-3. **Write or update** the micro spec if the task is new or scope changes.
+3. **Write or update** the tasking file if the task is new or scope changes.
 4. **Red** — write one test, run the suite, confirm that test fails for the
    right reason. A test that cannot be seen to fail proves nothing.
 5. **Green** — write the minimum production code needed to make that test

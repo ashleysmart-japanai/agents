@@ -19,35 +19,64 @@
   - Do not use line numbers — they go stale.
   - Use full repo paths for filenames.
 
+## Whether and which spec
+
+- Blast radius decides whether: one file, no new interface, no cross-module impact, no team decision → no spec; fix it and open the PR.
+- Touches core, the data model, or more than one service → a spec, read end to end and explicitly reviewed before work starts.
+- Effort decides the tier: micro under a day, quick one to three days, standard or full beyond.
+- Tier mismatch (a multi-service change under a micro spec) is a large divergence → the agent asks before tasking.
+
 ## File location
 
 PR-scoped: `<project>/docs/<YYYYMMDD>_<short-task-slug>.md`
 Long-lived: `<project>/docs/<module-slug>.md`
+Tasking file: `<project>/docs/<YYYYMMDD>_<short-task-slug>_agent_tasking.md`, beside the spec it serves.
 
 ## Authorship
 
-| # | Section | Author | Agent rule |
-|---|---|---|---|
-| 1 | Requirements | Human | Read-only. Do not add, remove, or reword. |
-| 2 | Design | Human or Agent | If human provides it, follow it. If missing, propose and wait for approval. |
-| 3 | Use cases — summary | Human or Agent | Numbered checklist (`U<id>`). References requirements. Human reviews. |
-| 4 | Use cases — detail | Human or Agent | Expanded walkthroughs. Validates requirements against real workflows. |
-| 5 | Task breakdown — summary | Agent | Numbered checklist (`A<id>`). Ordered by dependency. Human reviews before work starts. |
-| 6 | Task breakdown — detail | Agent | Expanded task descriptions with modules, tests, dependencies. |
-| 7 | Test plan | Agent | Derive from requirements. Human reviews for completeness. |
-| 8 | Security checklist | Agent | Agent checks before completion. Human verifies. |
-| 9 | Acceptance checklist | Human | Read-only. |
-| 10 | References | Human or Agent | Append-only. Do not remove entries. |
+- Spec documents are human-writable. The agent reads them; it does not add, remove, reword, or fill gaps in any section.
+- The agent writes its spec work to the tasking file (§ Tasking file).
+- A gap or conflict in the spec → the agent asks; the human edits.
 
-If the agent finds a gap or conflict in a human-authored section, it asks — it does not silently fix it.
+| # | Section | Lives in | Author | Agent rule |
+|---|---|---|---|---|
+| 1 | Requirements | Spec | Human | Read-only. Missing or empty → tasking does not start; ask. |
+| 2 | Design | Spec | Human | Read-only. Missing → the agent proposes one in the tasking file and asks. |
+| 3 | Use cases — summary | Spec | Human | Read-only. Numbered checklist (`U<id>`). |
+| 4 | Use cases — detail | Spec | Human | Read-only. |
+| 5 | Task breakdown — summary | Tasking file | Agent | Numbered checklist (`A<id>`). Ordered by dependency. Human reads end to end before work starts. |
+| 6 | Task breakdown — detail | Tasking file | Agent | Expanded task descriptions with modules, tests, dependencies. |
+| 7 | Test plan | Tasking file | Agent | Derive from requirements. Human reads for completeness. |
+| 8 | Security checklist | Tasking file | Agent | Agent checks before completion. Human verifies. |
+| 9 | Acceptance checklist | Spec | Human | Read-only. |
+| 10 | References | Spec | Human | Read-only. Append-only. |
 
-The spec phase ends the turn with an approval request; implementation starts on approval (`CODER.md` §5 Two phases). Specs are exempt from the token-scope rule — deliberate as long as the design needs.
+## Tasking file
+
+- The tasking file ("tasking") is the agent's spec — the spec document the agent writes.
+- The agent owns it; humans read and approve it.
+- It references the human spec by `R<id>` / `U<id>`; it does not restate requirements.
+- It holds the agent-authored sections (5–8) and the agent's derived artifacts, including:
+  - Gap assumptions (`CODER.md` §1).
+  - The input-state × behaviour matrix when the spec lacks one (P1).
+  - The anti-pattern check (P3).
+  - The acceptance-criterion → test mapping (P2).
+  - Open questions for the human.
+- Same style and tracker rules as the spec (§ Objective, § The spec is not a tracker).
+- Its commit is separate from code commits.
+- The tasking phase ends the turn with the tasking file pushed and an approval request (`CODER.md` §5 Two phases).
+- It is a draft until a human has read it end to end and approved it explicitly in the thread or PR.
+  - Silence is not approval; "confirmed offline" is not approval.
+  - The agent records where the approval is.
+- Spec and tasking work is exempt from the token-scope rule — deliberate as long as the design needs.
 
 ## Spec sections
 
 ### 1. Requirements (human)
 
 What the system must do. Describe the **outputs and outcomes**, not the implementation.
+
+- Answer up front: who the user is, what problem this solves, the alternatives and why not those, how success is measured.
 
 - One requirement per bullet, numbered for tracking: `- [ ] R1: The system must...`
 - Terse. One sentence per requirement. If it needs explanation, it's two requirements.
@@ -70,7 +99,7 @@ Format:
 
 The `R<id>` numbers are stable identifiers. Use cases, test plans, and task breakdowns reference them. Do not renumber after review — append new requirements at the end.
 
-### 2. Design (human or agent)
+### 2. Design (human)
 
 How to meet the requirements. Sets direction without micromanaging.
 
@@ -82,7 +111,7 @@ How to meet the requirements. Sets direction without micromanaging.
 
 The agent has flexibility in how it implements the design. The design defines the shape of the solution, not every line of code.
 
-### 3. Use cases — summary (human or agent)
+### 3. Use cases — summary (human)
 
 Terse list of named scenarios that exercise the requirements. One line per use case, numbered for tracking.
 
@@ -96,7 +125,7 @@ Format:
 
 Each use case references the requirements it exercises. The summary is the checklist — reviewers scan it to confirm coverage. Every requirement should appear in at least one use case.
 
-### 4. Use cases — detail (human or agent)
+### 4. Use cases — detail (human)
 
 Expanded walkthrough for each use case listed in the summary.
 
@@ -108,7 +137,7 @@ Expanded walkthrough for each use case listed in the summary.
 
 Use cases bridge requirements and design. Requirements say *what* the system must do. Design says *how* the system is structured. Use cases show *how actors interact with the system* in practice — they validate that the requirements are complete and the design supports real workflows.
 
-### 5. Task breakdown — summary (agent)
+### 5. Task breakdown — summary (agent — tasking file)
 
 Terse checklist of implementation steps, numbered for tracking. One line per task, ordered by dependency — foundations first.
 
@@ -122,7 +151,7 @@ Format:
 
 Each task references its dependencies. One commit per task. The summary is the progress tracker.
 
-### 6. Task breakdown — detail (agent)
+### 6. Task breakdown — detail (agent — tasking file)
 
 Expanded description for each task listed in the summary.
 
@@ -131,7 +160,7 @@ Expanded description for each task listed in the summary.
 - What tests verify completion
 - Dependencies explained
 
-### 7. Test plan (agent)
+### 7. Test plan (agent — tasking file)
 
 Every requirement is covered. The plan is a floor, not a ceiling — implementation derives more tests than it names (see § Acceptance criteria are guides, not inventories).
 
@@ -142,7 +171,7 @@ Every requirement is covered. The plan is a floor, not a ceiling — implementat
 - Boundary conditions: zero, one, max
 - Design-mandated test constraints and pins earn a line; routine case enumeration does not.
 
-### 8. Security checklist (agent, human reviews)
+### 8. Security checklist (agent — tasking file; human verifies)
 
 Agent checks these before marking work complete. Human verifies during review. Numbered for tracking.
 
@@ -153,7 +182,7 @@ Format:
 - [ ] S2: All user input validated and sanitized at the boundary
 ```
 
-Default items (include in every spec):
+Default items (include in every tasking file):
 
 - [ ] S1: No secrets, keys, or credentials in code or config files
 - [ ] S2: All user input validated and sanitized at the boundary
@@ -234,8 +263,8 @@ References are append-only during the spec lifecycle. Do not remove references e
   in-scope gaps with the established conventions (fail-closed for security,
   SOLID for design, the coding standards) rather than prompting for
   micro-requirements. Only ask when those conventions give no clear answer.
-  Update the spec before changing code direction — but a large or clear
-  divergence from the spec's intent is a stop-and-ask, not a self-approved spec
-  rewrite. See CODER.md §1 for the full divergence-by-size rule.
+  A change of code direction is recorded in the tasking file (small drift) or
+  asked about (large divergence) — the agent does not rewrite the spec. See
+  CODER.md §1 for the full divergence-by-size rule.
 - Every requirement must be verifiable.
 - Keep all sections in sync. A gap between them is a bug in the spec.

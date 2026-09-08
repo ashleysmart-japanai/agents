@@ -219,12 +219,12 @@ was not run.
 ### Process gates (verify artifacts exist)
 
 - [ ] **P1 Spec-with-matrix**: if the PR adds filters, permissions, gates, or
-  fallbacks — the spec contains the input-state × behavior table with absent
+  fallbacks — the spec, or the agent's tasking file, contains the input-state × behavior table with absent
   and present-but-empty as separate rows. No TBD cells. If absent, open as a
   finding.
 - [ ] **P2 Executable ACs**: every acceptance criterion names a test. Check
   that the named tests exist and pass. Prose-only ACs are a finding.
-- [ ] **P3 Anti-pattern catalog check**: the spec or PR description includes a
+- [ ] **P3 Anti-pattern catalog check**: the tasking file or PR description includes a
   pass/fail/N-A list against `anti-patterns/CHECKLIST.md`. If absent, run the
   check yourself and open findings for any hits.
 
@@ -244,7 +244,7 @@ was not run.
   test.
 - [ ] **C6 Only functional code**: every new symbol has a caller in the diff.
   No speculative fields, params, shims, or fallbacks without a current
-  consumer named in the spec.
+  consumer named in the spec or the tasking file.
 - [ ] **Cursor pagination**: any new paginated endpoint uses cursor-based
   pagination keyed on record ID, not offset/page-number.
 

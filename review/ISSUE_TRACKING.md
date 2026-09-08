@@ -38,6 +38,7 @@ Run this procedure during Stage 0, after reading existing review state:
 ## Task file
 
 - `task.md` is a sibling of `review.md` in the review directory.
+- `task.md` is not the tasking file: `agent_tasking.md` is the agent's spec in the repo (`design/SPECS.md` § Tasking file); `task.md` is the review-store context file with user-owned content.
 - The coder owns `task.md`; reviewers and subagents read it, never edit it.
 - No update to `task.md` without the user's approval.
   - Propose the exact text in chat; write it only after the user approves.

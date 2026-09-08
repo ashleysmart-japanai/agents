@@ -57,7 +57,8 @@ Judgment gates run as **subagents with one narrow goal each**. Give the subagent
    Doc/style claims skip trace and red-light (`redlight:n/a-docs`) and are **never `UNPROVEN`** — the script refuses it; a red-light refusal on one of these is the signal you took the wrong path, not a blocker. They still get a verify pass, not a wave-through:
    - Read the current artifact at the claimed location — the claim is a hypothesis and may already be stale.
    - Quote the defective text and the corrected text as the close `--verify` evidence.
-   - A fix that changes settled design direction (micro-spec, `steering.md`) goes to `needs-review` for the user's ruling, never silently in.
+   - A fix to a spec document goes to `needs-review` for the human — spec documents are human-writable; the agent fixes doc-claims against comments, naming, and its own tasking file.
+   - A tasking-file fix that changes settled design direction (micro-spec, `steering.md`) also goes to `needs-review`.
 5. **Trace** — spawn a trace subagent per passed claim, before any red-light work. Goal: read the code at the claim's `file:line` on **current HEAD** and trace the path the claim depends on — where the value comes from, its types and DB constraints, existing guards, the call sites. The claim's own description and stored code snippets are **not** evidence; they describe the code as it was when the claim was written. Verdict, recorded via the script (which refuses red-light until `trace:possible`):
    ```bash
    review_triage.py --dir <DIR> --repo <checkout> trace <ID> --possible --path "<file:line trace of how the defect manifests>"
