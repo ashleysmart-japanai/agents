@@ -385,7 +385,7 @@ justification:
 - Adapter extracted; create path green; browse slice pending.
 
 # DECISIONS
-- 2026-06-10 - spec-before-code - Write and commit the micro-spec, then stop before implementation.
+- 2026-06-10 - tasking-before-code - Write and commit the tasking file, then stop before implementation.
 - 2026-06-11 - no-root-sentinel - No fake `current` value — it enables the create button and guarantees an upstream failure.
 
 # log.md

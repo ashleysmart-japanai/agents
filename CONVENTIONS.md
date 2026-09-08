@@ -27,7 +27,7 @@ explicitly overrides a section.
 
 ## Micro Spec Convention
 
-Every non-trivial task begins with a micro spec written **before** any code.
+Every task with blast radius begins with a human-written micro spec and the agent's tasking file (`design/SPECS.md` § Tasking file), both **before** any code.
 
 ### File location
 
@@ -208,7 +208,7 @@ the composition root — never constructed inside business logic.
 
 ### Dependencies
 
-- No new dependency is added without a note in the micro spec justifying it.
+- No new dependency is added without a note in the tasking file justifying it.
 - Prefer standard library over third-party where the effort is comparable.
 - Pin all dependency versions; no floating version ranges in lock files.
 

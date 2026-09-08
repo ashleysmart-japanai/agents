@@ -254,8 +254,8 @@ References are append-only during the spec lifecycle. Do not remove references e
   - What changed and when → git history of the spec file.
   - Why a direction was chosen or reversed → `task.md` `# DECISIONS` (ISSUE_TRACKING.md § Task file).
   - Review claims and their outcomes → the review store `<ID>.md` files (ISSUE_TRACKING.md).
-  - Implementation progress → the task breakdown checkboxes (`A<id>`), checkbox state only.
-- The only tracking surfaces in a spec are the numbered checklists (R/U/A/S/X and `A<id>`) — checkbox flips, never prose annotations.
+  - Implementation progress → the task breakdown checkboxes (`A<id>`) in the tasking file, checkbox state only.
+- The tracking surfaces are the numbered checklists — R/U/X in the spec, A/S in the tasking file — checkbox flips, not prose annotations.
 
 ## Rules
 

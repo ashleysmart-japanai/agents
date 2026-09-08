@@ -194,7 +194,7 @@ SOLID applies to statements too — docs, specs, PR descriptions, commit message
 
 ### Dependencies
 
-- No new dependency is added without a note in the micro spec justifying it.
+- No new dependency is added without a note in the tasking file justifying it.
 - Prefer standard library over third-party where the effort is comparable.
 - Pin all dependency versions; no floating version ranges in lock files.
 
