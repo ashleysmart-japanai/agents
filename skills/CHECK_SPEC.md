@@ -14,7 +14,7 @@ Checks a spec directory against `~/agents/design/HUMAN_SPECS.md` (the human spec
    ```bash
    python3 ~/agents/scripts/validate_spec.py <spec-dir>
    ```
-   It checks `microspec.md`: the `What` / `When` / `Owner` header; the eight sections in order — Problem (with Decision / Success / Next), Requirements `R<n>`, Scope (out of scope, boundary), Implementation approach (alternatives), Implementation tasks, Acceptance Criteria `AC<n>` citing every `R<n>`, Verification, Related; tracker markers; line-number citations. When `agent_tasking.md` is present: required sections, `A<id>` lines, `S1–S10`, every spec `R<id>` referenced, no restated human sections.
+   It checks `microspec.md`: the `What` / `When` / `Owner` header; the eight sections in order — Problem (with Decision / Success), Requirements `R<n>`, Scope (out of scope, boundary), Implementation approach (alternatives), Implementation tasks, Acceptance Criteria `AC<n>` citing every `R<n>`, Verification, Related; tracker markers; line-number citations. When `agent_tasking.md` is present: required sections, `A<id>` lines, `S1–S10`, every spec `R<id>` referenced, no restated human sections.
 3. Judgment pass — read the tier file end to end and check what the script cannot:
    - Requirements state outputs and outcomes from the user's perspective, not implementation (HUMAN_SPECS.md § Every tier).
    - Statements are open/closed — what the change adds, not the module inventory — and free of hyperbole (`style/DOT_POINT_SRP.md` § SOLID statements).

@@ -96,7 +96,7 @@ def validate_layout(path, violations):
     names = [name for name, level, _ in sections if level == 2]
     if names != LAYOUT:
         violations.append(Violation(path, f"sections must be exactly {[n.title() for n in LAYOUT]} in order (found: {[n.title() for n in names]}) (HUMAN_SPECS.md § Layout)"))
-    for key in ("Decision", "Success", "Next"):
+    for key in ("Decision", "Success"):
         if not field_lines(section_body(sections, "problem"), key):
             violations.append(Violation(path, f"Problem must carry '**{key}:**'"))
     scope = "\n".join(section_body(sections, "scope")).lower()

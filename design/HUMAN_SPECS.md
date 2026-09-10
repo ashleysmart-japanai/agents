@@ -35,7 +35,7 @@ The human spec convention the agent expects, reads, and checks. The scaffold is 
 
 `microspec.md` carries these eight sections, in this order, each a `##` heading. A micro-tier spec keeps each section to a line or two; larger tiers fill them.
 
-1. `## Problem` — the observed problem in one or two sentences, then `**Decision:**` (chosen direction), `**Success:**` (measurable outcome), `**Next:**` (first concrete task or pending decision).
+1. `## Problem` — the observed problem in one or two sentences, then `**Decision:**` (chosen direction) and `**Success:**` (measurable outcome).
 2. `## Requirements` — `- [ ] **R<n> — <title>:** <specific, testable behaviour>`; one per line; error and edge behaviour get their own `R<n>`.
 3. `## Scope` — in scope; `Out of scope:` what is not built; `Boundary:` which modules change and which do not.
    - A change that crosses the boundary — an "extension" that rewrites core — is a large divergence; the agent asks.
