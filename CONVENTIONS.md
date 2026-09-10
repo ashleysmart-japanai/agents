@@ -38,7 +38,7 @@ specs/<YYYYMMDD>-<slug>/agent_tasking.md
 
 ### Required sections
 
-Sections per tier: `design/HUMAN_SPECS.md`. The micro spec carries What / When / Owner / Why / How / Acceptance / Not changing / Alternatives and `## Related`; the agent's task breakdown, test plan, and security checklist are in `agent_tasking.md` (`design/AGENT_TASKING.md`).
+Layout: `design/HUMAN_SPECS.md` § Layout — a What / When / Owner header, then `## Problem`, `## Requirements`, `## Scope`, `## Implementation approach`, `## Implementation tasks`, `## Acceptance Criteria`, `## Verification`, `## Related`, in that order. The agent's task breakdown, test plan, and security checklist are in `agent_tasking.md` (`design/AGENT_TASKING.md`).
 
 ### Rules
 

@@ -25,12 +25,11 @@ CHECK_ID_RE = re.compile(r"^- \[[ x]\] \**([RUTAXS])(\d+)\b")
 TRACKER_RE = re.compile(r"\bDONE\b|\bStatus:|\bREVERTED\b|NOT IMPLEMENTED|at spec phase")
 LINE_NUMBER_REF_RE = re.compile(r"\b[\w./-]+\.[A-Za-z]{1,5}:\d+\b")
 
-MICRO_FIELDS = ["What", "When", "Owner", "Why", "How", "Acceptance", "Not changing", "Alternatives"]
-QUICK_SECTIONS = ["problem", "requirements", "implementation approach", "implementation tasks", "verification", "related"]
+LAYOUT = ["problem", "requirements", "scope", "implementation approach", "implementation tasks", "acceptance criteria", "verification", "related"]
 STANDARD_FILES = ["requirements.md", "design.md", "tasks.md"]
 AGENT_SECTIONS = ["task breakdown", "test plan", "security checklist"]
 TASKING_REQUIRED = ["task breakdown", "test plan", "security checklist"]
-HUMAN_ONLY_SECTIONS = ["requirements", "acceptance checklist"]
+HUMAN_ONLY_SECTIONS = ["requirements", "acceptance criteria"]
 DEFAULT_S = [f"S{i}" for i in range(1, 11)]
 
 
@@ -87,50 +86,40 @@ def field_lines(lines, key):
     return [l for l in lines if re.match(rf"^\**{re.escape(key)}:\**\s*\S", l)]
 
 
-def check_when_owner(path, lines, violations):
-    for key in ("When", "Owner"):
-        if len(field_lines(lines, key)) != 1:
-            violations.append(Violation(path, f"must carry '**{key}:** <text>' exactly once (HUMAN_SPECS.md § Every tier)"))
-
-
-def validate_micro(path, violations):
+def validate_layout(path, violations):
+    """Every human spec file: What/When/Owner header, the eight sections in order, and their contents."""
     lines = path.read_text(encoding="utf-8").splitlines()
-    for key in MICRO_FIELDS:
+    sections = parse_sections(lines)
+    for key in ("What", "When", "Owner"):
         n = len(field_lines(lines, key))
         if n != 1:
-            violations.append(Violation(path, f"micro spec must carry '**{key}:**' exactly once (found {n}) (HUMAN_SPECS.md § Micro spec)"))
-    if not any(l.strip().lower().startswith("## related") for l in lines):
-        violations.append(Violation(path, "micro spec is missing '## Related'"))
-    sections = parse_sections(lines)
-    for kw in AGENT_SECTIONS:
-        if has_section(sections, kw):
-            violations.append(Violation(path, f"section '{kw}' is agent-authored and belongs in {TASKING_FILE}"))
-    common_prose_checks(path, lines, violations)
-    return set()
-
-
-def validate_quick(path, violations):
-    lines = path.read_text(encoding="utf-8").splitlines()
-    sections = parse_sections(lines)
-    check_when_owner(path, lines, violations)
+            violations.append(Violation(path, f"header must carry '**{key}:** <text>' exactly once before '## Problem' (found {n}) (HUMAN_SPECS.md § Every tier)"))
+    names = [name for name, level, _ in sections if level == 2]
+    if names != LAYOUT:
+        violations.append(Violation(path, f"sections must be exactly {[n.title() for n in LAYOUT]} in order (found: {[n.title() for n in names]}) (HUMAN_SPECS.md § Layout)"))
     for key in ("Decision", "Success", "Next"):
-        if not field_lines(lines, key):
-            violations.append(Violation(path, f"quick spec Problem block must carry '**{key}:**' (HUMAN_SPECS.md § Quick spec)"))
-    for kw in QUICK_SECTIONS:
-        if not has_section(sections, kw):
-            violations.append(Violation(path, f"quick spec is missing section '{kw}' (HUMAN_SPECS.md § Quick spec)"))
-    text = "\n".join(lines).lower()
-    if "out of scope" not in text:
-        violations.append(Violation(path, "quick spec must state what is out of scope"))
-    if "boundary" not in text:
-        violations.append(Violation(path, "quick spec must state the boundary — which modules change and which do not"))
-    if "alternative" not in text:
-        violations.append(Violation(path, "quick spec must name the alternatives considered and why not"))
-    r_ids = check_ids(lines, "R")
+        if not field_lines(section_body(sections, "problem"), key):
+            violations.append(Violation(path, f"Problem must carry '**{key}:**'"))
+    scope = "\n".join(section_body(sections, "scope")).lower()
+    if "out of scope" not in scope:
+        violations.append(Violation(path, "Scope must state what is out of scope"))
+    if "boundary" not in scope:
+        violations.append(Violation(path, "Scope must state the boundary — which modules change and which do not"))
+    if "alternative" not in "\n".join(section_body(sections, "implementation approach")).lower():
+        violations.append(Violation(path, "Implementation approach must name the alternatives considered and why not"))
+    r_ids = check_ids(section_body(sections, "requirements"), "R")
     if not r_ids:
-        violations.append(Violation(path, "no requirements — expected '- [ ] **R<n> — <title>:** ...' lines"))
+        violations.append(Violation(path, "Requirements — expected '- [ ] **R<n> — <title>:** ...' lines"))
     elif len(r_ids) != len(set(r_ids)):
         violations.append(Violation(path, "duplicate R ids"))
+    ac_lines = [l for l in section_body(sections, "acceptance criteria") if re.match(r"^- \[[ x]\] \**AC\d+\b", l)]
+    if not ac_lines:
+        violations.append(Violation(path, "Acceptance Criteria — expected '- [ ] AC<n>: ...' lines"))
+    else:
+        cited = {int(n) for l in ac_lines for n in re.findall(r"\bR(\d+)\b", l)}
+        missing = sorted(set(r_ids) - cited)
+        if missing:
+            violations.append(Violation(path, f"requirements with no acceptance criterion citing them: {['R%d' % n for n in missing]}"))
     for kw in AGENT_SECTIONS:
         if has_section(sections, kw):
             violations.append(Violation(path, f"section '{kw}' is agent-authored and belongs in {TASKING_FILE}"))
@@ -139,24 +128,12 @@ def validate_quick(path, violations):
 
 
 def validate_standard(spec_dir, violations):
-    r_ids = set()
     missing = [f for f in STANDARD_FILES if not (spec_dir / f).exists()]
     if missing:
-        violations.append(Violation(spec_dir, f"standard/full spec is missing {missing} (HUMAN_SPECS.md § Standard and full specs)"))
-    req = spec_dir / "requirements.md"
-    if req.exists():
-        lines = req.read_text(encoding="utf-8").splitlines()
-        check_when_owner(req, lines, violations)
-        text = "\n".join(lines).lower()
-        if "out of scope" not in text:
-            violations.append(Violation(req, "requirements must list what is out of scope"))
-        if "boundary" not in text:
-            violations.append(Violation(req, "requirements must state the boundary — which modules change and which do not"))
-        ids = check_ids(lines, "R")
-        if not ids:
-            violations.append(Violation(req, "no requirements — expected '- [ ] R<n>: ...' lines"))
-        r_ids = set(ids)
-        common_prose_checks(req, lines, violations)
+        violations.append(Violation(spec_dir, f"standard/full spec is missing {missing} (HUMAN_SPECS.md § Layout)"))
+    r_ids = set()
+    if (spec_dir / "requirements.md").exists():
+        r_ids = validate_layout(spec_dir / "requirements.md", violations)
     for f in ("design.md", "tasks.md"):
         if (spec_dir / f).exists():
             common_prose_checks(spec_dir / f, (spec_dir / f).read_text(encoding="utf-8").splitlines(), violations)
@@ -208,9 +185,9 @@ def validate_spec_dir(spec_dir):
     if len(present) > 1:
         violations.append(Violation(spec_dir, f"more than one tier present: {present}"))
     if micro.exists():
-        r_ids = validate_micro(micro, violations)
+        r_ids = validate_layout(micro, violations)
     elif quick.exists():
-        r_ids = validate_quick(quick, violations)
+        r_ids = validate_layout(quick, violations)
     else:
         r_ids = validate_standard(spec_dir, violations)
 
