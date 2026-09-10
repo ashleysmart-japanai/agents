@@ -9,7 +9,7 @@ Agent rules for the tasking file. The human spec's convention — tiers, locatio
 - The spec is where the problem is thought through before building — not a task brief for an agent.
   - It states what is being solved, what is assumed, where the boundary is, and how success is measured.
   - It names the alternatives considered and why they were not chosen.
-- Write in dot-point-srp style (`~/agents/style/DOT_POINT_SRP.md`): one terse clause per line, sub-clauses indented into a sub-list.
+- Written in terse-srp-dot-point style (`~/agents/style/DOT_POINT_SRP.md`): every line under a heading is a `-` dot point, one clause per line, sub-clauses nested; no paragraphs, no hand-wrapped prose.
 - The spec is **not** a code-in-text-form document.
   - It does not perfectly represent the exact code that is written.
   - It documents the objective of the happy path.
@@ -57,7 +57,7 @@ Agent rules for the tasking file. The human spec's convention — tiers, locatio
   - The anti-pattern check (P3).
   - The acceptance-criterion → test mapping (P2).
   - Open questions for the human.
-- Same style and tracker rules as the spec (§ Objective, § The spec is not a tracker).
+- Same style and tracker rules as the spec: terse-srp-dot-point throughout (§ Objective), not a tracker (§ The tasking file is not a tracker). `/check-spec` rejects prose lines in it.
 - Its commit is separate from code commits.
 - The tasking phase ends the turn with the tasking file pushed and an approval request (`CODER.md` §5 Two phases).
 - It is a draft until a human has read it end to end and approved it explicitly in the thread or PR.

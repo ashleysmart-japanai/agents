@@ -98,7 +98,7 @@ def dot_point_checks(path, lines, violations):
         if in_fence or not l.strip() or l.startswith("#"):
             continue
         if not DOT_RE.match(l):
-            violations.append(Violation(path, f"line {i}: prose line — every line under a heading is a `- ` dot point (HUMAN_SPECS.md § Every tier)"))
+            violations.append(Violation(path, f"line {i}: prose line — every line under a heading is a `- ` dot point (HUMAN_SPECS.md § Every tier; AGENT_TASKING.md § Objective)"))
 
 
 def validate_layout(path, violations):
@@ -167,6 +167,7 @@ def validate_tasking_file(path, spec_r_ids, violations):
     if uncovered:
         violations.append(Violation(path, f"requirements not referenced by any task or test: {['R%d' % i for i in uncovered]}"))
     common_prose_checks(path, lines, violations)
+    dot_point_checks(path, lines, violations)
 
 
 def validate_spec_dir(spec_dir):
