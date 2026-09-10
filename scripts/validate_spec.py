@@ -82,7 +82,23 @@ def common_prose_checks(path, lines, violations):
 
 
 def field_lines(lines, key):
-    return [l for l in lines if re.match(rf"^\**{re.escape(key)}:\**\s*\S", l)]
+    return [l for l in lines if re.match(rf"^(?:- )?\**{re.escape(key)}:\**\s*\S", l)]
+
+
+DOT_RE = re.compile(r"^\s*- \S")
+
+
+def dot_point_checks(path, lines, violations):
+    """Every non-empty line that is not a title, heading, or fence is a dot point (DOT_POINT_SRP.md)."""
+    in_fence = False
+    for i, l in enumerate(lines, 1):
+        if l.lstrip().startswith("```"):
+            in_fence = not in_fence
+            continue
+        if in_fence or not l.strip() or l.startswith("#"):
+            continue
+        if not DOT_RE.match(l):
+            violations.append(Violation(path, f"line {i}: prose line — every line under a heading is a `- ` dot point (HUMAN_SPECS.md § Every tier)"))
 
 
 def validate_layout(path, violations):
@@ -123,6 +139,7 @@ def validate_layout(path, violations):
         if has_section(sections, kw):
             violations.append(Violation(path, f"section '{kw}' is agent-authored and belongs in {TASKING_FILE}"))
     common_prose_checks(path, lines, violations)
+    dot_point_checks(path, lines, violations)
     return set(r_ids)
 
 

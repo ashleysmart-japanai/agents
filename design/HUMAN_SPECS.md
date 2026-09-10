@@ -23,27 +23,27 @@ The human spec convention the agent expects, reads, and checks. The scaffold is 
 
 ## Every tier
 
-- Opens with the three questions, one line each under the title, before `## Problem`: `**What:** <what ships>`, `**When:** <date>`, `**Owner:** <who>`.
+- Opens with the three questions, one dot point each under the title, before `## Problem`: `- **What:** <what ships>`, `- **When:** <date>`, `- **Owner:** <who>`.
   - A spec that cannot answer them is a draft.
 - Answers, before review: who the user is, what problem this solves, the alternatives and why not those, how success is measured.
 - Requirements describe outputs and outcomes from the user's perspective, not the implementation.
 - Statements follow SOLID, open/closed in particular: what this change adds or does, not the module's inventory (`~/agents/style/DOT_POINT_SRP.md` § SOLID statements).
 - Durable references: full repo paths, function and class names; no line numbers.
-- Written in dot-point-srp style; no hand-wrapped prose.
+- Written in terse-srp-dot-point style (`~/agents/style/DOT_POINT_SRP.md`): every line under a heading is a `-` dot point, one clause per line, sub-clauses nested; no paragraphs, no hand-wrapped prose.
 
 ## Layout
 
 `microspec.md` carries these eight sections, in this order, each a `##` heading. A micro-tier spec keeps each section to a line or two; larger tiers fill them.
 
-1. `## Problem` — the observed problem in one or two sentences, then `**Decision:**` (chosen direction) and `**Success:**` (measurable outcome).
+1. `## Problem` — dot points: the observed problem, then `- **Decision:**` (chosen direction) and `- **Success:**` (measurable outcome).
 2. `## Requirements` — `- [ ] **R<n> — <title>:** <specific, testable behaviour>`; one per line; error and edge behaviour get their own `R<n>`.
 3. `## Scope` — in scope; `Out of scope:` what is not built; `Boundary:` which modules change and which do not.
    - A change that crosses the boundary — an "extension" that rewrites core — is a large divergence; the agent asks.
 4. `## Implementation approach` — the existing component reused and the minimal change; the material trade-off or rollback; `Alternatives:` the other ways considered and why not, one line each — the minimal fix is one of them.
 5. `## Implementation tasks` — `- [ ] **T<n> — <name>** - <description>` with `Depends on` and `Verification` sub-lines — no time estimates. Proposed by the agent from its tasking file, written on the human's approval.
 6. `## Acceptance Criteria` — `- [ ] AC<n>: <observable pass/fail fact>`, each citing the `R<n>` it proves; every requirement has at least one; each derives at least one test at implementation (`AGENT_TASKING.md` § Acceptance criteria are guides, not inventories).
-7. `## Verification` — focused and regression checks with expected results.
-8. `## Related` — links to overlapping or upstream specs; `none` when there are none.
+7. `## Verification` — one dot point per check, with its expected result.
+8. `## Related` — one dot point per overlapping or upstream spec; `- none` when there are none.
 
 ## Authorship
 
