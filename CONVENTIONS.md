@@ -32,7 +32,7 @@ Every task with blast radius begins with a human-written micro spec and the agen
 ### File location
 
 ```
-specs/<YYYYMMDD>-<slug>/micro-spec.md        # or quick-spec.md, or requirements.md + design.md + tasks.md
+specs/<YYYYMMDD>-<slug>/microspec.md
 specs/<YYYYMMDD>-<slug>/agent_tasking.md
 ```
 

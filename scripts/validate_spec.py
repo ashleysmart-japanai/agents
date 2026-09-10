@@ -1,12 +1,11 @@
 #!/usr/bin/env python3
 """Validate a spec directory against design/HUMAN_SPECS.md and design/AGENT_TASKING.md.
 
-Checks the human spec (micro-spec.md, quick-spec.md, or requirements.md/design.md/tasks.md)
-and, when present, the agent's agent_tasking.md beside it.
+Checks the human spec (microspec.md) and, when present, the agent's agent_tasking.md beside it.
 
 Usage:
     python3 validate_spec.py <spec-dir> [<spec-dir> ...]
-    python3 validate_spec.py specs/20260908-my-task/micro-spec.md   # file path also accepted
+    python3 validate_spec.py specs/20260908-my-task/microspec.md   # file path also accepted
 
 Exit codes:
     0 = all checks passed
@@ -26,7 +25,7 @@ TRACKER_RE = re.compile(r"\bDONE\b|\bStatus:|\bREVERTED\b|NOT IMPLEMENTED|at spe
 LINE_NUMBER_REF_RE = re.compile(r"\b[\w./-]+\.[A-Za-z]{1,5}:\d+\b")
 
 LAYOUT = ["problem", "requirements", "scope", "implementation approach", "implementation tasks", "acceptance criteria", "verification", "related"]
-STANDARD_FILES = ["requirements.md", "design.md", "tasks.md"]
+SPEC_FILE = "microspec.md"
 AGENT_SECTIONS = ["task breakdown", "test plan", "security checklist"]
 TASKING_REQUIRED = ["task breakdown", "test plan", "security checklist"]
 HUMAN_ONLY_SECTIONS = ["requirements", "acceptance criteria"]
@@ -127,19 +126,6 @@ def validate_layout(path, violations):
     return set(r_ids)
 
 
-def validate_standard(spec_dir, violations):
-    missing = [f for f in STANDARD_FILES if not (spec_dir / f).exists()]
-    if missing:
-        violations.append(Violation(spec_dir, f"standard/full spec is missing {missing} (HUMAN_SPECS.md § Layout)"))
-    r_ids = set()
-    if (spec_dir / "requirements.md").exists():
-        r_ids = validate_layout(spec_dir / "requirements.md", violations)
-    for f in ("design.md", "tasks.md"):
-        if (spec_dir / f).exists():
-            common_prose_checks(spec_dir / f, (spec_dir / f).read_text(encoding="utf-8").splitlines(), violations)
-    return r_ids
-
-
 def validate_tasking_file(path, spec_r_ids, violations):
     lines = path.read_text(encoding="utf-8").splitlines()
     text = "\n".join(lines)
@@ -176,20 +162,11 @@ def validate_spec_dir(spec_dir):
     if not DIR_NAME_RE.match(spec_dir.name):
         violations.append(Violation(spec_dir, "directory name must be <YYYYMMDD>-<slug> under specs/ (HUMAN_SPECS.md § File location)"))
 
-    micro, quick = spec_dir / "micro-spec.md", spec_dir / "quick-spec.md"
-    standard = any((spec_dir / f).exists() for f in STANDARD_FILES)
-    present = [n for n, ok in (("micro-spec.md", micro.exists()), ("quick-spec.md", quick.exists()), ("requirements.md/design.md/tasks.md", standard)) if ok]
-    if not present:
-        violations.append(Violation(spec_dir, "no spec file — expected micro-spec.md, quick-spec.md, or requirements.md + design.md + tasks.md"))
+    spec = spec_dir / SPEC_FILE
+    if not spec.exists():
+        violations.append(Violation(spec_dir, f"no {SPEC_FILE} (HUMAN_SPECS.md § File location)"))
         return violations
-    if len(present) > 1:
-        violations.append(Violation(spec_dir, f"more than one tier present: {present}"))
-    if micro.exists():
-        r_ids = validate_layout(micro, violations)
-    elif quick.exists():
-        r_ids = validate_layout(quick, violations)
-    else:
-        r_ids = validate_standard(spec_dir, violations)
+    r_ids = validate_layout(spec, violations)
 
     tasking = spec_dir / TASKING_FILE
     if tasking.exists():

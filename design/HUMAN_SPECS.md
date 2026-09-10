@@ -17,10 +17,8 @@ The human spec convention the agent expects, reads, and checks. The scaffold is 
 
 ## File location
 
-- `specs/<YYYYMMDD>-<slug>/` at the repo root, one directory per spec.
-  - Micro: `micro-spec.md`.
-  - Quick: `quick-spec.md`.
-  - Standard and full: `requirements.md`, `design.md`, `tasks.md`.
+- `specs/<YYYYMMDD>-<slug>/microspec.md` at the repo root — one directory per spec, one file whatever the tier.
+  - The tier (§ Whether and which spec) sets the effort and review expected, not the filename or the layout.
 - The agent's tasking file sits beside it: `specs/<YYYYMMDD>-<slug>/agent_tasking.md` (`AGENT_TASKING.md` § Tasking file).
 
 ## Every tier
@@ -35,7 +33,7 @@ The human spec convention the agent expects, reads, and checks. The scaffold is 
 
 ## Layout
 
-Every human spec file carries these eight sections, in this order, each a `##` heading. A micro spec keeps each section to a line or two; a quick spec fills them; standard and full specs carry the same eight in `requirements.md`, with `design.md` and `tasks.md` expanding Implementation approach and Implementation tasks.
+`microspec.md` carries these eight sections, in this order, each a `##` heading. A micro-tier spec keeps each section to a line or two; larger tiers fill them.
 
 1. `## Problem` — the observed problem in one or two sentences, then `**Decision:**` (chosen direction), `**Success:**` (measurable outcome), `**Next:**` (first concrete task or pending decision).
 2. `## Requirements` — `- [ ] **R<n> — <title>:** <specific, testable behaviour>`; one per line; error and edge behaviour get their own `R<n>`.

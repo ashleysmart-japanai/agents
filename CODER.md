@@ -10,7 +10,7 @@ Rules and expectations for all AI agents working in this repository tree. These 
 >
 > | Document | Written by | Read by | Where |
 > |---|---|---|---|
-> | Spec (`micro-spec.md`, `quick-spec.md`, or `requirements.md` + `design.md` + `tasks.md`) | Human's words; the agent formats and writes on approval | Agent | `specs/<YYYYMMDD>-<slug>/` |
+> | Spec (`microspec.md`) | Human's words; the agent formats and writes on approval | Agent | `specs/<YYYYMMDD>-<slug>/` |
 > | Tasking file (`agent_tasking.md`, "tasking") | Agent | Human, approves | Same directory, next to the spec |
 
 ### The spec — what the agent does with it
