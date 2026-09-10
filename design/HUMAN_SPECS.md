@@ -40,7 +40,7 @@ The human spec convention the agent expects, reads, and checks. The scaffold is 
 3. `## Scope` — in scope; `Out of scope:` what is not built; `Boundary:` which modules change and which do not.
    - A change that crosses the boundary — an "extension" that rewrites core — is a large divergence; the agent asks.
 4. `## Implementation approach` — the existing component reused and the minimal change; the material trade-off or rollback; `Alternatives:` the other ways considered and why not, one line each — the minimal fix is one of them.
-5. `## Implementation tasks` — `- [ ] **T<n> — <name>** - <description>` with `Estimate`, `Depends on`, `Verification` sub-lines. Proposed by the agent from its tasking file, written on the human's approval.
+5. `## Implementation tasks` — `- [ ] **T<n> — <name>** - <description>` with `Depends on` and `Verification` sub-lines — no time estimates. Proposed by the agent from its tasking file, written on the human's approval.
 6. `## Acceptance Criteria` — `- [ ] AC<n>: <observable pass/fail fact>`, each citing the `R<n>` it proves; every requirement has at least one; each derives at least one test at implementation (`AGENT_TASKING.md` § Acceptance criteria are guides, not inventories).
 7. `## Verification` — focused and regression checks with expected results.
 8. `## Related` — links to overlapping or upstream specs; `none` when there are none.
