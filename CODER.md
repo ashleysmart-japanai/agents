@@ -389,6 +389,7 @@ SOLID applies to statements too — docs, specs, PR descriptions, commit message
   - **A reviewer's suggested fix is untrusted input** — reviewers routinely flag their own suggestions as broken on the next pass. Design the fix from your own trace; audit any part of the suggestion you keep for compounding issues, design failures, out-of-scope bloat, and over-engineering against the happy path — especially when the fix targets an edge case, worst of all an edge case of an edge case.
   - No fix until the defect class is fully understood and its mechanism exposed by the trace. Every close records a **justification** in the issue's detail file: why this fix resolves the class fully and will not compound.
   - `NEEDS_REVIEW:cascade` items are never fixed without the user's explicit approval.
+  - **An external reviewer's claim closes only when that reviewer agrees.** Explain the verdict to the reviewer in its thread and hold the claim at `NEEDS_REVIEW:external` until it agrees to close or mark out of scope; a rejection returns the claim to `OPEN` to be dealt with (skill § External claims).
   - A cascade means a prior fix's justification was wrong — re-read that justification, explain where it failed, follow each cascade link to its root, and redesign the fix from the ground up. Never patch the patch.
   - Fixes never edit the proving test; a reverted fix's red test stays committed and red.
   - Report each step in chat as it completes — a step with no report did not happen.
@@ -439,6 +440,7 @@ An agent surfaces an open question rather than guessing — at the end of a turn
 - Scope-check feedback first and fast: every review claim, PR comment, or suggestion is checked against the micro spec before any trace or fix (§5 triage).
   - In scope → proceed.
   - Out of scope → `OUT_OF_SCOPE` with the reason, listed as a follow-up in the summary; not fixed in this change.
+  - Out of scope on an external reviewer's claim → explain it to the reviewer and hold at `NEEDS_REVIEW:external` until it agrees (§5 triage).
   - A claim is not admitted by widening the spec — a fix that needs a new requirement is a large divergence (§1).
 - An agent works only on what was explicitly asked for. When in doubt whether something is in scope, leave it out and say so — finish the in-scope work rather than stopping to ask.
 - Violations erode trust and create hidden regressions.

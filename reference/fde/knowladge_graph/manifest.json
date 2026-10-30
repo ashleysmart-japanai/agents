@@ -1,0 +1,637 @@
+{
+  "version": 1,
+  "pages": [
+    {
+      "id": "wiki:reference.fde.deployment-planner.index",
+      "path": "reference/fde/deployment-planner/index.md",
+      "title": "Deployment Planner / 導入計画",
+      "type": "tool",
+      "track": "fde",
+      "day": 1,
+      "sources": [
+        "reference/fde/methods/delivery-and-review.md"
+      ]
+    },
+    {
+      "id": "wiki:reference.fde.deployment-planner.worksheet",
+      "path": "reference/fde/deployment-planner/worksheet.md",
+      "title": "Deployment Planner / 導入計画 — worksheet / ワークシート",
+      "type": "template",
+      "track": "fde",
+      "day": 1,
+      "sources": [
+        "reference/fde/methods/delivery-and-review.md"
+      ]
+    },
+    {
+      "id": "wiki:reference.fde.deployment-planner.failure-patterns",
+      "path": "reference/fde/deployment-planner/failure-patterns.md",
+      "title": "Deployment Planner / 導入計画 — failure patterns / 失敗パターン",
+      "type": "patterns",
+      "track": "fde",
+      "day": 1,
+      "sources": [
+        "reference/fde/methods/delivery-and-review.md"
+      ]
+    },
+    {
+      "id": "skill:deployment-planner",
+      "path": "skills/DEPLOYMENT_PLANNER.md",
+      "title": "Deployment Planner / 導入計画",
+      "type": "skill",
+      "track": "fde",
+      "day": 1,
+      "sources": [
+        "reference/fde/methods/delivery-and-review.md"
+      ],
+      "entrypoint": "reference/fde/deployment-planner/index.md"
+    },
+    {
+      "id": "wiki:reference.fde.murderboard.index",
+      "path": "reference/fde/murderboard/index.md",
+      "title": "Murderboard / マーダーボード",
+      "type": "tool",
+      "track": "fde",
+      "day": 1,
+      "sources": [
+        "reference/fde/methods/delivery-and-review.md"
+      ]
+    },
+    {
+      "id": "wiki:reference.fde.murderboard.worksheet",
+      "path": "reference/fde/murderboard/worksheet.md",
+      "title": "Murderboard / マーダーボード — worksheet / ワークシート",
+      "type": "template",
+      "track": "fde",
+      "day": 1,
+      "sources": [
+        "reference/fde/methods/delivery-and-review.md"
+      ]
+    },
+    {
+      "id": "wiki:reference.fde.murderboard.failure-patterns",
+      "path": "reference/fde/murderboard/failure-patterns.md",
+      "title": "Murderboard / マーダーボード — failure patterns / 失敗パターン",
+      "type": "patterns",
+      "track": "fde",
+      "day": 1,
+      "sources": [
+        "reference/fde/methods/delivery-and-review.md"
+      ]
+    },
+    {
+      "id": "skill:murderboard",
+      "path": "skills/MURDERBOARD.md",
+      "title": "Murderboard / マーダーボード",
+      "type": "skill",
+      "track": "fde",
+      "day": 1,
+      "sources": [
+        "reference/fde/methods/delivery-and-review.md"
+      ],
+      "entrypoint": "reference/fde/murderboard/index.md"
+    },
+    {
+      "id": "wiki:reference.fde.problem-value.index",
+      "path": "reference/fde/problem-value/index.md",
+      "title": "Problem & Value Explorer / 課題・価値の探索",
+      "type": "tool",
+      "track": "fde",
+      "day": 2,
+      "sources": [
+        "reference/fde/methods/diagnosis-and-value.md"
+      ]
+    },
+    {
+      "id": "wiki:reference.fde.problem-value.worksheet",
+      "path": "reference/fde/problem-value/worksheet.md",
+      "title": "Problem & Value Explorer / 課題・価値の探索 — worksheet / ワークシート",
+      "type": "template",
+      "track": "fde",
+      "day": 2,
+      "sources": [
+        "reference/fde/methods/diagnosis-and-value.md"
+      ]
+    },
+    {
+      "id": "wiki:reference.fde.problem-value.failure-patterns",
+      "path": "reference/fde/problem-value/failure-patterns.md",
+      "title": "Problem & Value Explorer / 課題・価値の探索 — failure patterns / 失敗パターン",
+      "type": "patterns",
+      "track": "fde",
+      "day": 2,
+      "sources": [
+        "reference/fde/methods/diagnosis-and-value.md"
+      ]
+    },
+    {
+      "id": "skill:problem-value",
+      "path": "skills/PROBLEM_VALUE.md",
+      "title": "Problem & Value Explorer / 課題・価値の探索",
+      "type": "skill",
+      "track": "fde",
+      "day": 2,
+      "sources": [
+        "reference/fde/methods/diagnosis-and-value.md"
+      ],
+      "entrypoint": "reference/fde/problem-value/index.md"
+    },
+    {
+      "id": "wiki:reference.fde.steering-escalation.index",
+      "path": "reference/fde/steering-escalation/index.md",
+      "title": "Steering & Escalation Planner / 運営会議・エスカレーション",
+      "type": "tool",
+      "track": "fde",
+      "day": 2,
+      "sources": [
+        "reference/fde/methods/diagnosis-and-value.md"
+      ]
+    },
+    {
+      "id": "wiki:reference.fde.steering-escalation.worksheet",
+      "path": "reference/fde/steering-escalation/worksheet.md",
+      "title": "Steering & Escalation Planner / 運営会議・エスカレーション — worksheet / ワークシート",
+      "type": "template",
+      "track": "fde",
+      "day": 2,
+      "sources": [
+        "reference/fde/methods/diagnosis-and-value.md"
+      ]
+    },
+    {
+      "id": "wiki:reference.fde.steering-escalation.failure-patterns",
+      "path": "reference/fde/steering-escalation/failure-patterns.md",
+      "title": "Steering & Escalation Planner / 運営会議・エスカレーション — failure patterns / 失敗パターン",
+      "type": "patterns",
+      "track": "fde",
+      "day": 2,
+      "sources": [
+        "reference/fde/methods/diagnosis-and-value.md"
+      ]
+    },
+    {
+      "id": "skill:steering-escalation",
+      "path": "skills/STEERING_ESCALATION.md",
+      "title": "Steering & Escalation Planner / 運営会議・エスカレーション",
+      "type": "skill",
+      "track": "fde",
+      "day": 2,
+      "sources": [
+        "reference/fde/methods/diagnosis-and-value.md"
+      ],
+      "entrypoint": "reference/fde/steering-escalation/index.md"
+    },
+    {
+      "id": "wiki:reference.fde.decision-advisor.index",
+      "path": "reference/fde/decision-advisor/index.md",
+      "title": "Decision Advisor / 判断の整理",
+      "type": "tool",
+      "track": "fde",
+      "day": 3,
+      "sources": [
+        "reference/fde/methods/decisions-and-ontology.md"
+      ]
+    },
+    {
+      "id": "wiki:reference.fde.decision-advisor.worksheet",
+      "path": "reference/fde/decision-advisor/worksheet.md",
+      "title": "Decision Advisor / 判断の整理 — worksheet / ワークシート",
+      "type": "template",
+      "track": "fde",
+      "day": 3,
+      "sources": [
+        "reference/fde/methods/decisions-and-ontology.md"
+      ]
+    },
+    {
+      "id": "wiki:reference.fde.decision-advisor.failure-patterns",
+      "path": "reference/fde/decision-advisor/failure-patterns.md",
+      "title": "Decision Advisor / 判断の整理 — failure patterns / 失敗パターン",
+      "type": "patterns",
+      "track": "fde",
+      "day": 3,
+      "sources": [
+        "reference/fde/methods/decisions-and-ontology.md"
+      ]
+    },
+    {
+      "id": "skill:decision-advisor",
+      "path": "skills/DECISION_ADVISOR.md",
+      "title": "Decision Advisor / 判断の整理",
+      "type": "skill",
+      "track": "fde",
+      "day": 3,
+      "sources": [
+        "reference/fde/methods/decisions-and-ontology.md"
+      ],
+      "entrypoint": "reference/fde/decision-advisor/index.md"
+    },
+    {
+      "id": "wiki:reference.fde.ontology-builder.index",
+      "path": "reference/fde/ontology-builder/index.md",
+      "title": "Ontology Builder Wizard / オントロジー設計",
+      "type": "tool",
+      "track": "fde",
+      "day": 3,
+      "sources": [
+        "reference/fde/methods/decisions-and-ontology.md"
+      ]
+    },
+    {
+      "id": "wiki:reference.fde.ontology-builder.worksheet",
+      "path": "reference/fde/ontology-builder/worksheet.md",
+      "title": "Ontology Builder Wizard / オントロジー設計 — worksheet / ワークシート",
+      "type": "template",
+      "track": "fde",
+      "day": 3,
+      "sources": [
+        "reference/fde/methods/decisions-and-ontology.md"
+      ]
+    },
+    {
+      "id": "wiki:reference.fde.ontology-builder.failure-patterns",
+      "path": "reference/fde/ontology-builder/failure-patterns.md",
+      "title": "Ontology Builder Wizard / オントロジー設計 — failure patterns / 失敗パターン",
+      "type": "patterns",
+      "track": "fde",
+      "day": 3,
+      "sources": [
+        "reference/fde/methods/decisions-and-ontology.md"
+      ]
+    },
+    {
+      "id": "skill:builder-wizard",
+      "path": "skills/BUILDER_WIZARD.md",
+      "title": "Ontology Builder Wizard / オントロジー設計",
+      "type": "skill",
+      "track": "fde",
+      "day": 3,
+      "sources": [
+        "reference/fde/methods/decisions-and-ontology.md"
+      ],
+      "entrypoint": "reference/fde/ontology-builder/index.md"
+    },
+    {
+      "id": "wiki:reference.fde.production-readiness.index",
+      "path": "reference/fde/production-readiness/index.md",
+      "title": "Production Readiness Review / 本番準備レビュー",
+      "type": "tool",
+      "track": "fde",
+      "day": 4,
+      "sources": [
+        "reference/fde/methods/readiness-and-positioning.md"
+      ]
+    },
+    {
+      "id": "wiki:reference.fde.production-readiness.worksheet",
+      "path": "reference/fde/production-readiness/worksheet.md",
+      "title": "Production Readiness Review / 本番準備レビュー — worksheet / ワークシート",
+      "type": "template",
+      "track": "fde",
+      "day": 4,
+      "sources": [
+        "reference/fde/methods/readiness-and-positioning.md"
+      ]
+    },
+    {
+      "id": "wiki:reference.fde.production-readiness.failure-patterns",
+      "path": "reference/fde/production-readiness/failure-patterns.md",
+      "title": "Production Readiness Review / 本番準備レビュー — failure patterns / 失敗パターン",
+      "type": "patterns",
+      "track": "fde",
+      "day": 4,
+      "sources": [
+        "reference/fde/methods/readiness-and-positioning.md"
+      ]
+    },
+    {
+      "id": "skill:production-readiness",
+      "path": "skills/PRODUCTION_READINESS.md",
+      "title": "Production Readiness Review / 本番準備レビュー",
+      "type": "skill",
+      "track": "fde",
+      "day": 4,
+      "sources": [
+        "reference/fde/methods/readiness-and-positioning.md"
+      ],
+      "entrypoint": "reference/fde/production-readiness/index.md"
+    },
+    {
+      "id": "wiki:reference.fde.customer-conversation.index",
+      "path": "reference/fde/customer-conversation/index.md",
+      "title": "Customer Conversation Rehearsal / 顧客対話の練習",
+      "type": "tool",
+      "track": "fde",
+      "day": 4,
+      "sources": [
+        "reference/fde/methods/readiness-and-positioning.md"
+      ]
+    },
+    {
+      "id": "wiki:reference.fde.customer-conversation.worksheet",
+      "path": "reference/fde/customer-conversation/worksheet.md",
+      "title": "Customer Conversation Rehearsal / 顧客対話の練習 — worksheet / ワークシート",
+      "type": "template",
+      "track": "fde",
+      "day": 4,
+      "sources": [
+        "reference/fde/methods/readiness-and-positioning.md"
+      ]
+    },
+    {
+      "id": "wiki:reference.fde.customer-conversation.failure-patterns",
+      "path": "reference/fde/customer-conversation/failure-patterns.md",
+      "title": "Customer Conversation Rehearsal / 顧客対話の練習 — failure patterns / 失敗パターン",
+      "type": "patterns",
+      "track": "fde",
+      "day": 4,
+      "sources": [
+        "reference/fde/methods/readiness-and-positioning.md"
+      ]
+    },
+    {
+      "id": "skill:customer-conversation",
+      "path": "skills/CUSTOMER_CONVERSATION.md",
+      "title": "Customer Conversation Rehearsal / 顧客対話の練習",
+      "type": "skill",
+      "track": "fde",
+      "day": 4,
+      "sources": [
+        "reference/fde/methods/readiness-and-positioning.md"
+      ],
+      "entrypoint": "reference/fde/customer-conversation/index.md"
+    },
+    {
+      "id": "wiki:reference.fde.methods.delivery-and-review",
+      "path": "reference/fde/methods/delivery-and-review.md",
+      "title": "Delivery ownership and adversarial review / 導入責任と批判的レビュー",
+      "type": "method",
+      "track": "fde",
+      "day": 1,
+      "sources": []
+    },
+    {
+      "id": "wiki:reference.fde.methods.diagnosis-and-value",
+      "path": "reference/fde/methods/diagnosis-and-value.md",
+      "title": "Diagnosis, value, and decision communication / 原因・価値・意思決定",
+      "type": "method",
+      "track": "fde",
+      "day": 2,
+      "sources": []
+    },
+    {
+      "id": "wiki:reference.fde.methods.decisions-and-ontology",
+      "path": "reference/fde/methods/decisions-and-ontology.md",
+      "title": "Decision judgment and ontology design / 判断とオントロジー",
+      "type": "method",
+      "track": "fde",
+      "day": 3,
+      "sources": []
+    },
+    {
+      "id": "wiki:reference.fde.methods.readiness-and-positioning",
+      "path": "reference/fde/methods/readiness-and-positioning.md",
+      "title": "Production readiness and positioning / 本番準備と価値の説明",
+      "type": "method",
+      "track": "fde",
+      "day": 4,
+      "sources": []
+    },
+    {
+      "id": "wiki:reference.fde.index",
+      "path": "reference/fde/index.md",
+      "title": "FDE work tools / 実務ツール",
+      "type": "index",
+      "track": "fde",
+      "day": null,
+      "sources": []
+    },
+    {
+      "id": "wiki:reference.fde.evidence-and-provenance",
+      "path": "reference/fde/evidence-and-provenance.md",
+      "title": "Evidence and provenance / 根拠と出典",
+      "type": "guide",
+      "track": "shared",
+      "day": null,
+      "sources": [
+        "reference/fde/methods/decisions-and-ontology.md",
+        "reference/ds/methods/scope-and-stakeholders.md"
+      ]
+    },
+    {
+      "id": "wiki:reference.fde.knowledge-guide",
+      "path": "reference/fde/knowledge-guide.md",
+      "title": "FDE / DS working knowledge / FDE・DS実務知識",
+      "type": "index",
+      "track": "shared",
+      "day": null,
+      "sources": []
+    },
+    {
+      "id": "wiki:reference.fde.tool-map",
+      "path": "reference/fde/tool-map.md",
+      "title": "Training to work tools / 研修から実務ツールへ",
+      "type": "guide",
+      "track": "shared",
+      "day": null,
+      "sources": [
+        "reference/fde/methods/delivery-and-review.md",
+        "reference/fde/methods/diagnosis-and-value.md",
+        "reference/fde/methods/decisions-and-ontology.md",
+        "reference/fde/methods/readiness-and-positioning.md",
+        "reference/ds/methods/discovery-and-ownership.md",
+        "reference/ds/methods/product-reuse-and-growth.md",
+        "reference/ds/methods/scope-and-stakeholders.md"
+      ]
+    },
+    {
+      "id": "wiki:reference.fde.ontology-builder.discovery-and-editing",
+      "path": "reference/fde/ontology-builder/discovery-and-editing.md",
+      "title": "Ontology discovery and graph editing / 設計と編集",
+      "type": "review",
+      "track": "shared",
+      "day": null,
+      "sources": [
+        "reference/fde/methods/decisions-and-ontology.md"
+      ]
+    },
+    {
+      "id": "wiki:reference.fde.murderboard.how-to-run",
+      "path": "reference/fde/murderboard/how-to-run.md",
+      "title": "How to run a murderboard / 進め方",
+      "type": "guide",
+      "track": "fde",
+      "day": 1,
+      "sources": [
+        "reference/fde/methods/delivery-and-review.md"
+      ]
+    },
+    {
+      "id": "wiki:reference.fde.murderboard.preparing-a-design-note",
+      "path": "reference/fde/murderboard/preparing-a-design-note.md",
+      "title": "Preparing the board / レビュー準備",
+      "type": "guide",
+      "track": "fde",
+      "day": 1,
+      "sources": [
+        "reference/fde/methods/delivery-and-review.md"
+      ]
+    },
+    {
+      "id": "wiki:reference.fde.murderboard.reviewer-roles",
+      "path": "reference/fde/murderboard/reviewer-roles.md",
+      "title": "Reviewer perspectives / レビュアーの視点",
+      "type": "guide",
+      "track": "fde",
+      "day": 1,
+      "sources": [
+        "reference/fde/methods/delivery-and-review.md"
+      ]
+    },
+    {
+      "id": "wiki:reference.fde.murderboard.questioning-techniques",
+      "path": "reference/fde/murderboard/questioning-techniques.md",
+      "title": "Questioning techniques / 質問の組み立て",
+      "type": "guide",
+      "track": "fde",
+      "day": 1,
+      "sources": [
+        "reference/fde/methods/delivery-and-review.md"
+      ]
+    },
+    {
+      "id": "wiki:reference.fde.murderboard.engineering-review-checklist",
+      "path": "reference/fde/murderboard/engineering-review-checklist.md",
+      "title": "Engineering review checks / 設計レビューの確認",
+      "type": "guide",
+      "track": "fde",
+      "day": 1,
+      "sources": [
+        "reference/fde/methods/delivery-and-review.md"
+      ]
+    },
+    {
+      "id": "wiki:reference.fde.murderboard.premortem",
+      "path": "reference/fde/murderboard/premortem.md",
+      "title": "Premortem / プレモーテム",
+      "type": "guide",
+      "track": "fde",
+      "day": 1,
+      "sources": [
+        "reference/fde/methods/delivery-and-review.md"
+      ]
+    },
+    {
+      "id": "wiki:reference.fde.murderboard.recording-decisions-and-follow-ups",
+      "path": "reference/fde/murderboard/recording-decisions-and-follow-ups.md",
+      "title": "Decisions and follow-up / 判断・フォローアップ",
+      "type": "guide",
+      "track": "fde",
+      "day": 1,
+      "sources": [
+        "reference/fde/methods/delivery-and-review.md"
+      ]
+    },
+    {
+      "id": "wiki:reference.fde.ontology-builder.competency-questions",
+      "path": "reference/fde/ontology-builder/competency-questions.md",
+      "title": "Competency questions / モデルが答える問い",
+      "type": "guide",
+      "track": "fde",
+      "day": 3,
+      "sources": [
+        "reference/fde/methods/decisions-and-ontology.md"
+      ]
+    },
+    {
+      "id": "wiki:reference.fde.ontology-builder.source-mapping",
+      "path": "reference/fde/ontology-builder/source-mapping.md",
+      "title": "Source mapping and gaps / データ対応と食い違い",
+      "type": "guide",
+      "track": "fde",
+      "day": 3,
+      "sources": [
+        "reference/fde/methods/decisions-and-ontology.md"
+      ]
+    },
+    {
+      "id": "wiki:reference.fde.ontology-builder.actions-and-impact",
+      "path": "reference/fde/ontology-builder/actions-and-impact.md",
+      "title": "Actions and impact tracing / アクションと影響",
+      "type": "guide",
+      "track": "fde",
+      "day": 3,
+      "sources": [
+        "reference/fde/methods/decisions-and-ontology.md"
+      ]
+    },
+    {
+      "id": "skill:ontology-sketcher",
+      "path": "skills/ONTOLOGY_SKETCHER.md",
+      "title": "Ontology Designer / オントロジー設計",
+      "type": "skill",
+      "track": "fde",
+      "sources": [
+        "reference/fde/methods/decisions-and-ontology.md"
+      ],
+      "entrypoint": "reference/fde/ontology-builder/index.md"
+    },
+    {
+      "id": "wiki:reference.fde.skill-advisor.index",
+      "path": "reference/fde/skill-advisor/index.md",
+      "title": "When to use FDE and DS skills / FDE・DSスキルの使い分け",
+      "type": "guide",
+      "track": "fde",
+      "roles": [
+        "fde",
+        "ds"
+      ],
+      "sources": [
+        "reference/fde/methods/delivery-and-review.md",
+        "reference/fde/methods/diagnosis-and-value.md",
+        "reference/fde/methods/decisions-and-ontology.md",
+        "reference/fde/methods/readiness-and-positioning.md",
+        "reference/ds/methods/discovery-and-ownership.md",
+        "reference/ds/methods/product-reuse-and-growth.md",
+        "reference/ds/methods/scope-and-stakeholders.md"
+      ]
+    },
+    {
+      "id": "skill:advise-me",
+      "path": "skills/ADVISE_ME.md",
+      "title": "Advise me / 次の一手を相談する",
+      "type": "skill",
+      "track": "fde",
+      "roles": [
+        "fde",
+        "ds"
+      ],
+      "sources": [
+        "reference/ds/methods/discovery-and-ownership.md",
+        "reference/ds/methods/scope-and-stakeholders.md",
+        "reference/fde/methods/decisions-and-ontology.md"
+      ],
+      "entrypoint": "reference/fde/skill-advisor/index.md"
+    },
+    {
+      "id": "wiki:reference.fde.skill-advisor.decision-examples",
+      "path": "reference/fde/skill-advisor/decision-examples.md",
+      "title": "Choosing the next move / 次の一手の判断例",
+      "type": "guide",
+      "track": "fde",
+      "roles": [
+        "fde",
+        "ds"
+      ],
+      "sources": [
+        "reference/fde/methods/delivery-and-review.md",
+        "reference/fde/methods/diagnosis-and-value.md",
+        "reference/fde/methods/decisions-and-ontology.md",
+        "reference/fde/methods/readiness-and-positioning.md",
+        "reference/ds/methods/discovery-and-ownership.md",
+        "reference/ds/methods/product-reuse-and-growth.md",
+        "reference/ds/methods/scope-and-stakeholders.md"
+      ]
+    }
+  ]
+}

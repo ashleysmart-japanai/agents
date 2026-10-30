@@ -1,0 +1,23 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+script_dir=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd -P)
+if [[ $(id -u) == 0 ]]; then
+    echo 'Run this script as your normal user, without sudo.' >&2
+    exit 1
+fi
+if ! command -v docker >/dev/null 2>&1; then
+    echo 'Docker is required. Install Docker Desktop or Docker with Colima.' >&2
+    exit 1
+fi
+if ! docker info >/dev/null 2>&1; then
+    echo 'Docker is not running. Start Docker Desktop or run: colima start' >&2
+    exit 1
+fi
+
+exec docker build \
+    --tag "${CODEX_IMAGE:-codex-sandbox:local}" \
+    --build-arg "CODEX_VERSION=${CODEX_VERSION:-0.159.3}" \
+    --build-arg "SANDBOX_UID=$(id -u)" \
+    --build-arg "SANDBOX_GID=$(id -g)" \
+    "$@" "$script_dir"

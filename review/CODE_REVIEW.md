@@ -57,4 +57,4 @@ Check groups for code PRs. Each group produces a PASS / FAIL / N/A.
 ### Checklist
 - Read `review/CHECKLIST.md` and walk through every item against the diff.
 - For each checklist category, note PASS / FAIL / N/A.
-- List any failures with `file:line` references.
+- List any failures as a code-snip (`~/agents/style/CODE_SNIP.md`).

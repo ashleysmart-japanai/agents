@@ -53,8 +53,9 @@ Run this procedure during Stage 0, after reading existing review state:
 - `NEEDS_REVIEW:reviewer` — the reviewer is uncertain whether a finding is valid and needs the user to decide.
 - `NEEDS_REVIEW:coder` — the coder believes the fix is problematic and is pushing back with evidence.
 - `NEEDS_REVIEW:cascade` — the claim was caused by a prior review claim's fix (cascade pre-check). The detail file must name the prior claim in `cascade-of:<full ID>`. Agents must never fix a cascade item without the user's explicit approval.
+- `NEEDS_REVIEW:external` — the coder's closing verdict on an external reviewer's claim, explained in the reviewer's thread and awaiting its agreement (review-triage § External claims).
 
-When asked to provide a list of open `NEEDS_REVIEW` items, list `:reviewer`, `:coder`, and `:cascade` items. For each, explain with evidence the problem and the reason for the `NEEDS_REVIEW` status.
+When asked to provide a list of open `NEEDS_REVIEW` items, list `:reviewer`, `:coder`, `:cascade`, and `:external` items. For each, explain with evidence the problem and the reason for the `NEEDS_REVIEW` status.
 
 ### Coder obligations for OPEN issues
 
@@ -90,7 +91,7 @@ When asked to provide a list of open `NEEDS_REVIEW` items, list `:reviewer`, `:c
 - Required: `reviewed:`. Last review datetime as `<yyyy-mm-dd HH:MM>`. Overwrite on each review, do not append.
 - Required: `open:`.
 - `open:` contains every not-closed issue ID, comma-separated with no spaces.
-- Not-closed statuses are `OPEN`, `NEEDS_REVIEW:reviewer`, `NEEDS_REVIEW:coder`, `NEEDS_REVIEW:cascade`, `DEFERRED`, and `UNPROVEN`.
+- Not-closed statuses are `OPEN`, `NEEDS_REVIEW:reviewer`, `NEEDS_REVIEW:coder`, `NEEDS_REVIEW:cascade`, `NEEDS_REVIEW:external`, `DEFERRED`, and `UNPROVEN`.
 - If there are no not-closed issues, write `open:none`.
 - Update `open:` on any status change, including moves to `UNPROVEN` and `OUT_OF_SCOPE`.
 - Do not list closed IDs in `open:`. Closed statuses are `CLOSED verified:<yyyy-mm-dd>`, `WILL_NOT_FIX`, and `OUT_OF_SCOPE`.
@@ -106,11 +107,12 @@ When asked to provide a list of open `NEEDS_REVIEW` items, list `:reviewer`, `:c
 - Do not add checks.
 - Do not add prose.
 - Keep exactly one summary item per issue ID.
-- Each item uses the finding grammar line format from [REVIEW_METHOD.md § Finding Grammar](REVIEW_METHOD.md#finding-grammar): `- [<x| >] <ID> - <STATUS> [<SEVERITY>] - <title> \`file:line\``.
+- Each item uses the finding grammar line format from [REVIEW_METHOD.md § Finding Grammar](REVIEW_METHOD.md#finding-grammar).
+- The summary line carries a quick-ref (`~/agents/style/QUICK_REF.md`); the `<ID>.md` evidence is a code-snip (`~/agents/style/CODE_SNIP.md`).
 - The status tokens, severity values, and ID prefixes are defined in REVIEW_METHOD.md. Do not redefine them here.
 - The `<title>` is a short label, not a description. Keep it under one line. Full details go in `<ID>.md`.
 - Use `[ ]` for not-closed issues; `[x]` for closed issues. Do not use `[?]`.
-- Not-closed statuses: `OPEN`, `NEEDS_REVIEW:reviewer`, `NEEDS_REVIEW:coder`, `NEEDS_REVIEW:cascade`, `DEFERRED`, `UNPROVEN`.
+- Not-closed statuses: `OPEN`, `NEEDS_REVIEW:reviewer`, `NEEDS_REVIEW:coder`, `NEEDS_REVIEW:cascade`, `NEEDS_REVIEW:external`, `DEFERRED`, `UNPROVEN`.
 - Closed statuses: `CLOSED verified:<yyyy-mm-dd>`, `WILL_NOT_FIX`, `OUT_OF_SCOPE`.
 - Do not put a category token after the ID.
 - Put location keys in the title text.
@@ -139,7 +141,7 @@ When asked to provide a list of open `NEEDS_REVIEW` items, list `:reviewer`, `:c
 - Required field: `reverify:`.
 - `fix:` records the reviewer's **suggested** fix — untrusted input kept for the record; the coder designs the actual fix from its own trace (CODER.md §5, review-triage skill).
 - The detail `status:` value must match the status in that issue's `# SUMMARY` item.
-- Valid detail statuses are `OPEN`, `NEEDS_REVIEW:reviewer`, `NEEDS_REVIEW:coder`, `NEEDS_REVIEW:cascade`, `DEFERRED`, `UNPROVEN`, `CLOSED verified:<yyyy-mm-dd>`, `WILL_NOT_FIX`, and `OUT_OF_SCOPE`.
+- Valid detail statuses are `OPEN`, `NEEDS_REVIEW:reviewer`, `NEEDS_REVIEW:coder`, `NEEDS_REVIEW:cascade`, `NEEDS_REVIEW:external`, `DEFERRED`, `UNPROVEN`, `CLOSED verified:<yyyy-mm-dd>`, `WILL_NOT_FIX`, and `OUT_OF_SCOPE`.
 - Optional field `redlight:` — `pending`, `n/a-docs` (doc-claim or style-claim: a claim against a non-executable artifact, or a style-only code change with no observable behavior difference — no test constructable, whatever the size of the change), `<sha> <file:case>` of the committed failing test, or `disproof <sha> <file:case>` of the committed green disproof test, per the review-triage skill (`~/agents/skills/REVIEW_TRIAGE.md`).
 - Field `justification:` — required on every fix-path close (review-triage `close` refuses without it): why the fix resolves the defect class fully and will not compound. This is the record the cascade procedure audits when a later claim cascades from this fix.
 - Never delete a detail file.
@@ -180,6 +182,7 @@ When asked to provide a list of open `NEEDS_REVIEW` items, list `:reviewer`, `:c
 - The coder may move an issue to `NEEDS_REVIEW:coder` when pushing back on a fix with evidence.
 - The coder may move an issue to `OUT_OF_SCOPE` or `UNPROVEN` only via the review-triage skill (`~/agents/skills/REVIEW_TRIAGE.md`), with the required evidence recorded.
 - The agent performing triage may move an issue to `NEEDS_REVIEW:cascade` via the cascade pre-check, with `cascade-of:` recorded. Only the user may move it out of that state.
+- An external claim (`source:external`) moves to `OUT_OF_SCOPE` or `CLOSED verified:` only via `NEEDS_REVIEW:external` and the external reviewer's recorded agreement (`reviewer-ack:`), per the review-triage skill.
 - Only the user/human may move an issue to `DEFERRED`. Agents must never set this state.
 - Only the user/human may move an issue to `WILL_NOT_FIX`. Agents must never set this state.
 
@@ -321,7 +324,7 @@ evidence:
 ```
 
 fix:<what needs to change>
-reverify:<exact grep/read/test command or file:line to check>
+reverify:<exact grep/read/test command, or quick-ref to check>
 
 # B2.4RQ0TSM6xX75zFFiKHBoDj.md
 ## B2.4RQ0TSM6xX75zFFiKHBoDj
@@ -343,7 +346,7 @@ evidence:
 ```
 
 fix:<original fix guidance - preserved unchanged>
-reverify:<exact grep/read/test command or file:line to check>
+reverify:<exact grep/read/test command, or quick-ref to check>
 fixed:<one-line description of the change>
 justification:
 ```evidence

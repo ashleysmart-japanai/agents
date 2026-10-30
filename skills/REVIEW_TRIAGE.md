@@ -22,6 +22,7 @@ Judgment gates run as **subagents with one narrow goal each**. Give the subagent
 ## Finish the whole triage
 
 - The triage runs to completion in one turn: every recorded claim reaches a closed or needs-review status (`REVIEW_METHOD.md` § Status tokens) before the turn ends.
+  - An external claim held at `NEEDS_REVIEW:external` counts as reached once its explanation is posted and recorded with `reply`.
 - A per-claim halt (`--cascade-of`, `unproven`, `needs-review`) stops that claim only; the pipeline continues for every other claim.
 - Step reports are text within the turn, not a turn boundary — report the step, then start the next step in the same turn.
 - Do not end the turn to ask permission for a step the workflow already includes.
@@ -38,10 +39,11 @@ Judgment gates run as **subagents with one narrow goal each**. Give the subagent
    ```
 2. **Record every claim first** — no triage before recording:
    ```bash
-   review_triage.py --dir <DIR> open --type B --sev HIGH --title "..." --file "path:line" --desc "..." --evidence "..." --fix "..." --reverify "..."
+   review_triage.py --dir <DIR> open --type B --sev HIGH --title "..." --file "<quick-ref>" --desc "..." --evidence "..." --fix "..." --reverify "..."
    ```
    It prints the full ID and warns `POSSIBLE CASCADE` when the claim's file overlaps a prior issue.
    `--fix` records the **reviewer's suggested fix** — untrusted input stored for the record, never the implementation plan (see step 7).
+   A claim from a reviewer outside this session is recorded `--source external --reviewer <who> --thread <URL of its comment>` (§ External claims).
 3. **Cascade gate** — spawn a cascade-judge subagent per claim. Goal: given this claim, the `cascade-scan <ID>` output, and the overlapping issues' detail files — was the code this claim points at changed by a prior claim's fix? Verdict: `cascade-of:<full ID> + why`, or `not-cascade`. Record:
    ```bash
    review_triage.py --dir <DIR> gate <ID> --cascade-of <FULLID> --why "..."   # cascade → this claim halts for the user; the pipeline continues with the others
@@ -59,11 +61,11 @@ Judgment gates run as **subagents with one narrow goal each**. Give the subagent
    - Quote the defective text and the corrected text as the close `--verify` evidence.
    - A fix to a spec document goes to `needs-review` with the proposed wording — the human approves the words before the agent writes them; the agent fixes doc-claims against comments, naming, and its own tasking file directly.
    - A tasking-file fix that changes settled design direction (micro-spec, `steering.md`) also goes to `needs-review`.
-5. **Trace** — spawn a trace subagent per passed claim, before any red-light work. Goal: read the code at the claim's `file:line` on **current HEAD** and trace the path the claim depends on — where the value comes from, its types and DB constraints, existing guards, the call sites. The claim's own description and stored code snippets are **not** evidence; they describe the code as it was when the claim was written. Verdict, recorded via the script (which refuses red-light until `trace:possible`):
+5. **Trace** — spawn a trace subagent per passed claim, before any red-light work. Goal: read the code at the claim's quick-ref on **current HEAD** and trace the path the claim depends on — where the value comes from, its types and DB constraints, existing guards, the call sites. The claim's own description and stored code snippets are **not** evidence; they describe the code as it was when the claim was written. Verdict, recorded via the script (which refuses red-light until `trace:possible`):
    ```bash
-   review_triage.py --dir <DIR> --repo <checkout> trace <ID> --possible --path "<file:line trace of how the defect manifests>"
-   review_triage.py --dir <DIR> --repo <checkout> trace <ID> --impossible --evidence "<file:line quotes: types/guards/constraints>"
-   review_triage.py --dir <DIR> --repo <checkout> trace <ID> --already-fixed <sha> --evidence "<file:line quotes of the fix>"   # sha must be an ancestor of HEAD
+   review_triage.py --dir <DIR> --repo <checkout> trace <ID> --possible --path "<quick-ref trace of how the defect manifests>"
+   review_triage.py --dir <DIR> --repo <checkout> trace <ID> --impossible --evidence "<code-snip quotes: types/guards/constraints>"
+   review_triage.py --dir <DIR> --repo <checkout> trace <ID> --already-fixed <sha> --evidence "<code-snip quotes of the fix>"   # sha must be an ancestor of HEAD
    ```
    **Every claim resolves with a committed test in code — never agent speculation.** A `possible` verdict leads to a red proof test; `impossible` and `already-fixed` lead to a **green disproof test** — one committed test pinning why the claim cannot happen (e.g. an empty entity id cannot reach the call) or guarding the prior fix. Spawn a disproof subagent for it, then close via:
    ```bash
@@ -89,7 +91,32 @@ Judgment gates run as **subagents with one narrow goal each**. Give the subagent
    ```bash
    review_triage.py --dir <DIR> check
    ```
+   Every `NEEDS_REVIEW:external` claim has a `reply` recorded before the report (§ External claims).
 10. **Report** to the user in chat as the finding-grammar checkbox list. **Every fixed claim is reported with its matching red-light test** — the `file:case` and red commit sha that prove the claim (`list --tests` prints the pairing). A fix reported without its proving test is an incomplete report.
+
+## External claims — the reviewer agrees before the claim closes
+
+- External = raised by a reviewer outside this session and its subagents: a PR review bot, a human PR comment, another agent's review.
+- Source is decided by origin, never by convenience — an external claim recorded as internal is a procedure violation.
+- Closing a claim in the local store tells the external reviewer nothing; it re-raises the claim on its next pass.
+- The script holds every closing verdict on an external claim (`gate --out-of-scope`, `disprove`, `close`) as a proposal at `NEEDS_REVIEW:external` — not-closed.
+- Post the explanation as a reply in the reviewer's thread (`thread:` in the detail file); this procedure is the authorization to post it.
+- The reply follows the explaining rules: the problem with the claim first, then the evidence that settles it — the spec line or rail, the green disproof test, or the fix sha with its red-light test.
+- The reply ends by asking the reviewer to agree to close or mark out of scope.
+- Record the posted reply:
+  ```bash
+  review_triage.py --dir <DIR> reply <ID> --ref "<URL of the posted reply>"
+  ```
+- On the next pass, read the thread and record the reviewer's answer with its words:
+  ```bash
+  review_triage.py --dir <DIR> ack <ID> --agreed   --ref "<URL of the answer>" --quote "<reviewer's words>"   # applies the proposed status
+  review_triage.py --dir <DIR> ack <ID> --rejected --ref "<URL of the answer>" --quote "<reviewer's words>"   # back to OPEN
+  ```
+- A rejection is a new argument to deal with, not a dead end: re-derive it from the code, then re-gate, fix, or answer it with new evidence and propose again.
+- The claim stays open until the reviewer agrees; the agent never closes it on its own verdict.
+- A reviewer that re-raises a claim under a new ID is answered in the new thread with a link to the prior reply.
+- A reviewer that repeats the same rejection with no new argument is surfaced to the user in the report; the claim stays open.
+- No reviewer answer yet → the claim stays `NEEDS_REVIEW:external`; list it in the report with its reply URL.
 
 ## Cascade fixes (only after the user approves)
 
@@ -129,6 +156,7 @@ A cascade means a prior fix's recorded justification was wrong. When the user ap
 - `--style-claim` is for claims like SEC2-style `require()`→`import` swaps: the fix is real and correct, but nothing distinguishes pre-fix from post-fix at runtime, so no red/green test is constructable. Do not reach for it just because writing the test is inconvenient — it is for changes with *no possible* observable difference, not merely a hard-to-test one.
 - A doc-claim or style-claim is never `UNPROVEN` — `UNPROVEN` means "a test is owed but cannot be constructed", and no test is owed here. The script refuses it; route verify-and-fix or `needs-review`.
 - `NEEDS_REVIEW:cascade` items are never red-lighted, fixed, or closed without the user's explicit approval.
+- **An external claim closes only with the external reviewer's recorded agreement** (`reviewer-ack:`) — a local `OUT_OF_SCOPE` or `CLOSED` that the reviewer never saw is not a resolution.
 - The script's refusals are the procedure working. Do not bypass with hand edits, and never set `DEFERRED`/`WILL_NOT_FIX` (human-only).
 - Subagents get one goal and minimal context; verdicts come back to the orchestrator, which records them.
 - Chat may use short IDs; every store record and code/test/commit reference uses the full ID (grammar: `REVIEW_METHOD.md § ID format`).

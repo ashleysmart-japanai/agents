@@ -13,11 +13,13 @@ Every finding is expressed as one line. No prose adjectives — never say a find
 ### Line format
 
 ```
-- [<x| >] <ID> - <STATUS> [<SEVERITY>] - <title> `file:line`
+- [<x| >] <ID> - <STATUS> [<SEVERITY>] - <title> `<location>`
 ```
 
 - `[ ]` for a not-closed finding, `[x]` for a closed one.
 - `<title>` is a short label with the location key(s) in backticks. Full detail is not needed to communicate the finding.
+- `<location>` is a quick-ref (`~/agents/style/QUICK_REF.md`); its chat exception covers the in-chat form.
+- `<ID>.md` carries the evidence as a code-snip (`~/agents/style/CODE_SNIP.md`).
 
 ### Status tokens
 
@@ -25,13 +27,14 @@ Every finding is expressed as one line. No prose adjectives — never say a find
 - `NEEDS_REVIEW:reviewer` - reviewer is uncertain about a finding and needs the user/human to decide.
 - `NEEDS_REVIEW:coder` - coder is pushing back on a finding with evidence that the fix is problematic.
 - `NEEDS_REVIEW:cascade` - the claim was caused by a prior review claim's fix (found by the cascade pre-check). Requires a `cascade-of:<full ID>` line naming the prior claim. **Agents must never fix a cascade item without the user's explicit approval** — the user decides: fix it, revert the prior fix, or rule otherwise.
+- `NEEDS_REVIEW:external` - the coder's closing verdict (`OUT_OF_SCOPE` or `CLOSED`) on an external reviewer's claim, explained to that reviewer in its thread and awaiting its agreement. Requires `proposed:` and `reply:` lines. Closes only on the reviewer's recorded agreement (`reviewer-ack:`); a rejection returns it to `OPEN`.
 - `DEFERRED` - user has decided the issue is in scope but not needed now. Human-only — agents must never set this state.
 - `CLOSED verified:<yyyy-mm-dd>` - the fix was applied **and verified** on that date (a passing reverify command, test, or trace). "Verified" is evidence-based; a fix merely present in the code is not verified.
 - `WILL_NOT_FIX` - user has decided the issue is invalid, out of scope, or should be ignored. Human-only — agents must never set this state.
 - `OUT_OF_SCOPE` - the claim failed a triage gate in the coder's review-claim procedure (micro-spec scope, `steering.md` design, or scope-creep beyond the branch's changed files). Coder-set only via that procedure; requires a `scope:<micro-spec|steering|scope-creep> - <reason>` line in the detail file. The user may reopen.
 - `UNPROVEN` - the coder attempted to red-light the claim and could not make a test fail from it. Requires the attempted probe and its passing output in the detail file. Awaits a human/reviewer decision: better evidence reopens it to `OPEN`, or the user closes it `WILL_NOT_FIX`.
 
-Not-closed = `OPEN`, `NEEDS_REVIEW:reviewer`, `NEEDS_REVIEW:coder`, `NEEDS_REVIEW:cascade`, `DEFERRED`, `UNPROVEN`. Closed = `CLOSED verified:<yyyy-mm-dd>`, `WILL_NOT_FIX`, `OUT_OF_SCOPE`.
+Not-closed = `OPEN`, `NEEDS_REVIEW:reviewer`, `NEEDS_REVIEW:coder`, `NEEDS_REVIEW:cascade`, `NEEDS_REVIEW:external`, `DEFERRED`, `UNPROVEN`. Closed = `CLOSED verified:<yyyy-mm-dd>`, `WILL_NOT_FIX`, `OUT_OF_SCOPE`.
 
 ### Severity
 
@@ -103,6 +106,7 @@ Before making claims or editing the persisted review file:
    - Are types correct (`any` usage, missing generics, wrong shapes)?
    - Are values passed correctly between layers (endpoint -> service -> data layer)?
    - **Trace callers**: who calls the changed function? Do upstream preconditions contradict the new logic?
+   - **Requested graph analysis**: for explicit KG/ontology-enhanced review or cross-module impact analysis, load [the gated Graphify skill](../skills/graphify/SKILL.md) and its review reference; ordinary reviews do not activate it.
    - **Find parallel paths**: are there other code paths that perform the same operation? Does the fix apply to all of them?
 
 4. **CODER.md §4 compliance** — for every changed file, verify these are not violated:
@@ -198,7 +202,7 @@ Rules:
 
 - Be concise and direct. Lead with facts, not praise.
 - Every finding must include evidence: the actual code snippet or command output that proves the issue. Never open an issue without evidence.
-- Use `file:line` references for every finding.
+- Every finding names its location: quick-ref on the summary line, code-snip as the evidence in `<ID>.md`.
 - Distinguish bugs (will break) from issues (might break) from minor (won't break).
 - Never discard a potential finding. If you think something might not be important, log it as NEEDS_REVIEW with evidence — let the human decide. The agent does not get to silently drop findings.
 - Never flag pre-existing issues in files not touched by the PR.
@@ -261,7 +265,7 @@ was not run.
 - [ ] **S1 Checklists executed with artifacts**: `REVIEW_METHOD.md` checklist
   was run (this file). `SECURITY_REVIEW.md` check groups ran if the diff
   touches APIs/auth/credentials. `anti-patterns/CHECKLIST.md` ran against the
-  diff. Each has a filled item → pass/fail/N-A → `file:line` record.
+  diff. Each has a filled item → pass/fail/N-A → quick-ref, or a code-snip if it failed.
 - [ ] **S2 Findings classified before fixes**: every finding is tagged
   on-objective / robustness-layer / out-of-scope. Robustness layers default to
   rejected pending user decision.
@@ -273,7 +277,7 @@ was not run.
 A review is only complete when:
 
 - the review conclusions came from your own code review of the actual codebase
-- every finding is expressed in the finding grammar above, with `file:line` evidence
+- every finding is expressed in the finding grammar above, with a quick-ref location and code-snip evidence
 - no potential finding was silently dropped
 
 ### Store done criteria (when persisting to `review.md`)

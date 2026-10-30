@@ -119,8 +119,8 @@ Scan `<REPO_ROOT>/diag/` for existing diagnosis directories. Check:
 <Detailed root cause. Every claim must reference evidence.>
 
 Format references as:
-- **Log/output reference**: `<file>:L<line> — <what it shows>`
-- **Code reference**: `<file_path>:<line> — <what it does>`
+- **Log/output reference**: code-snip (`~/agents/style/CODE_SNIP.md`) — <what it shows>
+- **Code reference**: quick-ref (`~/agents/style/QUICK_REF.md`) — <what it does>; code-snip (`~/agents/style/CODE_SNIP.md`) when the claim rests on the code
 - **Diag reference**: `<diag_directory>/diag.md — <relationship>`
 - **PR/commit reference**: `PR #<number> by <author> (merged <date>) — <what it changed>`
 

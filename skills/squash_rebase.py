@@ -203,7 +203,11 @@ def main():
             with os.fdopen(fd, "w") as fh:
                 fh.write(message + "\n")
             try:
-                git(repo, "commit", "-F", msg_path)
+                # --no-verify: the squash produces a tree identical to the
+                # branch tip (verified below), so pre-commit project checks
+                # re-run on already-committed content and can block on stale
+                # code the rebase itself fixes.
+                git(repo, "commit", "--no-verify", "-F", msg_path)
             finally:
                 os.unlink(msg_path)
 
