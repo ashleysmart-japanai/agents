@@ -1,6 +1,6 @@
 # Dot-Point SRP Style
 
-The writing style for guideline docs, specs, `task.md`, status reports, and chat responses.
+The writing style for guideline docs, specs, `task.md` (`review/TASK_FILE.md`), status reports, and chat responses.
 
 - Use `-` dot points.
 - One clause per line.

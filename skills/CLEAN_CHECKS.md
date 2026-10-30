@@ -58,9 +58,9 @@ Use this skill when the user asks for a clean check, readiness check, pre-merge 
 14. Spec checklist check — an "implemented" spec with unchecked boxes is reviewer bait:
    - Find spec/checklist docs in the branch diff: `git diff --name-only "$(git merge-base HEAD origin/main)" HEAD -- '*.md'` (micro-specs, acceptance checklists, task lists).
    - Grep each for unchecked items, including the malformed no-space form: `grep -nE '^[[:space:]]*[-*] \[ ?\]' <file>`.
-   - If unchecked items exist, list every one with `file:line` and treat it as a verification failure — do not push.
+   - If unchecked items exist, list every one as a code-snip (`~/agents/style/CODE_SNIP.md`) and treat it as a verification failure; do not push.
    - Do not check items off to make the gate pass. Verify each item is actually done first; checking a box without verifying it is itself reviewer bait.
-   - If an item is genuinely deferred, it must say so on the item (e.g. `- [ ] X7 — deferred to <issue/spec link>`); an annotated deferral passes, a bare unchecked box does not.
+   - If an item is genuinely deferred, it must say so on the item (e.g. `- [ ] T7 — deferred to <issue/spec link>`); an annotated deferral passes, a bare unchecked box does not.
    - If no spec/checklist files changed on the branch, report the step as N/A.
 15. Issue-ID hygiene check — bare short IDs in files go stale when numbers repeat across PRs:
    - Locate the review directory for this PR: `~/reviews/<repo>-pr-<number>/`. If none exists, report the step as N/A.

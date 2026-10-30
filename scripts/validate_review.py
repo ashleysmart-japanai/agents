@@ -112,7 +112,7 @@ def validate_review_dir(review_dir):
         if key not in meta:
             violations.append(Violation(review_md, f"META missing required key: {key}"))
 
-    # --- Check task.md structure (file is optional; structure is not) ---
+    # --- Check task.md structure per review/TASK_FILE.md (file is optional; structure is not) ---
     task_md = review_dir / "task.md"
     if task_md.exists():
         task_lines = task_md.read_text(encoding="utf-8").splitlines()

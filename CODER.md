@@ -4,21 +4,50 @@ Rules and expectations for all AI agents working in this repository tree. These 
 
 ---
 
-## 1. Micro Spec Convention
+## 1. Spec and Tasking
 
-> Design, steering, and micro-spec guidelines — how to write them: `@design/SPECS.md`
+> Agent rules for the two spec documents. The human spec: `@design/HUMAN_SPECS.md`. The tasking file: `@design/AGENT_TASKING.md`.
+>
+> | Document | Written by | Read by | Where |
+> |---|---|---|---|
+> | Spec (`microspec.md`) | Human's words; the agent formats and writes on approval | Agent | `specs/<YYYYMMDD>-<slug>/` |
+> | Tasking file (`agent_tasking.md`, "tasking") | Agent | Human, approves | Same directory, next to the spec |
 
-- Every non-trivial task begins with a micro spec written **before** any code.
-- No code is written until the micro spec exists, is committed, and is approved by the reviewer or human (§5 Two phases).
+### The spec — what the agent does with it
+
+- The agent reads the spec end to end before tasking; shape, tiers, and location are in `design/HUMAN_SPECS.md`.
+- The spec carries the human's words — the same contract as `task.md` (`review/TASK_FILE.md`): the human owns the content, the agent may hold the pen.
+  - When asked, the agent drafts the spec from what the human said, near-verbatim, formatted into the tier shape (`design/HUMAN_SPECS.md`).
+  - Allowed corrections: grammar, spelling, expanding shorthand, placing text under the right heading.
+  - Not allowed: rephrasing, summarising in the agent's words, adding requirements, design, or alternatives the human did not say.
+  - The draft is shown in chat; the file is written on approval. The same holds for every later change to it.
+  - The agent's own analysis — assumptions, risks, proposed design, open questions — goes in the tasking file, not the spec.
+  - The same contract holds for `steering.md` and every other spec-tier document.
 - Spec is the source of truth. Code to its intended target — do not rewrite it to match the code.
-- The spec is not a status tracker: no `DONE`/`Status:`/`REVERTED` markers or edit history in spec prose — state the settled contract only (`design/SPECS.md` § The spec is not a tracker).
-- Spec statements follow SOLID, open/closed in particular: state what the change adds or does, not the module's full inventory (`design/SPECS.md` § Objective).
-- Acceptance criteria are guides for groups of testing, not micro-detail inventories: each derives at least one test — usually more — at implementation; leave them as generalizations where appropriate and never treat or present them as the ceiling of testing (`design/SPECS.md` § Acceptance criteria are guides, not inventories).
+- The spec is the scope (§6 Scope creep).
+- A gap or conflict in the spec → the agent asks; the human edits.
+
+### The tasking file — what the agent writes
+
+- The tasking file is the agent's spec: implementation approach, implementation tasks (`T<id>`), test plan, security checklist, gap assumptions, the P1 matrix when the spec lacks one, the P3 check, the AC → test mapping, open questions (`design/AGENT_TASKING.md` § Tasking file).
+- Every task with blast radius (`design/HUMAN_SPECS.md` § Whether and which spec) has both documents **before** any code.
+- No code is written until the human spec exists and the tasking file is committed and explicitly approved (§5 Two phases).
+- The tasking file references the spec by `R<id>`; it does not restate requirements.
+
+### How the agent writes the tasking file
+
+- Not a status tracker: no `DONE`/`Status:`/`REVERTED` markers or edit history in prose — state the settled contract only (`design/AGENT_TASKING.md` § The spec is not a tracker).
+- Statements follow SOLID, open/closed in particular: state what the change adds or does, not the module's full inventory (`design/AGENT_TASKING.md` § Objective).
+- Acceptance criteria are guides for groups of testing, not micro-detail inventories: each derives at least one test — usually more — at implementation; leave them as generalizations where appropriate and never treat or present them as the ceiling of testing (`design/AGENT_TASKING.md` § Acceptance criteria are guides, not inventories).
+- `/check-spec` (`skills/CHECK_SPEC.md`) checks both against `design/AGENT_TASKING.md`.
+
+### Resolving gaps
+
 - Resolve gaps by size:
   - **In-scope gap** → apply conventions, record the assumption, continue. Never ask.
   - **Ambiguous** (conventions conflict or none applies) → ask.
-  - **Small drift** (naming, local structure) → update spec, continue.
-  - **Large divergence** (new approach, changed contract, added/dropped requirement) → ask, at the end of a turn that delivers everything not depending on the answer. Do not self-approve by editing the spec.
+  - **Small drift** (naming, local structure) → record it in the tasking file, continue.
+  - **Large divergence** (new approach, changed contract, added/dropped requirement) → ask, at the end of a turn that delivers everything not depending on the answer. Do not self-approve by editing the spec; the spec edit, if any, is the human's.
   - Unsure if large → treat as large, ask.
 - Fill in-scope gaps with the established conventions:
   - Security → [security-principles](reference/security-principles.md):
@@ -58,7 +87,7 @@ Rules and expectations for all AI agents working in this repository tree. These 
 
 - **Target**: 97% line coverage, 100% branch coverage on public interfaces
 - **Cycle**: Red → Green → Refactor. Never write production code before seeing a red test.
-- **Red means committed red**: the failing test is added to the real suite and committed *while it fails*, before any production-code change. A "temporary" test that is run once and never committed is not a red light — it is fabricated evidence. The commit history must show the red-test commit preceding the fix commit. Hooks that run the suite will reject the red commit by design — that is the one sanctioned use of `--no-verify` (§5 step 6).
+- **Red means committed red**: the failing test is added to the real suite and committed *while it fails*, before any production-code change. A "temporary" test that is run once and never committed is not a red light — it is fabricated evidence. The commit history must show the red-test commit preceding the fix commit. Hooks that run the suite will reject the red commit by design — that is the one sanctioned use of `--no-verify` (§5 step 7).
 - **Pattern**: AAA (Arrange, Act, Assert). One assertion per test. No shared mutable state.
 - **Structure**: `tests/unit/` (every save), `tests/integration/` (on PR), `tests/e2e/` (on merge). Mirror source paths.
 - **Deterministic**: no randomness, no wall-clock time, no network — stub at the boundary
@@ -144,7 +173,7 @@ SOLID applies to statements too — docs, specs, PR descriptions, commit message
 - **Present-but-empty means deny.** An empty permission set, an empty filter list, or an empty role array grants nothing — never treat empty the same as absent.
 - **Absent may mean "legacy, allow" only if the spec documents it.** If there is no documented legacy exception, absent also means deny.
 - **Missing declarations exclude.** An item without a permission or type declaration is excluded from results, not included by default.
-- **State the posture in the spec.** Every gate or filter in a micro spec must say what happens when input is absent, empty, or unrecognized.
+- **State the posture.** Every gate or filter says, in the spec or the tasking file, what happens when input is absent, empty, or unrecognized.
 
 ### Booleans over string arrays for fixed permission sets
 
@@ -193,7 +222,7 @@ SOLID applies to statements too — docs, specs, PR descriptions, commit message
 
 ### Dependencies
 
-- No new dependency is added without a note in the micro spec justifying it.
+- No new dependency is added without a note in the tasking file justifying it.
 - Prefer standard library over third-party where the effort is comparable.
 - Pin all dependency versions; no floating version ranges in lock files.
 
@@ -221,7 +250,7 @@ SOLID applies to statements too — docs, specs, PR descriptions, commit message
   - [ ] All acceptance criteria from the micro spec are met.
   - [ ] Coverage gate passes locally.
   - [ ] No new lint warnings introduced.
-  - [ ] Micro spec updated if scope changed during implementation. Any large divergence from the spec's intent was raised with the user and approved before proceeding — not self-approved by editing the spec (see §1).
+  - [ ] Tasking file updated if scope changed during implementation; spec changes were requested from the human, not made by the agent. Any large divergence from the spec's intent was raised with the user and approved before proceeding — not self-approved by editing the spec (see §1).
   - [ ] CHANGELOG entry added for user-visible changes.
 
 ---
@@ -250,9 +279,9 @@ SOLID applies to statements too — docs, specs, PR descriptions, commit message
   - Offering follow-ups after the work is fine; asking permission before doing requested work is not.
   - A per-item halt (cascade, `UNPROVEN`, `NEEDS_REVIEW`, a large divergence on one item) is reported and the rest of the work continues; it does not end the turn.
 - **Two phases, one gate between them.**
-  - Phase 1 — spec: write or update the micro spec (`design/SPECS.md`), pass the process gates (P1–P3), commit, push, then end the turn asking for approval. This turn ends on a question.
-  - Phase 2 — code: on reviewer/human approval, implement every acceptance criterion (red → green → commit → push), run the submission gates and review triage, report. Work continues to completion.
-  - Phase 2 starts on an approved spec.
+  - Phase 1 — tasking: read the human spec end to end, write or update the tasking file (`design/AGENT_TASKING.md` § Tasking file), run `/check-spec`, pass the process gates (P1–P3), commit the tasking file on its own, push, then end the turn asking for approval. This turn ends on a question.
+  - Phase 2 — code: on explicit human approval recorded in the thread or PR (silence is not approval), implement every acceptance criterion (red → green → commit → push), run the submission gates and review triage, report. Work continues to completion.
+  - Phase 2 starts on an approved tasking file.
   - Phase 1 reopens mid-Phase 2 for a large divergence (§1) — ask, at the end of a turn that delivers everything not depending on the answer.
 - **Token scope in long-run loops (Phase 2, review, triage).** Everything produced in one reply — reasoning, drafting, and the reply itself — counts toward one output limit; a cut-off reply is a restart.
   - Reason in the reasoning space; write the deliverable once, in the output space — a file, diff, or report is drafted once, not in full as reasoning and again as the reply.
@@ -275,38 +304,39 @@ SOLID applies to statements too — docs, specs, PR descriptions, commit message
 ### Before code
 
 1. **Read the bug report or task fully.** If the task references a review issue, read the entire `<ID>.md` detail file — description, evidence, fix guidance, and reverify steps. Do not skim summaries or titles. Do not make decisions, push back, or categorise an issue without reading the full detail file first.
-2. **Read** the relevant micro spec (or create one if absent, per `design/SPECS.md`).
-3. **Read** existing code in the affected area before writing anything.
-4. **Write or update** the micro spec if the task is new or scope changes.
+2. **Read** the human spec end to end. Absent, or an empty Requirements section → ask for it; the agent does not write it.
+3. **Create or read `task.md`** in the review directory per `review/TASK_FILE.md`: propose `# GOAL` in the user's words, write on approval; propose a `# STATUS` update after each push.
+4. **Read** existing code in the affected area before writing anything.
+5. **Write or update** the tasking file if the task is new or scope changes.
 
 **Process gates — Phase 1 ends here; no implementation until all pass and the spec is approved:**
 
 | # | Gate | Evidence |
 |---|------|----------|
-| P1 | **Spec-with-matrix exists.** For any feature that filters, permits, gates, or falls back: the spec contains the full input-state × behavior table — with absent and present-but-empty as separate rows — and no cell reads TBD. | The table in the spec doc, committed before implementation. |
+| P1 | **Spec-with-matrix exists.** For any feature that filters, permits, gates, or falls back: the spec contains the full input-state × behavior table — with absent and present-but-empty as separate rows — and no cell reads TBD. | The table in the spec, or derived by the agent in the tasking file, committed before implementation. |
 | P2 | **Acceptance criteria are executable.** Every AC names a test file/case that fails before implementation and passes after. Prose-only ACs are invalid. | Red run before, green run after — both captured, and the red test is a committed suite file (commit sha), not a temporary/uncommitted file. |
-| P3 | **Design is checked against the anti-pattern catalog before coding.** Named check of `anti-patterns/CHECKLIST.md` sections relevant to the design (smuggler for any new field on shared objects, primitive-obsession for any new string, boat-anchor for anything speculative). | Pass/fail/N-A list in the spec. |
+| P3 | **Design is checked against the anti-pattern catalog before coding.** Named check of `anti-patterns/CHECKLIST.md` sections relevant to the design (smuggler for any new field on shared objects, primitive-obsession for any new string, boat-anchor for anything speculative). | Pass/fail/N-A list in the tasking file. |
 
 ### During implementation
 
-5. **Red** — write one test in the real suite (committed file paths, not scratch/temp files), run the suite, confirm that test fails for the right reason, and **commit the failing test** with its raw red output referenced in the commit message. A test that cannot be seen to fail proves nothing; a red run with no committed test is unverifiable and does not count.
-6. **Green** — write the minimum production code needed to make that test pass. No more. The fix is a separate commit after the red-test commit, so history proves the test failed before the code changed.
+6. **Red** — write one test in the real suite (committed file paths, not scratch/temp files), run the suite, confirm that test fails for the right reason, and **commit the failing test** with its raw red output referenced in the commit message. A test that cannot be seen to fail proves nothing; a red run with no committed test is unverifiable and does not count.
+7. **Green** — write the minimum production code needed to make that test pass. No more. The fix is a separate commit after the red-test commit, so history proves the test failed before the code changed.
    - A pre-commit hook that runs the suite (see §2 Automation) will reject a red commit by design. **In this case only, `--no-verify` is sanctioned**: the redness is the proof being committed, and the coder knows it. This is the sole permitted use of `--no-verify` — red-light commits are standing policy, pre-authorized by the user.
    - Before using it, run the suite and confirm the only failures are the red-light test(s) being committed plus already-tracked red-light tests (their `redlight:` records). Any other failure is unrelated breakage — fix that first; `--no-verify` never smuggles it through.
    - The green stage is likewise not blocked by other issues' still-red tests: when committing a fix, the fixed test must pass, and hook failures caused solely by tracked red-light tests do not force clearing them first — commit with `--no-verify` and continue the cycle.
-7. **Repeat** steps 5–6 for each acceptance criterion in the micro spec.
-8. **Refactor** — with all tests green, clean names, split large functions, remove duplication. Run the suite after every refactor step.
+8. **Repeat** steps 6–7 for each acceptance criterion in the micro spec.
+9. **Refactor** — with all tests green, clean names, split large functions, remove duplication. Run the suite after every refactor step.
 
 **Code gates — every new or changed symbol must satisfy all that apply:**
 
 | # | Gate | Evidence |
 |---|------|----------|
-| C1 | **Fail closed, stated explicitly.** Every gate declares its posture in the spec: absent → documented compat or deny; empty → deny; undeclared item → excluded. Fail-open requires a written justification. | Posture declaration in the spec for every gate. |
+| C1 | **Fail closed, stated explicitly.** Every gate declares its posture in the spec or the tasking file: absent → documented compat or deny; empty → deny; undeclared item → excluded. Fail-open requires a written justification. | Posture declaration in the spec for every gate. |
 | C2 | **No closed set as a raw string.** Every finite value set is a named union/enum at every layer it crosses. | `grep` new fields for bare `string` types — zero hits. |
 | C3 | **Invalid states unrepresentable.** Flags are booleans, not membership arrays; domain types over primitives. `{ read: true }` cannot typo; `["raed"]` can. | Type definitions in the diff use records/enums, not string arrays. |
 | C4 | **System metadata never shares a namespace with user data.** One reserved envelope key, written after user data, stripped from user input at the boundary. | Smuggler checklist against the diff. |
 | C5 | **One owner per contract.** A type crossing N boundaries is declared once and imported, or each copy carries a `KEEP-IN-SYNC` reference to the master, and a test pins the wire shape. | Single declaration site, or `KEEP-IN-SYNC` references plus a shape-pinning test. |
-| C6 | **Only functional code.** No field, param, shim, or fallback without a current consumer named in the spec. Reviewer suggestions are proposals — they get scope-checked against objectives, not implemented by default. | Every new symbol has a caller in the diff; spec lists no unused additions. |
+| C6 | **Only functional code.** No field, param, shim, or fallback without a current consumer named in the spec or the tasking file. Reviewer suggestions are proposals — they get scope-checked against objectives, not implemented by default. | Every new symbol has a caller in the diff; spec lists no unused additions. |
 
 ### Before commit
 
@@ -317,7 +347,7 @@ SOLID applies to statements too — docs, specs, PR descriptions, commit message
 | T1 | **Every prose claim is verified in the same pass that touches the behavior.** Comments, docblocks, test names, spec assertions — if the claim describes behavior, either point it at a test or re-verify it when the behavior changes. A claim that cannot be checked gets deleted. | No reviewer-bait items survive the diff review. |
 | T2 | **Report failures verbatim.** Failing tests, skipped steps, and unverified paths are stated plainly, never smoothed over. | Raw output included — no editorialised summaries of failures. |
 
-9. **Commit** in atomic commits following the git hygiene rules above.
+10. **Commit** in atomic commits following the git hygiene rules above.
 
 ### Before push / claiming complete
 
@@ -325,18 +355,19 @@ SOLID applies to statements too — docs, specs, PR descriptions, commit message
 
 | # | Gate | Evidence |
 |---|------|----------|
-| S1 | **The published checklists actually execute, with artifacts.** `~/agents/review/REVIEW_METHOD.md` every PR; `~/agents/review/SECURITY_REVIEW.md` check groups whenever the diff touches APIs/auth/credentials; `~/agents/reference/anti-patterns/CHECKLIST.md` against the diff. Each produces a filled item → pass/fail/N-A → `file:line` record. No artifact = didn't happen. | Checklist output files with `file:line` evidence for every item. |
+| S1 | **The published checklists actually execute, with artifacts.** `~/agents/review/REVIEW_METHOD.md` every PR; `~/agents/review/SECURITY_REVIEW.md` check groups whenever the diff touches APIs/auth/credentials; `~/agents/reference/anti-patterns/CHECKLIST.md` against the diff. Each produces a filled item → pass/fail/N-A → durable reference. No artifact = didn't happen. | Checklist output files: code-snip (`style/CODE_SNIP.md`) for every failed item, quick-ref (`style/QUICK_REF.md`) for the rest. |
 | S2 | **Findings map to objectives before they map to fixes.** Every review finding is classified on-objective / robustness-layer / out-of-scope before any code is written; robustness layers default to rejected pending user decision. | Classification tag on each finding before implementation begins. |
 | S3 | **Fresh state before verdicts.** Reviews and fixes run against the current HEAD after fetch — never against a stale checkout. | `git fetch` + `HEAD` SHA recorded before each review or fix pass. |
 
 ### Reporting findings
 
-- Report bugs, issues, and findings **to the user in chat** using the finding grammar in [`~/agents/review/REVIEW_METHOD.md` § Finding Grammar](review/REVIEW_METHOD.md#finding-grammar): one line per finding, `- [<x| >] <ID> - <STATUS> [<SEVERITY>] - <title> \`file:line\``.
+- Report bugs, issues, and findings **to the user in chat** using the finding grammar in [`~/agents/review/REVIEW_METHOD.md` § Finding Grammar](review/REVIEW_METHOD.md#finding-grammar): one line per finding.
+  - Code references follow `style/QUICK_REF.md` and `style/CODE_SNIP.md`; the chat form is their chat exception.
 - Use the status tokens only (`OPEN`, `NEEDS_REVIEW:coder`, `CLOSED verified:<yyyy-mm-dd>`, …). **Never** describe a finding with a loose adjective like "present", "resolved", "done", or "handled".
 - A fix that is written but not yet verified is `OPEN`, not `CLOSED verified:` — "verified" requires a passing reverify command, test, or trace, not merely that the code is present.
 - Do **not** write to `review.md` or the `~/reviews/<repo>-pr-<number>/` directory. That persisted store is the reviewer/orchestrator's job (see `~/agents/review/ISSUE_TRACKING.md`). Your report is the in-chat list.
   - **Exception 1:** the review-claim triage and red-light procedure below. When executing it, the coder records and updates the claims it is processing in the review store per ISSUE_TRACKING.md.
-  - **Exception 2:** `task.md` — the coder owns the file, the user owns the content (grammar: ISSUE_TRACKING.md § Task file). Never update it without the user's approval: propose the exact text in chat, write it only once approved, and keep the user's words near-verbatim — correcting only grammar, spelling, and shorthand. `# DECISIONS` entries are gated: only major actions and direction shifts qualify, each tagged with a short name (e.g. `record-not-resource`) — never task steps or work narration.
+  - **Exception 2:** `task.md` — the coder owns the file, the user owns the content (grammar: `review/TASK_FILE.md`). Never update it without the user's approval: propose the exact text in chat, write it only once approved, and keep the user's words near-verbatim — correcting only grammar, spelling, and shorthand. `# DECISIONS` entries are gated: only major actions and direction shifts qualify, each tagged with a short name (e.g. `record-not-resource`) — never task steps or work narration.
 - Ground every claim: audit each progress claim against a tool result from this session before reporting it.
   - Report only work you can point to evidence for.
   - Say explicitly what is not yet verified.
@@ -362,9 +393,9 @@ SOLID applies to statements too — docs, specs, PR descriptions, commit message
   - Fixes never edit the proving test; a reverted fix's red test stays committed and red.
   - Report each step in chat as it completes — a step with no report did not happen.
 
-10. **Push** to the PR branch after each completed change. Do not batch up commits — push proactively so the PR stays up to date.
-11. **Do not merge** PRs. Merging is done by the user. Do not expect to be involved in the merge process.
-12. **Do not deploy** unless the user explicitly says so.
+11. **Push** to the PR branch after each completed change. Do not batch up commits — push proactively so the PR stays up to date.
+12. **Do not merge** PRs. Merging is done by the user. Do not expect to be involved in the merge process.
+13. **Do not deploy** unless the user explicitly says so.
 
 An agent surfaces an open question rather than guessing — at the end of a turn that delivers everything not depending on the answer — when:
 - A spec section is ambiguous.
@@ -384,7 +415,7 @@ An agent surfaces an open question rather than guessing — at the end of a turn
 ### No phantom tests — red evidence is committed evidence
 
 - **Never fake the red light with a temporary test.** A test written in a scratch file, run once, and deleted, reverted, or left uncommitted is not red-light evidence — it is untraceable and unverifiable, and claiming it as a red run is a false completion claim (violates T2).
-- Every red test lands in the real suite and is committed while failing, before the fix commit (§2, §5 step 5).
+- Every red test lands in the real suite and is committed while failing, before the fix commit (§2, §5 step 6).
 - This applies to red-lighting review findings, not just new features: the probe that proves a bug **is** the regression test for its fix. Commit it red, keep it in the suite, let the fix turn it green. "Temporary probes, since reverted" means the findings have no evidence and the fixes will have no regression guard.
 - A red-light results table (🔴 verdicts) is only valid if every RED row cites a committed test `file:case` and its commit sha. If running the suite right now shows no failures, nothing is red-lighted — reporting it as confirmed is fabricated evidence.
 - If a test used to prove a bug turns out not to belong in the suite, that decision is the user's — surface it, do not silently delete it.
@@ -395,9 +426,16 @@ An agent surfaces an open question rather than guessing — at the end of a turn
 - A patch that exists only in a side workspace does not exist: it is unverifiable by others, not on the PR, and will be lost. Reporting such a patch as "addressed" is a false completion claim (violates T2).
 - Reviewers propose; the fix lands on the branch via the normal red → green → commit → push cycle (§5), or it is reported as an OPEN finding — never as done.
 
+### Spec documents carry the human's words
+
+- Spec documents — micro spec, `steering.md`, quick/standard/full specs — hold the human's content; the agent formats and writes it on approval (§1), and adds nothing of its own.
+- The agent's spec work goes in the tasking file (`design/AGENT_TASKING.md` § Tasking file), committed separately from code.
+- Spec content with no approval behind it is a finding for the reviewer (REVIEWER.md).
+- AI-generated output is a draft until a human has read it end to end; the agent presents the tasking file as a draft for reading, not as a reviewed spec.
+
 ### Scope creep
 
-- The micro spec is the scope. Every change, test, and review fix traces to a spec line (`R<id>`, `A<id>`, an acceptance criterion) or an in-scope red-lighted claim — nothing else lands.
+- The micro spec is the scope. Every change, test, and review fix traces to a spec line (`R<id>`, `AC<id>`) or a tasking-file task (`T<id>`), or an in-scope red-lighted claim — nothing else lands.
 - Scope-check feedback first and fast: every review claim, PR comment, or suggestion is checked against the micro spec before any trace or fix (§5 triage).
   - In scope → proceed.
   - Out of scope → `OUT_OF_SCOPE` with the reason, listed as a follow-up in the summary; not fixed in this change.
@@ -429,3 +467,5 @@ An agent surfaces an open question rather than guessing — at the end of a turn
 - `/update-main`: `~/agents/skills/MAIN_UPDATE.md`
 - `review-triage`: `~/agents/skills/REVIEW_TRIAGE.md`
 - `/review-triage`: `~/agents/skills/REVIEW_TRIAGE.md`
+- `check-spec`: `~/agents/skills/CHECK_SPEC.md`
+- `/check-spec`: `~/agents/skills/CHECK_SPEC.md`

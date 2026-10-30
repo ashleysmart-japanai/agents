@@ -25,33 +25,25 @@ explicitly overrides a section.
 
 # Spec
 
-## Micro Spec Convention
+## Spec and Tasking
 
-Every non-trivial task begins with a micro spec written **before** any code.
+Every task with blast radius begins with a human-written micro spec and the agent's tasking file (`design/AGENT_TASKING.md` § Tasking file), both **before** any code.
 
 ### File location
 
 ```
-<project>/docs/<YYYYMMDD>_<short-task-slug>.md
+specs/<YYYYMMDD>-<slug>/microspec.md
+specs/<YYYYMMDD>-<slug>/agent_tasking.md
 ```
 
 ### Required sections
 
-| Section | Purpose |
-|---|---|
-| **Goal** | One sentence — what problem this solves and why |
-| **Scope** | What is in and explicitly out of scope |
-| **Interfaces** | Public API / data shapes / events exposed by this work |
-| **Behaviour** | Numbered acceptance criteria, written as observable facts |
-| **Error cases** | How each failure mode is detected and surfaced |
-| **Test plan** | List of unit tests required; maps 1-to-1 to Behaviour items |
-| **Open questions** | Assumptions that need a decision before or during implementation |
+Layout: `design/HUMAN_SPECS.md` § Layout — a What / When / Owner header, then `## Problem`, `## Objective`, `## Requirements`, `## Scope`, `## Acceptance Criteria`, `## Verification`, `## Related`, in that order. `## Terms` is optional, directly after `## Objective`. The spec states what is required, never how the job is done. The agent's implementation approach, implementation tasks, test plan, and security checklist are in `agent_tasking.md` (`design/AGENT_TASKING.md`).
 
 ### Rules
 
-- No code is written until the micro spec exists and is committed.
-- The spec is the source of truth. If code diverges, update the spec first
-  and get acknowledgement before continuing.
+- No code is written until the human spec exists and the agent's tasking file is committed and approved.
+- The spec is the source of truth. If code diverges, record it in the tasking file (small drift) or ask (large divergence) — a spec change is proposed in the human's words and written on approval (`design/AGENT_TASKING.md` § Authorship).
 - In markdown docs, do not manually hard-wrap prose lines; keep paragraph text on a single line and let the editor handle visual wrapping.
 - Acceptance criteria drive the test plan — every criterion maps to at least
   one test. Missing test → missing criterion or vice versa.
@@ -209,7 +201,7 @@ the composition root — never constructed inside business logic.
 
 ### Dependencies
 
-- No new dependency is added without a note in the micro spec justifying it.
+- No new dependency is added without a note in the tasking file justifying it.
 - Prefer standard library over third-party where the effort is comparable.
 - Pin all dependency versions; no floating version ranges in lock files.
 
@@ -233,7 +225,7 @@ the composition root — never constructed inside business logic.
   - [ ] All acceptance criteria from the micro spec are met.
   - [ ] Coverage gate passes locally.
   - [ ] No new lint warnings introduced.
-  - [ ] Micro spec updated if scope changed during implementation.
+  - [ ] Tasking file updated if scope changed during implementation.
   - [ ] CHANGELOG entry added for user-visible changes.
 
 ---
@@ -242,9 +234,9 @@ the composition root — never constructed inside business logic.
 
 When an AI agent picks up a task it **must** follow this order:
 
-1. **Read** the relevant micro spec (or create one if absent).
+1. **Read** the human spec end to end (absent → ask; the agent does not write it).
 2. **Read** existing code in the affected area before writing anything.
-3. **Write or update** the micro spec if the task is new or scope changes.
+3. **Write or update** the tasking file if the task is new or scope changes.
 4. **Red** — write one test, run the suite, confirm that test fails for the
    right reason. A test that cannot be seen to fail proves nothing.
 5. **Green** — write the minimum production code needed to make that test

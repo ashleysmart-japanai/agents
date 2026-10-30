@@ -44,7 +44,7 @@ Full ID: `<prefix><n>.<SID>` — e.g. `D4.2kQ7hVb1nZx0LpR4sT9WdC`.
 - `<prefix><n>` is the short ID: type prefix + per-review-directory sequence number. Convenient for humans to type and say.
 - `<SID>` is a UUIDv4 compressed to base62 `[0-9A-Za-z]`: 128 bits at fixed width 22, zero-padded, alphabet `0-9A-Za-z` most-significant first. Fixed width keeps it decodable back to the UUID and sortable. Generated once at issue creation, never changed, never reused — it follows the issue across PRs, code moves, and spec copies.
 - Generate a SID: `~/agents/bin/sid.py` (fresh UUIDv4; pass an existing UUID as the argument to encode it).
-- Persisted artifacts always use the full ID: `# SUMMARY` lines, `open:` in `# META`, `<ID>.md` filenames, code comments, test names and descriptions, micro-specs, commit messages, PR descriptions, and `log.md` lines.
+- Persisted artifacts always use the full ID: `# SUMMARY` lines, `open:` in `# META`, `<ID>.md` filenames, code comments, test names and descriptions, tasking files, commit messages, PR descriptions, and `log.md` lines.
 - **The short form is chat-only. Never write a bare short ID into any file.** `// M6 fail-closed` in a comment or `it("... (M6) ...")` in a test is a violation — write `M6.4gCr6bv3SakoOzx2jPYIvo`. The moment an ID leaves the conversation and lands in a file, it carries its SID.
 - Humans may use the short form (`D4`) in chat. Resolve it against the current review directory and echo back the full ID. If the short form matches more than one issue, list the matching full IDs and ask.
 - Short numbers repeat across PRs and review directories — the SID is the identity. Match, dedupe, and cross-reference issues by SID, never by short number alone. `rg <SID> ~/reviews` locates an issue's home directory.
@@ -219,12 +219,12 @@ was not run.
 ### Process gates (verify artifacts exist)
 
 - [ ] **P1 Spec-with-matrix**: if the PR adds filters, permissions, gates, or
-  fallbacks — the spec contains the input-state × behavior table with absent
+  fallbacks — the spec, or the agent's tasking file, contains the input-state × behavior table with absent
   and present-but-empty as separate rows. No TBD cells. If absent, open as a
   finding.
 - [ ] **P2 Executable ACs**: every acceptance criterion names a test. Check
   that the named tests exist and pass. Prose-only ACs are a finding.
-- [ ] **P3 Anti-pattern catalog check**: the spec or PR description includes a
+- [ ] **P3 Anti-pattern catalog check**: the tasking file or PR description includes a
   pass/fail/N-A list against `anti-patterns/CHECKLIST.md`. If absent, run the
   check yourself and open findings for any hits.
 
@@ -244,7 +244,7 @@ was not run.
   test.
 - [ ] **C6 Only functional code**: every new symbol has a caller in the diff.
   No speculative fields, params, shims, or fallbacks without a current
-  consumer named in the spec.
+  consumer named in the spec or the tasking file.
 - [ ] **Cursor pagination**: any new paginated endpoint uses cursor-based
   pagination keyed on record ID, not offset/page-number.
 
