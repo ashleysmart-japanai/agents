@@ -1,0 +1,156 @@
+{
+  "schemaVersion": 2,
+  "id": "skill:decision-analysis-knowledge",
+  "title": "Decision Analysis",
+  "revision": 0,
+  "entities": [
+    {
+      "id": "wiki:analyst.decision-analysis",
+      "label": "Decision Analysis",
+      "type": "method",
+      "description": "# Decision Analysis\n\n- **Basis:** authored method guidance; validate suitability against the task evidence.\n- **Shared method:** [Analytical evidence and handoff](../methods/evidence-and-handoff.md).\n\n## Inputs\n\n- Options, feasible actions, uncertain states, probabilities if supported, outcome table, constraints, horizon, and decision-maker preferences.\n\n## Method\n\n- Include the status quo and identify infeasible or dominated options.\n- Use a consistent horizon and units across the payoff table.\n- Distinguish expected monetary value from expected utility and explicit risk constraints.\n- Use stated risk preferences rather than inventing weights or utility functions.\n- Evaluate expected outcomes, downside exposure, and regret where relevant.\n- Treat unsupported probabilities as scenario assumptions rather than calibrated forecasts.\n- Calculate break-even probabilities or costs to show when the ranking changes.\n- Bound the value of further information by expected value with perfect information minus the best current expected value.\n- Subtract information costs when judging whether research is worthwhile.\n- Keep a model-based recommendation distinct from the accountable person's decision.\n\n## Deliverable\n\n- Option table, assumptions, preferred action under stated preferences, downside and switching conditions, and whether further evidence is worth collecting.\n\n## Validation probe\n\n- For equal-probability states with payoffs A=(100,0) and B=(40,40), expected-value choice is A at 50 and perfect-information value is 20 before research costs.\n",
+      "properties": [
+        {
+          "key": "wiki_path",
+          "label": "wiki_path",
+          "dataType": "text",
+          "defaultValue": "reference/analyst/decision-analysis/index.md"
+        },
+        {
+          "key": "content_sha256",
+          "label": "content_sha256",
+          "dataType": "text",
+          "defaultValue": "178ab7717ceae546dd3c1909e3e81c54b003fc1179b0f9a418e116daf09b06d1"
+        },
+        {
+          "key": "evidence_pages",
+          "label": "evidence_pages",
+          "dataType": "json",
+          "defaultValue": [
+            "reference/analyst/methods/evidence-and-handoff.md"
+          ]
+        },
+        {
+          "key": "external",
+          "label": "external",
+          "dataType": "boolean",
+          "defaultValue": false
+        }
+      ],
+      "actions": [],
+      "x": 0,
+      "y": 1530,
+      "pinned": false
+    },
+    {
+      "id": "wiki:analyst.evidence",
+      "label": "Analytical Evidence and Handoff",
+      "type": "method",
+      "description": "# Analytical Evidence and Handoff\n\n- **Purpose:** support reproducible decisions from data without overstating what the evidence identifies.\n- **Decision:** record the question, owner, population, unit of analysis, time horizon, and decision threshold.\n- **Evidence:** record source paths or queries, extraction time, definitions, units, filters, and sample counts.\n- **Assumptions:** label observed facts, estimates, elicited assumptions, and unresolved inputs separately.\n- **Missing inputs:** ask for facts that change the method; use labeled illustrative inputs when a demonstration is requested.\n- **Integrity:** inspect missingness, duplication, measurement changes, selection bias, and dependence before modelling.\n- **Uncertainty:** distinguish outcome variability, parameter uncertainty, structural uncertainty, and numerical estimation error.\n- **Reproducibility:** retain executable analysis, input snapshot or reproducible query, parameters, software versions, and random seeds when applicable.\n- **Execution:** run the analysis before claiming numerical results; describe unexecuted work as a plan or illustration.\n- **Validation:** compare to a simple baseline or known result and check units, bounds, edge cases, and method-specific assumptions.\n- **Handoff:** provide the finding, supporting evidence, uncertainty, limitations, decision implications, and next useful evidence.\n- **Privacy:** keep identifiable records out of reusable skill references and generated knowledge graphs.\n- **Knowledge boundary:** retrieve method guidance from the selected analyst skill graph and its allowlisted reference pages.\n- **Task data:** analyze user-authorized datasets separately from the method knowledge graph.\n- **Graphify:** code-dependency analysis is a separate gated workflow; this curated graph is not a Graphify index.\n- **Provenance:** these methods are newly authored analytical guidance, not claims extracted from the DS/FDE training slides.\n",
+      "properties": [
+        {
+          "key": "wiki_path",
+          "label": "wiki_path",
+          "dataType": "text",
+          "defaultValue": "reference/analyst/methods/evidence-and-handoff.md"
+        },
+        {
+          "key": "content_sha256",
+          "label": "content_sha256",
+          "dataType": "text",
+          "defaultValue": "5352f6c59dcf4d3b58b1b907443a8da88790d70d4933ab1d09a343b0d293514f"
+        },
+        {
+          "key": "evidence_pages",
+          "label": "evidence_pages",
+          "dataType": "json",
+          "defaultValue": []
+        },
+        {
+          "key": "external",
+          "label": "external",
+          "dataType": "boolean",
+          "defaultValue": false
+        }
+      ],
+      "actions": [],
+      "x": 750,
+      "y": 1530,
+      "pinned": false
+    },
+    {
+      "id": "skill:decision-analysis",
+      "label": "Decision Analysis [skill]",
+      "type": "skill",
+      "description": "---\nname: decision-analysis\ndescription: \"Compare actions under uncertainty using expected outcomes, risk preferences, and the value of further information.\"\n---\n\n# Decision Analysis\n\n- **Read:** [Task method](../../../reference/analyst/decision-analysis/index.md).\n- **Read:** [Shared evidence and handoff rules](../../../reference/analyst/methods/evidence-and-handoff.md).\n- **Scope:** resolve the decision, population, units, horizon, and material missing inputs before calculating.\n- **Execute:** apply the linked method using the task data and available analysis tools.\n- **Verify:** run its validation probe or a task-specific equivalent before relying on the result.\n- **Deliver:** provide the method's stated outputs with reproducible evidence and limitations.\n- **Knowledge:** use [this skill's curated graph](../../../reference/analyst/knowladge_graph/decision-analysis.md) for reference navigation.\n- **Boundary:** raw datasets and broad code indexes are not default method knowledge.\n",
+      "properties": [
+        {
+          "key": "wiki_path",
+          "label": "wiki_path",
+          "dataType": "text",
+          "defaultValue": "skills/analyst/decision-analysis/SKILL.md"
+        },
+        {
+          "key": "content_sha256",
+          "label": "content_sha256",
+          "dataType": "text",
+          "defaultValue": "0f2bc84996d54c95547e1f316776b59be06bf0f6dd42c8ec3f2a24909c1faecd"
+        },
+        {
+          "key": "evidence_pages",
+          "label": "evidence_pages",
+          "dataType": "json",
+          "defaultValue": [
+            "reference/analyst/methods/evidence-and-handoff.md",
+            "reference/analyst/decision-analysis/index.md"
+          ]
+        },
+        {
+          "key": "external",
+          "label": "external",
+          "dataType": "boolean",
+          "defaultValue": false
+        }
+      ],
+      "actions": [],
+      "x": 1750,
+      "y": 1700,
+      "pinned": false
+    }
+  ],
+  "relationships": [
+    {
+      "id": "link:77194cfae89f2ad59984fd08",
+      "source": "wiki:analyst.decision-analysis",
+      "target": "wiki:analyst.evidence",
+      "label": "derived_from",
+      "properties": {
+        "source_page": "reference/analyst/decision-analysis/index.md",
+        "source_section": "Decision Analysis",
+        "target_fragment": ""
+      }
+    },
+    {
+      "id": "link:77d2d84545f4a5b0119b999b",
+      "source": "skill:decision-analysis",
+      "target": "wiki:analyst.decision-analysis",
+      "label": "derived_from",
+      "properties": {
+        "source_page": "skills/analyst/decision-analysis/SKILL.md",
+        "source_section": "Decision Analysis",
+        "target_fragment": ""
+      }
+    },
+    {
+      "id": "link:513078583a17e13c5ce9eb2e",
+      "source": "skill:decision-analysis",
+      "target": "wiki:analyst.evidence",
+      "label": "derived_from",
+      "properties": {
+        "source_page": "skills/analyst/decision-analysis/SKILL.md",
+        "source_section": "Decision Analysis",
+        "target_fragment": ""
+      }
+    }
+  ]
+}

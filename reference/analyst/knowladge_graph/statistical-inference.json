@@ -1,0 +1,156 @@
+{
+  "schemaVersion": 2,
+  "id": "skill:statistical-inference-knowledge",
+  "title": "Statistical Inference",
+  "revision": 0,
+  "entities": [
+    {
+      "id": "wiki:analyst.evidence",
+      "label": "Analytical Evidence and Handoff",
+      "type": "method",
+      "description": "# Analytical Evidence and Handoff\n\n- **Purpose:** support reproducible decisions from data without overstating what the evidence identifies.\n- **Decision:** record the question, owner, population, unit of analysis, time horizon, and decision threshold.\n- **Evidence:** record source paths or queries, extraction time, definitions, units, filters, and sample counts.\n- **Assumptions:** label observed facts, estimates, elicited assumptions, and unresolved inputs separately.\n- **Missing inputs:** ask for facts that change the method; use labeled illustrative inputs when a demonstration is requested.\n- **Integrity:** inspect missingness, duplication, measurement changes, selection bias, and dependence before modelling.\n- **Uncertainty:** distinguish outcome variability, parameter uncertainty, structural uncertainty, and numerical estimation error.\n- **Reproducibility:** retain executable analysis, input snapshot or reproducible query, parameters, software versions, and random seeds when applicable.\n- **Execution:** run the analysis before claiming numerical results; describe unexecuted work as a plan or illustration.\n- **Validation:** compare to a simple baseline or known result and check units, bounds, edge cases, and method-specific assumptions.\n- **Handoff:** provide the finding, supporting evidence, uncertainty, limitations, decision implications, and next useful evidence.\n- **Privacy:** keep identifiable records out of reusable skill references and generated knowledge graphs.\n- **Knowledge boundary:** retrieve method guidance from the selected analyst skill graph and its allowlisted reference pages.\n- **Task data:** analyze user-authorized datasets separately from the method knowledge graph.\n- **Graphify:** code-dependency analysis is a separate gated workflow; this curated graph is not a Graphify index.\n- **Provenance:** these methods are newly authored analytical guidance, not claims extracted from the DS/FDE training slides.\n",
+      "properties": [
+        {
+          "key": "wiki_path",
+          "label": "wiki_path",
+          "dataType": "text",
+          "defaultValue": "reference/analyst/methods/evidence-and-handoff.md"
+        },
+        {
+          "key": "content_sha256",
+          "label": "content_sha256",
+          "dataType": "text",
+          "defaultValue": "5352f6c59dcf4d3b58b1b907443a8da88790d70d4933ab1d09a343b0d293514f"
+        },
+        {
+          "key": "evidence_pages",
+          "label": "evidence_pages",
+          "dataType": "json",
+          "defaultValue": []
+        },
+        {
+          "key": "external",
+          "label": "external",
+          "dataType": "boolean",
+          "defaultValue": false
+        }
+      ],
+      "actions": [],
+      "x": 750,
+      "y": 1530,
+      "pinned": false
+    },
+    {
+      "id": "wiki:analyst.statistical-inference",
+      "label": "Statistical Inference",
+      "type": "method",
+      "description": "# Statistical Inference\n\n- **Basis:** authored method guidance; validate suitability against the task evidence.\n- **Shared method:** [Analytical evidence and handoff](../methods/evidence-and-handoff.md).\n\n## Inputs\n\n- Estimand, population, sampling mechanism, observational unit, dependence structure, sample, and practical effect threshold.\n\n## Method\n\n- Define the estimand and hypothesis before choosing a test.\n- Identify paired, clustered, repeated, or time-dependent observations.\n- Check sampling bias and measurement limitations that uncertainty intervals cannot fix.\n- Choose a model or resampling method compatible with the data and sampling design.\n- Report effect size and uncertainty in meaningful units alongside any p-value.\n- Distinguish confidence intervals, prediction intervals, and Bayesian credible intervals.\n- Account for multiple comparisons and exploratory selection when interpreting evidence.\n- Do not treat a non-significant result as proof of equality; use an appropriate equivalence design for that claim.\n- Check robustness to influential observations and plausible modelling choices.\n\n## Deliverable\n\n- Estimand, method justification, effect and interval, assumptions, diagnostic evidence, and practical interpretation.\n\n## Validation probe\n\n- Repeated observations from the same person should use the person-level dependence structure rather than falsely treating every row as independent.\n",
+      "properties": [
+        {
+          "key": "wiki_path",
+          "label": "wiki_path",
+          "dataType": "text",
+          "defaultValue": "reference/analyst/statistical-inference/index.md"
+        },
+        {
+          "key": "content_sha256",
+          "label": "content_sha256",
+          "dataType": "text",
+          "defaultValue": "37c236f19862aa15efec9382e99027a508c733bdd912b96d3a74fe9adf3d0ee6"
+        },
+        {
+          "key": "evidence_pages",
+          "label": "evidence_pages",
+          "dataType": "json",
+          "defaultValue": [
+            "reference/analyst/methods/evidence-and-handoff.md"
+          ]
+        },
+        {
+          "key": "external",
+          "label": "external",
+          "dataType": "boolean",
+          "defaultValue": false
+        }
+      ],
+      "actions": [],
+      "x": 250,
+      "y": 1700,
+      "pinned": false
+    },
+    {
+      "id": "skill:statistical-inference",
+      "label": "Statistical Inference [skill]",
+      "type": "skill",
+      "description": "---\nname: statistical-inference\ndescription: \"Estimate population effects and uncertainty or test a specified statistical hypothesis from sampled data.\"\n---\n\n# Statistical Inference\n\n- **Read:** [Task method](../../../reference/analyst/statistical-inference/index.md).\n- **Read:** [Shared evidence and handoff rules](../../../reference/analyst/methods/evidence-and-handoff.md).\n- **Scope:** resolve the decision, population, units, horizon, and material missing inputs before calculating.\n- **Execute:** apply the linked method using the task data and available analysis tools.\n- **Verify:** run its validation probe or a task-specific equivalent before relying on the result.\n- **Deliver:** provide the method's stated outputs with reproducible evidence and limitations.\n- **Knowledge:** use [this skill's curated graph](../../../reference/analyst/knowladge_graph/statistical-inference.md) for reference navigation.\n- **Boundary:** raw datasets and broad code indexes are not default method knowledge.\n",
+      "properties": [
+        {
+          "key": "wiki_path",
+          "label": "wiki_path",
+          "dataType": "text",
+          "defaultValue": "skills/analyst/statistical-inference/SKILL.md"
+        },
+        {
+          "key": "content_sha256",
+          "label": "content_sha256",
+          "dataType": "text",
+          "defaultValue": "927e4f786196ec522fc0d47a0d2a85e4cb502c87c2177244024e549fb43fcf8a"
+        },
+        {
+          "key": "evidence_pages",
+          "label": "evidence_pages",
+          "dataType": "json",
+          "defaultValue": [
+            "reference/analyst/methods/evidence-and-handoff.md",
+            "reference/analyst/statistical-inference/index.md"
+          ]
+        },
+        {
+          "key": "external",
+          "label": "external",
+          "dataType": "boolean",
+          "defaultValue": false
+        }
+      ],
+      "actions": [],
+      "x": 1500,
+      "y": 1870,
+      "pinned": false
+    }
+  ],
+  "relationships": [
+    {
+      "id": "link:72faf93018ec4f937559c4cc",
+      "source": "wiki:analyst.statistical-inference",
+      "target": "wiki:analyst.evidence",
+      "label": "derived_from",
+      "properties": {
+        "source_page": "reference/analyst/statistical-inference/index.md",
+        "source_section": "Statistical Inference",
+        "target_fragment": ""
+      }
+    },
+    {
+      "id": "link:7b91af72f36ca3bb4f213be6",
+      "source": "skill:statistical-inference",
+      "target": "wiki:analyst.evidence",
+      "label": "derived_from",
+      "properties": {
+        "source_page": "skills/analyst/statistical-inference/SKILL.md",
+        "source_section": "Statistical Inference",
+        "target_fragment": ""
+      }
+    },
+    {
+      "id": "link:621fff88ed1dd9f2230b6516",
+      "source": "skill:statistical-inference",
+      "target": "wiki:analyst.statistical-inference",
+      "label": "derived_from",
+      "properties": {
+        "source_page": "skills/analyst/statistical-inference/SKILL.md",
+        "source_section": "Statistical Inference",
+        "target_fragment": ""
+      }
+    }
+  ]
+}

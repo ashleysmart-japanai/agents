@@ -1,0 +1,156 @@
+{
+  "schemaVersion": 2,
+  "id": "skill:predictive-modelling-knowledge",
+  "title": "Regression and Predictive Modelling",
+  "revision": 0,
+  "entities": [
+    {
+      "id": "wiki:analyst.evidence",
+      "label": "Analytical Evidence and Handoff",
+      "type": "method",
+      "description": "# Analytical Evidence and Handoff\n\n- **Purpose:** support reproducible decisions from data without overstating what the evidence identifies.\n- **Decision:** record the question, owner, population, unit of analysis, time horizon, and decision threshold.\n- **Evidence:** record source paths or queries, extraction time, definitions, units, filters, and sample counts.\n- **Assumptions:** label observed facts, estimates, elicited assumptions, and unresolved inputs separately.\n- **Missing inputs:** ask for facts that change the method; use labeled illustrative inputs when a demonstration is requested.\n- **Integrity:** inspect missingness, duplication, measurement changes, selection bias, and dependence before modelling.\n- **Uncertainty:** distinguish outcome variability, parameter uncertainty, structural uncertainty, and numerical estimation error.\n- **Reproducibility:** retain executable analysis, input snapshot or reproducible query, parameters, software versions, and random seeds when applicable.\n- **Execution:** run the analysis before claiming numerical results; describe unexecuted work as a plan or illustration.\n- **Validation:** compare to a simple baseline or known result and check units, bounds, edge cases, and method-specific assumptions.\n- **Handoff:** provide the finding, supporting evidence, uncertainty, limitations, decision implications, and next useful evidence.\n- **Privacy:** keep identifiable records out of reusable skill references and generated knowledge graphs.\n- **Knowledge boundary:** retrieve method guidance from the selected analyst skill graph and its allowlisted reference pages.\n- **Task data:** analyze user-authorized datasets separately from the method knowledge graph.\n- **Graphify:** code-dependency analysis is a separate gated workflow; this curated graph is not a Graphify index.\n- **Provenance:** these methods are newly authored analytical guidance, not claims extracted from the DS/FDE training slides.\n",
+      "properties": [
+        {
+          "key": "wiki_path",
+          "label": "wiki_path",
+          "dataType": "text",
+          "defaultValue": "reference/analyst/methods/evidence-and-handoff.md"
+        },
+        {
+          "key": "content_sha256",
+          "label": "content_sha256",
+          "dataType": "text",
+          "defaultValue": "5352f6c59dcf4d3b58b1b907443a8da88790d70d4933ab1d09a343b0d293514f"
+        },
+        {
+          "key": "evidence_pages",
+          "label": "evidence_pages",
+          "dataType": "json",
+          "defaultValue": []
+        },
+        {
+          "key": "external",
+          "label": "external",
+          "dataType": "boolean",
+          "defaultValue": false
+        }
+      ],
+      "actions": [],
+      "x": 750,
+      "y": 1530,
+      "pinned": false
+    },
+    {
+      "id": "wiki:analyst.predictive-modelling",
+      "label": "Regression and Predictive Modelling",
+      "type": "method",
+      "description": "# Regression and Predictive Modelling\n\n- **Basis:** authored method guidance; validate suitability against the task evidence.\n- **Shared method:** [Analytical evidence and handoff](../methods/evidence-and-handoff.md).\n\n## Inputs\n\n- Target, prediction time, row or entity grain, features available at prediction, sample, error costs, and deployment population.\n\n## Method\n\n- Define the prediction event and prevent target or future-information leakage.\n- Split by time, group, or entity according to the intended use.\n- Fit preprocessing and feature selection inside training folds.\n- Establish a simple baseline before tuning complex models.\n- Choose metrics aligned with imbalance and decision costs.\n- Use validation data for tuning and keep final test data untouched until model selection is complete.\n- Inspect residuals or calibration and performance across meaningful subgroups.\n- Report uncertainty or prediction intervals when appropriate.\n- Distinguish coefficient associations and feature importance from causal effects.\n- Identify unsupported extrapolation and distribution shifts.\n\n## Deliverable\n\n- Reproducible model pipeline, feature contract, baseline comparison, held-out results, calibration or residual diagnostics, and use limitations.\n\n## Validation probe\n\n- A feature recorded after the target event should be excluded even if it sharply improves validation accuracy.\n",
+      "properties": [
+        {
+          "key": "wiki_path",
+          "label": "wiki_path",
+          "dataType": "text",
+          "defaultValue": "reference/analyst/predictive-modelling/index.md"
+        },
+        {
+          "key": "content_sha256",
+          "label": "content_sha256",
+          "dataType": "text",
+          "defaultValue": "8fcb210c34973b514b9e41a05f132899a6f7470f53b5996a473d4734216b569f"
+        },
+        {
+          "key": "evidence_pages",
+          "label": "evidence_pages",
+          "dataType": "json",
+          "defaultValue": [
+            "reference/analyst/methods/evidence-and-handoff.md"
+          ]
+        },
+        {
+          "key": "external",
+          "label": "external",
+          "dataType": "boolean",
+          "defaultValue": false
+        }
+      ],
+      "actions": [],
+      "x": 1500,
+      "y": 1530,
+      "pinned": false
+    },
+    {
+      "id": "skill:predictive-modelling",
+      "label": "Regression and Predictive Modelling [skill]",
+      "type": "skill",
+      "description": "---\nname: predictive-modelling\ndescription: \"Build and evaluate regression or classification models for prediction; use for supervised outcomes rather than causal-effect claims.\"\n---\n\n# Regression and Predictive Modelling\n\n- **Read:** [Task method](../../../reference/analyst/predictive-modelling/index.md).\n- **Read:** [Shared evidence and handoff rules](../../../reference/analyst/methods/evidence-and-handoff.md).\n- **Scope:** resolve the decision, population, units, horizon, and material missing inputs before calculating.\n- **Execute:** apply the linked method using the task data and available analysis tools.\n- **Verify:** run its validation probe or a task-specific equivalent before relying on the result.\n- **Deliver:** provide the method's stated outputs with reproducible evidence and limitations.\n- **Knowledge:** use [this skill's curated graph](../../../reference/analyst/knowladge_graph/predictive-modelling.md) for reference navigation.\n- **Boundary:** raw datasets and broad code indexes are not default method knowledge.\n",
+      "properties": [
+        {
+          "key": "wiki_path",
+          "label": "wiki_path",
+          "dataType": "text",
+          "defaultValue": "skills/analyst/predictive-modelling/SKILL.md"
+        },
+        {
+          "key": "content_sha256",
+          "label": "content_sha256",
+          "dataType": "text",
+          "defaultValue": "19e7428aa56cf66fa7d99d34fa3642c74bfed20581dfc936c0c3cea49d19e7ff"
+        },
+        {
+          "key": "evidence_pages",
+          "label": "evidence_pages",
+          "dataType": "json",
+          "defaultValue": [
+            "reference/analyst/methods/evidence-and-handoff.md",
+            "reference/analyst/predictive-modelling/index.md"
+          ]
+        },
+        {
+          "key": "external",
+          "label": "external",
+          "dataType": "boolean",
+          "defaultValue": false
+        }
+      ],
+      "actions": [],
+      "x": 500,
+      "y": 1870,
+      "pinned": false
+    }
+  ],
+  "relationships": [
+    {
+      "id": "link:26a620dff7ee2c122bf9be7f",
+      "source": "wiki:analyst.predictive-modelling",
+      "target": "wiki:analyst.evidence",
+      "label": "derived_from",
+      "properties": {
+        "source_page": "reference/analyst/predictive-modelling/index.md",
+        "source_section": "Regression and Predictive Modelling",
+        "target_fragment": ""
+      }
+    },
+    {
+      "id": "link:95f37d1cc2502ed9ce3561c7",
+      "source": "skill:predictive-modelling",
+      "target": "wiki:analyst.evidence",
+      "label": "derived_from",
+      "properties": {
+        "source_page": "skills/analyst/predictive-modelling/SKILL.md",
+        "source_section": "Regression and Predictive Modelling",
+        "target_fragment": ""
+      }
+    },
+    {
+      "id": "link:0fa5c2c8366bb93fe6b22886",
+      "source": "skill:predictive-modelling",
+      "target": "wiki:analyst.predictive-modelling",
+      "label": "derived_from",
+      "properties": {
+        "source_page": "skills/analyst/predictive-modelling/SKILL.md",
+        "source_section": "Regression and Predictive Modelling",
+        "target_fragment": ""
+      }
+    }
+  ]
+}

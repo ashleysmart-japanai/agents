@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Build portable FDE / DS knowledge graphs and Markdown diagrams (standard library)."""
+"""Build portable FDE / DS / analyst knowledge graphs and Markdown diagrams (standard library)."""
 import argparse
 import hashlib
 import json
@@ -10,7 +10,8 @@ import sys
 from urllib.parse import unquote, urlsplit
 
 PAYLOAD = Path(__file__).resolve().parents[1]
-MANIFESTS = [Path('reference') / track / 'knowladge_graph/manifest.json' for track in ['fde','ds']]
+TRACKS = ['fde', 'ds', 'analyst']
+MANIFESTS = [Path('reference') / track / 'knowladge_graph/manifest.json' for track in TRACKS]
 LINK = re.compile(r'\[[^\]\n]+\]\(([^)\n]+)\)')
 
 
@@ -42,6 +43,10 @@ def read_manifest(payload):
         raise ValueError('Unsupported wiki manifest')
     ids, paths = set(), set()
     for page in data['pages']:
+        if page.get('track') == 'analyst':
+            prefix = 'skills/analyst/' if page['type'] == 'skill' else 'reference/analyst/'
+            if not page['path'].startswith(prefix) or '/source/' in page['path'] or '/knowladge_graph/' in page['path']:
+                raise ValueError(f"Outside analyst knowledge boundary: {page['path']}")
         if page['id'] in ids or page['path'] in paths:
             raise ValueError('Duplicate wiki page identity or path')
         ids.add(page['id']); paths.add(page['path'])
@@ -83,6 +88,8 @@ def project(payload=PAYLOAD, agents_root=None):
                 continue  # Generated navigation is not a knowledge-input dependency.
             if '/source/' in target:
                 raise ValueError(f'Operational page links undigested source material: {source}')
+            if page.get('track') == 'analyst' and (target not in pages or pages[target].get('track') != 'analyst'):
+                raise ValueError(f'Outside analyst knowledge boundary: {source} -> {target}')
             destination = checked_path(payload, target)
             if target not in pages:
                 if destination.is_file():
@@ -100,7 +107,7 @@ def project(payload=PAYLOAD, agents_root=None):
                     raise ValueError(f'Broken anchor in {source}: {target}#{fragment}')
             links.append((source, target, fragment, section))
     entities = []
-    for index, (relative, page) in enumerate(sorted(pages.items())):
+    for index, (relative, page) in enumerate(sorted(pages.items(), key=lambda item: (item[1].get('track') == 'analyst', item[0]))):
         external = page.get('external', False)
         file = checked_path((agents_root or payload) if external else payload, relative)
         sha = digest(file)
@@ -116,7 +123,7 @@ def project(payload=PAYLOAD, agents_root=None):
         identity = json.dumps([pages[source]['id'], pages[target]['id'], fragment, section], ensure_ascii=False)
         edges.append(dict(id='link:'+hashlib.sha256(identity.encode()).hexdigest()[:24],source=pages[source]['id'],target=pages[target]['id'],label=label,
                           properties=dict(source_page=source,source_section=section,target_fragment=fragment)))
-    graph = dict(schemaVersion=2,id='deployment-knowledge',title='FDE / DS work tools',revision=0,entities=entities,relationships=edges)
+    graph = dict(schemaVersion=2,id='deployment-knowledge',title='FDE / DS / analyst work tools',revision=0,entities=entities,relationships=edges)
     subgraphs = {}
     for page in manifest['pages']:
         if page['type'] != 'skill':
@@ -168,7 +175,7 @@ def graph_markdown(graph, path):
 def build(payload=PAYLOAD, agents_root=None):
     graph, subgraphs = project(payload, agents_root)
     pages = read_manifest(payload)['pages']
-    for track in ['fde','ds']:
+    for track in TRACKS:
         directory = Path('reference') / track / 'knowladge_graph'
         checked_path(payload,directory).mkdir(parents=True,exist_ok=True)
         selected = {p['id'].removeprefix('skill:'):subgraphs[p['id'].removeprefix('skill:')] for p in pages if p['type']=='skill' and (p['track']==track or track in p.get('roles',[]))}
@@ -176,7 +183,7 @@ def build(payload=PAYLOAD, agents_root=None):
         for name,value in values.items():
             relative = directory / (name+'.json')
             checked_path(payload,relative).write_text(json.dumps(value,ensure_ascii=False,indent=2)+'\n')
-            if name != track:
+            if name in selected:
                 md = directory / (name+'.md')
                 checked_path(payload,md).write_text(graph_markdown(value,md))
         overview = values[track]
@@ -185,7 +192,7 @@ def build(payload=PAYLOAD, agents_root=None):
         text = '# '+track.upper()+' knowledge graph\n\n- **Rebuild:** run `python3 scripts/build_knowledge_graphs.py` from the repository root.\n- **Validate:** run `python3 scripts/build_knowledge_graphs.py --check`.\n- **Overview:** a compact map of tools, skills, and digested methods.\n- **Full graph:** ['+track+'.json]('+track+'.json).\n- **Source boundary:** background slide and note archives are not default skill knowledge.\n\n'+mermaid(small)+'\n\n## Skill graphs\n\n'
         text += '\n'.join('- ['+name+']('+name+'.md).' for name in sorted(selected))+'\n'
         checked_path(payload,directory/'README.md').write_text(text)
-    return dict(pages=len(graph['entities']),links=len(graph['relationships']),skillGraphs=len(subgraphs),trackGraphs=2)
+    return dict(pages=len(graph['entities']),links=len(graph['relationships']),skillGraphs=len(subgraphs),trackGraphs=len(TRACKS))
 
 
 def main():

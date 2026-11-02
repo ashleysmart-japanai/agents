@@ -1,0 +1,156 @@
+{
+  "schemaVersion": 2,
+  "id": "skill:causal-analysis-knowledge",
+  "title": "Causal Analysis",
+  "revision": 0,
+  "entities": [
+    {
+      "id": "wiki:analyst.causal-analysis",
+      "label": "Causal Analysis",
+      "type": "method",
+      "description": "# Causal Analysis\n\n- **Basis:** authored method guidance; validate suitability against the task evidence.\n- **Shared method:** [Analytical evidence and handoff](../methods/evidence-and-handoff.md).\n\n## Inputs\n\n- Treatment, outcome, target population, causal estimand, timing, assignment mechanism, potential confounders, and data.\n\n## Method\n\n- Draw the causal assumptions and time ordering before selecting adjustment variables.\n- Distinguish prediction from identification of an intervention effect.\n- Prefer randomized evidence where available; otherwise justify the observational design.\n- State assumptions such as exchangeability, overlap, consistency, and limited interference where relevant.\n- Avoid adjusting for colliders or post-treatment variables when estimating a total effect.\n- For difference-in-differences, investigate pre-trends and treatment timing; a non-significant pre-trend test does not prove parallel trends.\n- For instrumental variables or discontinuity designs, state their specific identifying assumptions and applicable population.\n- Assess overlap, balance, uncertainty, placebo tests, and sensitivity to unmeasured confounding as appropriate.\n- Downgrade conclusions when the design cannot separate intervention effects from competing causes.\n\n## Deliverable\n\n- Causal question, assumption diagram, identification argument, effect with uncertainty, diagnostics, and explicit limits on causal interpretation.\n\n## Validation probe\n\n- A simple before/after change with a simultaneous external shock should not be reported as an identified treatment effect.\n",
+      "properties": [
+        {
+          "key": "wiki_path",
+          "label": "wiki_path",
+          "dataType": "text",
+          "defaultValue": "reference/analyst/causal-analysis/index.md"
+        },
+        {
+          "key": "content_sha256",
+          "label": "content_sha256",
+          "dataType": "text",
+          "defaultValue": "f9ba55558fafb77be4e18a9b12e20e32657481943f27786179e2c0fe06e342ff"
+        },
+        {
+          "key": "evidence_pages",
+          "label": "evidence_pages",
+          "dataType": "json",
+          "defaultValue": [
+            "reference/analyst/methods/evidence-and-handoff.md"
+          ]
+        },
+        {
+          "key": "external",
+          "label": "external",
+          "dataType": "boolean",
+          "defaultValue": false
+        }
+      ],
+      "actions": [],
+      "x": 1750,
+      "y": 1360,
+      "pinned": false
+    },
+    {
+      "id": "wiki:analyst.evidence",
+      "label": "Analytical Evidence and Handoff",
+      "type": "method",
+      "description": "# Analytical Evidence and Handoff\n\n- **Purpose:** support reproducible decisions from data without overstating what the evidence identifies.\n- **Decision:** record the question, owner, population, unit of analysis, time horizon, and decision threshold.\n- **Evidence:** record source paths or queries, extraction time, definitions, units, filters, and sample counts.\n- **Assumptions:** label observed facts, estimates, elicited assumptions, and unresolved inputs separately.\n- **Missing inputs:** ask for facts that change the method; use labeled illustrative inputs when a demonstration is requested.\n- **Integrity:** inspect missingness, duplication, measurement changes, selection bias, and dependence before modelling.\n- **Uncertainty:** distinguish outcome variability, parameter uncertainty, structural uncertainty, and numerical estimation error.\n- **Reproducibility:** retain executable analysis, input snapshot or reproducible query, parameters, software versions, and random seeds when applicable.\n- **Execution:** run the analysis before claiming numerical results; describe unexecuted work as a plan or illustration.\n- **Validation:** compare to a simple baseline or known result and check units, bounds, edge cases, and method-specific assumptions.\n- **Handoff:** provide the finding, supporting evidence, uncertainty, limitations, decision implications, and next useful evidence.\n- **Privacy:** keep identifiable records out of reusable skill references and generated knowledge graphs.\n- **Knowledge boundary:** retrieve method guidance from the selected analyst skill graph and its allowlisted reference pages.\n- **Task data:** analyze user-authorized datasets separately from the method knowledge graph.\n- **Graphify:** code-dependency analysis is a separate gated workflow; this curated graph is not a Graphify index.\n- **Provenance:** these methods are newly authored analytical guidance, not claims extracted from the DS/FDE training slides.\n",
+      "properties": [
+        {
+          "key": "wiki_path",
+          "label": "wiki_path",
+          "dataType": "text",
+          "defaultValue": "reference/analyst/methods/evidence-and-handoff.md"
+        },
+        {
+          "key": "content_sha256",
+          "label": "content_sha256",
+          "dataType": "text",
+          "defaultValue": "5352f6c59dcf4d3b58b1b907443a8da88790d70d4933ab1d09a343b0d293514f"
+        },
+        {
+          "key": "evidence_pages",
+          "label": "evidence_pages",
+          "dataType": "json",
+          "defaultValue": []
+        },
+        {
+          "key": "external",
+          "label": "external",
+          "dataType": "boolean",
+          "defaultValue": false
+        }
+      ],
+      "actions": [],
+      "x": 750,
+      "y": 1530,
+      "pinned": false
+    },
+    {
+      "id": "skill:causal-analysis",
+      "label": "Causal Analysis [skill]",
+      "type": "skill",
+      "description": "---\nname: causal-analysis\ndescription: \"Evaluate whether an intervention caused an outcome using a defensible experimental or observational identification strategy.\"\n---\n\n# Causal Analysis\n\n- **Read:** [Task method](../../../reference/analyst/causal-analysis/index.md).\n- **Read:** [Shared evidence and handoff rules](../../../reference/analyst/methods/evidence-and-handoff.md).\n- **Scope:** resolve the decision, population, units, horizon, and material missing inputs before calculating.\n- **Execute:** apply the linked method using the task data and available analysis tools.\n- **Verify:** run its validation probe or a task-specific equivalent before relying on the result.\n- **Deliver:** provide the method's stated outputs with reproducible evidence and limitations.\n- **Knowledge:** use [this skill's curated graph](../../../reference/analyst/knowladge_graph/causal-analysis.md) for reference navigation.\n- **Boundary:** raw datasets and broad code indexes are not default method knowledge.\n",
+      "properties": [
+        {
+          "key": "wiki_path",
+          "label": "wiki_path",
+          "dataType": "text",
+          "defaultValue": "skills/analyst/causal-analysis/SKILL.md"
+        },
+        {
+          "key": "content_sha256",
+          "label": "content_sha256",
+          "dataType": "text",
+          "defaultValue": "d047218c2b2dd0535c2432c2cc0f2436fef8ec822e2dda16e6d92c8e8311b135"
+        },
+        {
+          "key": "evidence_pages",
+          "label": "evidence_pages",
+          "dataType": "json",
+          "defaultValue": [
+            "reference/analyst/methods/evidence-and-handoff.md",
+            "reference/analyst/causal-analysis/index.md"
+          ]
+        },
+        {
+          "key": "external",
+          "label": "external",
+          "dataType": "boolean",
+          "defaultValue": false
+        }
+      ],
+      "actions": [],
+      "x": 1000,
+      "y": 1700,
+      "pinned": false
+    }
+  ],
+  "relationships": [
+    {
+      "id": "link:3ca471d600e40e10447fd9df",
+      "source": "wiki:analyst.causal-analysis",
+      "target": "wiki:analyst.evidence",
+      "label": "derived_from",
+      "properties": {
+        "source_page": "reference/analyst/causal-analysis/index.md",
+        "source_section": "Causal Analysis",
+        "target_fragment": ""
+      }
+    },
+    {
+      "id": "link:782d47ed5b5dfb82a1538317",
+      "source": "skill:causal-analysis",
+      "target": "wiki:analyst.causal-analysis",
+      "label": "derived_from",
+      "properties": {
+        "source_page": "skills/analyst/causal-analysis/SKILL.md",
+        "source_section": "Causal Analysis",
+        "target_fragment": ""
+      }
+    },
+    {
+      "id": "link:d1f1cc3a87450795c1a75e2b",
+      "source": "skill:causal-analysis",
+      "target": "wiki:analyst.evidence",
+      "label": "derived_from",
+      "properties": {
+        "source_page": "skills/analyst/causal-analysis/SKILL.md",
+        "source_section": "Causal Analysis",
+        "target_fragment": ""
+      }
+    }
+  ]
+}

@@ -1,0 +1,2004 @@
+{
+  "schemaVersion": 2,
+  "id": "skill:analyst-knowledge",
+  "title": "Analyst / Data Scientist",
+  "revision": 0,
+  "entities": [
+    {
+      "id": "wiki:analyst.causal-analysis",
+      "label": "Causal Analysis",
+      "type": "method",
+      "description": "# Causal Analysis\n\n- **Basis:** authored method guidance; validate suitability against the task evidence.\n- **Shared method:** [Analytical evidence and handoff](../methods/evidence-and-handoff.md).\n\n## Inputs\n\n- Treatment, outcome, target population, causal estimand, timing, assignment mechanism, potential confounders, and data.\n\n## Method\n\n- Draw the causal assumptions and time ordering before selecting adjustment variables.\n- Distinguish prediction from identification of an intervention effect.\n- Prefer randomized evidence where available; otherwise justify the observational design.\n- State assumptions such as exchangeability, overlap, consistency, and limited interference where relevant.\n- Avoid adjusting for colliders or post-treatment variables when estimating a total effect.\n- For difference-in-differences, investigate pre-trends and treatment timing; a non-significant pre-trend test does not prove parallel trends.\n- For instrumental variables or discontinuity designs, state their specific identifying assumptions and applicable population.\n- Assess overlap, balance, uncertainty, placebo tests, and sensitivity to unmeasured confounding as appropriate.\n- Downgrade conclusions when the design cannot separate intervention effects from competing causes.\n\n## Deliverable\n\n- Causal question, assumption diagram, identification argument, effect with uncertainty, diagnostics, and explicit limits on causal interpretation.\n\n## Validation probe\n\n- A simple before/after change with a simultaneous external shock should not be reported as an identified treatment effect.\n",
+      "properties": [
+        {
+          "key": "wiki_path",
+          "label": "wiki_path",
+          "dataType": "text",
+          "defaultValue": "reference/analyst/causal-analysis/index.md"
+        },
+        {
+          "key": "content_sha256",
+          "label": "content_sha256",
+          "dataType": "text",
+          "defaultValue": "f9ba55558fafb77be4e18a9b12e20e32657481943f27786179e2c0fe06e342ff"
+        },
+        {
+          "key": "evidence_pages",
+          "label": "evidence_pages",
+          "dataType": "json",
+          "defaultValue": [
+            "reference/analyst/methods/evidence-and-handoff.md"
+          ]
+        },
+        {
+          "key": "external",
+          "label": "external",
+          "dataType": "boolean",
+          "defaultValue": false
+        }
+      ],
+      "actions": [],
+      "x": 1750,
+      "y": 1360,
+      "pinned": false
+    },
+    {
+      "id": "wiki:analyst.data-quality",
+      "label": "Data Quality Assessment",
+      "type": "method",
+      "description": "# Data Quality Assessment\n\n- **Basis:** authored method guidance; validate suitability against the task evidence.\n- **Shared method:** [Analytical evidence and handoff](../methods/evidence-and-handoff.md).\n\n## Inputs\n\n- Data snapshot, row grain, keys, schema, intended use, accepted ranges, and quality tolerances.\n\n## Method\n\n- Identify the unit represented by one row before counting duplicates or joining tables.\n- Profile nulls, invalid types, uniqueness, ranges, freshness, and category coverage by relevant cohort.\n- Distinguish absent, zero, not applicable, censored, and unrecorded values.\n- Check join cardinality and referential integrity before interpreting aggregated results.\n- Compare distributions across time and collection sources to detect instrumentation changes.\n- Investigate missingness mechanisms before choosing deletion or imputation.\n- Keep the raw data unchanged; propose transformations with before/after counts.\n- Prioritize defects by their effect on the intended decision rather than a universal quality score.\n\n## Deliverable\n\n- Quality report with affected counts and denominators, source locations, decision impact, proposed fixes, and remaining coverage gaps.\n\n## Validation probe\n\n- A fixture with duplicated keys and a one-to-many join should expose both duplicate records and inflated joined totals.\n",
+      "properties": [
+        {
+          "key": "wiki_path",
+          "label": "wiki_path",
+          "dataType": "text",
+          "defaultValue": "reference/analyst/data-quality/index.md"
+        },
+        {
+          "key": "content_sha256",
+          "label": "content_sha256",
+          "dataType": "text",
+          "defaultValue": "6c56bb2a60de10f58da4bad55044fb2416892cac935dbdd6996d9444a949c1e5"
+        },
+        {
+          "key": "evidence_pages",
+          "label": "evidence_pages",
+          "dataType": "json",
+          "defaultValue": [
+            "reference/analyst/methods/evidence-and-handoff.md"
+          ]
+        },
+        {
+          "key": "external",
+          "label": "external",
+          "dataType": "boolean",
+          "defaultValue": false
+        }
+      ],
+      "actions": [],
+      "x": 2000,
+      "y": 1360,
+      "pinned": false
+    },
+    {
+      "id": "wiki:analyst.data-visualization",
+      "label": "Data Visualization and Reporting",
+      "type": "method",
+      "description": "# Data Visualization and Reporting\n\n- **Basis:** authored method guidance; validate suitability against the task evidence.\n- **Shared method:** [Analytical evidence and handoff](../methods/evidence-and-handoff.md).\n\n## Inputs\n\n- Audience, decision, data or validated analysis, metric definitions, denominators, units, time period, and uncertainty.\n\n## Method\n\n- Select a chart for the comparison, trend, distribution, relationship, or uncertainty being communicated.\n- Preserve meaningful baselines; disclose truncated or logarithmic axes.\n- Label units, population, time range, denominators, and data source.\n- Show uncertainty and missing data when they affect interpretation.\n- Use consistent scales and comparable aggregation across groups.\n- Avoid causal titles for observational relationships.\n- Use accessible labels and avoid relying on colour alone.\n- Use standard plotting tools for exportable figures; provide a standalone chart and underlying summary table.\n- Lead the brief with the decision-relevant finding and its limits.\n- Keep observed findings separate from assumptions and proposed actions.\n\n## Deliverable\n\n- Annotated charts or tables, accessible captions, source and metric definitions, and a concise evidence-based decision brief.\n\n## Validation probe\n\n- Compare groups with different sample sizes using explicit denominators; a bar chart with a truncated axis should be corrected or clearly justified.\n",
+      "properties": [
+        {
+          "key": "wiki_path",
+          "label": "wiki_path",
+          "dataType": "text",
+          "defaultValue": "reference/analyst/data-visualization/index.md"
+        },
+        {
+          "key": "content_sha256",
+          "label": "content_sha256",
+          "dataType": "text",
+          "defaultValue": "dd7f5709c6393ee209c9a455266d1cc6fcf8b7ebdb778bba619c972c1aee6e1f"
+        },
+        {
+          "key": "evidence_pages",
+          "label": "evidence_pages",
+          "dataType": "json",
+          "defaultValue": [
+            "reference/analyst/methods/evidence-and-handoff.md"
+          ]
+        },
+        {
+          "key": "external",
+          "label": "external",
+          "dataType": "boolean",
+          "defaultValue": false
+        }
+      ],
+      "actions": [],
+      "x": 2250,
+      "y": 1360,
+      "pinned": false
+    },
+    {
+      "id": "wiki:analyst.decision-analysis",
+      "label": "Decision Analysis",
+      "type": "method",
+      "description": "# Decision Analysis\n\n- **Basis:** authored method guidance; validate suitability against the task evidence.\n- **Shared method:** [Analytical evidence and handoff](../methods/evidence-and-handoff.md).\n\n## Inputs\n\n- Options, feasible actions, uncertain states, probabilities if supported, outcome table, constraints, horizon, and decision-maker preferences.\n\n## Method\n\n- Include the status quo and identify infeasible or dominated options.\n- Use a consistent horizon and units across the payoff table.\n- Distinguish expected monetary value from expected utility and explicit risk constraints.\n- Use stated risk preferences rather than inventing weights or utility functions.\n- Evaluate expected outcomes, downside exposure, and regret where relevant.\n- Treat unsupported probabilities as scenario assumptions rather than calibrated forecasts.\n- Calculate break-even probabilities or costs to show when the ranking changes.\n- Bound the value of further information by expected value with perfect information minus the best current expected value.\n- Subtract information costs when judging whether research is worthwhile.\n- Keep a model-based recommendation distinct from the accountable person's decision.\n\n## Deliverable\n\n- Option table, assumptions, preferred action under stated preferences, downside and switching conditions, and whether further evidence is worth collecting.\n\n## Validation probe\n\n- For equal-probability states with payoffs A=(100,0) and B=(40,40), expected-value choice is A at 50 and perfect-information value is 20 before research costs.\n",
+      "properties": [
+        {
+          "key": "wiki_path",
+          "label": "wiki_path",
+          "dataType": "text",
+          "defaultValue": "reference/analyst/decision-analysis/index.md"
+        },
+        {
+          "key": "content_sha256",
+          "label": "content_sha256",
+          "dataType": "text",
+          "defaultValue": "178ab7717ceae546dd3c1909e3e81c54b003fc1179b0f9a418e116daf09b06d1"
+        },
+        {
+          "key": "evidence_pages",
+          "label": "evidence_pages",
+          "dataType": "json",
+          "defaultValue": [
+            "reference/analyst/methods/evidence-and-handoff.md"
+          ]
+        },
+        {
+          "key": "external",
+          "label": "external",
+          "dataType": "boolean",
+          "defaultValue": false
+        }
+      ],
+      "actions": [],
+      "x": 0,
+      "y": 1530,
+      "pinned": false
+    },
+    {
+      "id": "wiki:analyst.experiment-design",
+      "label": "Experiment Design and A/B Testing",
+      "type": "method",
+      "description": "# Experiment Design and A/B Testing\n\n- **Basis:** authored method guidance; validate suitability against the task evidence.\n- **Shared method:** [Analytical evidence and handoff](../methods/evidence-and-handoff.md).\n\n## Inputs\n\n- Hypothesis, assignment unit, eligible population, baseline outcome variation, minimum relevant effect, exposure period, and guardrails.\n\n## Method\n\n- Choose randomization at a unit that limits spillover and contamination.\n- Specify primary outcome, estimand, practical effect threshold, and guardrails before inspecting treatment effects.\n- Compute sample size or power from the design assumptions; account for clustering and attrition.\n- Specify fixed-horizon or valid sequential analysis and its stopping rules in advance.\n- Check allocation integrity, sample-ratio mismatch, logging, and differential missingness.\n- Use intention-to-treat as the primary assignment-based analysis when appropriate.\n- Handle multiple variants and metrics with a declared multiplicity policy.\n- Report effect sizes and intervals alongside guardrail outcomes.\n- Separate a statistically detectable effect from a worthwhile operational change.\n\n## Deliverable\n\n- Experiment protocol or results report with assignment, sample-size rationale, stopping rule, integrity checks, effect estimates, and decision criteria.\n\n## Validation probe\n\n- A deliberately skewed allocation should trigger investigation before interpreting treatment lift; repeated unadjusted significance checks should fail the design review.\n",
+      "properties": [
+        {
+          "key": "wiki_path",
+          "label": "wiki_path",
+          "dataType": "text",
+          "defaultValue": "reference/analyst/experiment-design/index.md"
+        },
+        {
+          "key": "content_sha256",
+          "label": "content_sha256",
+          "dataType": "text",
+          "defaultValue": "4547609e4eb9d6100071c3033b0acdf28e9623c7f558fd6bf91f533c524eef5a"
+        },
+        {
+          "key": "evidence_pages",
+          "label": "evidence_pages",
+          "dataType": "json",
+          "defaultValue": [
+            "reference/analyst/methods/evidence-and-handoff.md"
+          ]
+        },
+        {
+          "key": "external",
+          "label": "external",
+          "dataType": "boolean",
+          "defaultValue": false
+        }
+      ],
+      "actions": [],
+      "x": 250,
+      "y": 1530,
+      "pinned": false
+    },
+    {
+      "id": "wiki:analyst.exploratory-data-analysis",
+      "label": "Exploratory Data Analysis",
+      "type": "method",
+      "description": "# Exploratory Data Analysis\n\n- **Basis:** authored method guidance; validate suitability against the task evidence.\n- **Shared method:** [Analytical evidence and handoff](../methods/evidence-and-handoff.md).\n\n## Inputs\n\n- Data snapshot, variable definitions, row grain, target question, population, and available grouping or time fields.\n\n## Method\n\n- Check data quality and sampling coverage before interpreting patterns.\n- Summarize distributions with counts, missingness, quantiles, and appropriate measures of spread.\n- Plot skew, multimodality, extreme values, and time structure rather than relying on averages.\n- Compare relationships within meaningful cohorts to expose aggregation effects.\n- Inspect outliers in source context before excluding them.\n- Label discovered associations and post-hoc hypotheses as exploratory.\n- Separate exploratory data from any holdout reserved for later confirmation.\n- Choose a small set of hypotheses and the evidence needed to test each.\n\n## Deliverable\n\n- Exploratory report with reproducible summaries, labeled charts, observed patterns, competing explanations, and follow-up questions.\n\n## Validation probe\n\n- Use grouped data with a reversed aggregate trend; report the within-group and aggregate relationships separately.\n",
+      "properties": [
+        {
+          "key": "wiki_path",
+          "label": "wiki_path",
+          "dataType": "text",
+          "defaultValue": "reference/analyst/exploratory-data-analysis/index.md"
+        },
+        {
+          "key": "content_sha256",
+          "label": "content_sha256",
+          "dataType": "text",
+          "defaultValue": "faef9f10727c471c1c3805f3aee59d9c19a9494d9e15707d24f1ff07a51e9d73"
+        },
+        {
+          "key": "evidence_pages",
+          "label": "evidence_pages",
+          "dataType": "json",
+          "defaultValue": [
+            "reference/analyst/methods/evidence-and-handoff.md"
+          ]
+        },
+        {
+          "key": "external",
+          "label": "external",
+          "dataType": "boolean",
+          "defaultValue": false
+        }
+      ],
+      "actions": [],
+      "x": 500,
+      "y": 1530,
+      "pinned": false
+    },
+    {
+      "id": "wiki:analyst.evidence",
+      "label": "Analytical Evidence and Handoff",
+      "type": "method",
+      "description": "# Analytical Evidence and Handoff\n\n- **Purpose:** support reproducible decisions from data without overstating what the evidence identifies.\n- **Decision:** record the question, owner, population, unit of analysis, time horizon, and decision threshold.\n- **Evidence:** record source paths or queries, extraction time, definitions, units, filters, and sample counts.\n- **Assumptions:** label observed facts, estimates, elicited assumptions, and unresolved inputs separately.\n- **Missing inputs:** ask for facts that change the method; use labeled illustrative inputs when a demonstration is requested.\n- **Integrity:** inspect missingness, duplication, measurement changes, selection bias, and dependence before modelling.\n- **Uncertainty:** distinguish outcome variability, parameter uncertainty, structural uncertainty, and numerical estimation error.\n- **Reproducibility:** retain executable analysis, input snapshot or reproducible query, parameters, software versions, and random seeds when applicable.\n- **Execution:** run the analysis before claiming numerical results; describe unexecuted work as a plan or illustration.\n- **Validation:** compare to a simple baseline or known result and check units, bounds, edge cases, and method-specific assumptions.\n- **Handoff:** provide the finding, supporting evidence, uncertainty, limitations, decision implications, and next useful evidence.\n- **Privacy:** keep identifiable records out of reusable skill references and generated knowledge graphs.\n- **Knowledge boundary:** retrieve method guidance from the selected analyst skill graph and its allowlisted reference pages.\n- **Task data:** analyze user-authorized datasets separately from the method knowledge graph.\n- **Graphify:** code-dependency analysis is a separate gated workflow; this curated graph is not a Graphify index.\n- **Provenance:** these methods are newly authored analytical guidance, not claims extracted from the DS/FDE training slides.\n",
+      "properties": [
+        {
+          "key": "wiki_path",
+          "label": "wiki_path",
+          "dataType": "text",
+          "defaultValue": "reference/analyst/methods/evidence-and-handoff.md"
+        },
+        {
+          "key": "content_sha256",
+          "label": "content_sha256",
+          "dataType": "text",
+          "defaultValue": "5352f6c59dcf4d3b58b1b907443a8da88790d70d4933ab1d09a343b0d293514f"
+        },
+        {
+          "key": "evidence_pages",
+          "label": "evidence_pages",
+          "dataType": "json",
+          "defaultValue": []
+        },
+        {
+          "key": "external",
+          "label": "external",
+          "dataType": "boolean",
+          "defaultValue": false
+        }
+      ],
+      "actions": [],
+      "x": 750,
+      "y": 1530,
+      "pinned": false
+    },
+    {
+      "id": "wiki:analyst.monte-carlo",
+      "label": "Monte Carlo Analysis",
+      "type": "method",
+      "description": "# Monte Carlo Analysis\n\n- **Basis:** authored method guidance; validate suitability against the task evidence.\n- **Shared method:** [Analytical evidence and handoff](../methods/evidence-and-handoff.md).\n\n## Inputs\n\n- Outcome equation or simulator, input units, bounds, distributions or data, dependencies, horizon, and decision thresholds.\n\n## Method\n\n- Write the deterministic model and test its units and limiting cases before sampling.\n- Document the evidence for each distribution; label elicited ranges as assumptions.\n- Use distributions with appropriate support; do not assign an unbounded normal to a strictly positive input without justification.\n- Represent dependencies explicitly; preserve time structure or joint observations when resampling.\n- Separate variability in outcomes from uncertainty about parameters and model structure.\n- Use a recorded random seed and retain code, configuration, input snapshot, and dependency versions.\n- Increase draws until the decision-relevant quantities stabilize to a stated tolerance across independent runs.\n- Report Monte Carlo estimation error separately from the spread of simulated outcomes.\n- Estimate threshold probabilities and relevant quantiles; do not interpret zero observed failures as impossible failure.\n- Compare alternative plausible distribution and dependence assumptions.\n- Use paired random draws when comparing options under the same uncertain future.\n\n## Deliverable\n\n- Reproducible simulation code, assumption table, outcome quantiles, threshold probabilities with estimation uncertainty, convergence evidence, and decision limitations.\n\n## Validation probe\n\n- For X uniform on [0,1] and Y=2X, recover mean 1, P(Y>1.5)=0.25, and the 95th percentile 1.9 within declared Monte Carlo tolerances.\n",
+      "properties": [
+        {
+          "key": "wiki_path",
+          "label": "wiki_path",
+          "dataType": "text",
+          "defaultValue": "reference/analyst/monte-carlo/index.md"
+        },
+        {
+          "key": "content_sha256",
+          "label": "content_sha256",
+          "dataType": "text",
+          "defaultValue": "2fc11f0ea8b833e631c3a0e535922db205d202f8f7ee54999f45462d65e1372a"
+        },
+        {
+          "key": "evidence_pages",
+          "label": "evidence_pages",
+          "dataType": "json",
+          "defaultValue": [
+            "reference/analyst/methods/evidence-and-handoff.md"
+          ]
+        },
+        {
+          "key": "external",
+          "label": "external",
+          "dataType": "boolean",
+          "defaultValue": false
+        }
+      ],
+      "actions": [],
+      "x": 1000,
+      "y": 1530,
+      "pinned": false
+    },
+    {
+      "id": "wiki:analyst.optimization",
+      "label": "Optimization",
+      "type": "method",
+      "description": "# Optimization\n\n- **Basis:** authored method guidance; validate suitability against the task evidence.\n- **Shared method:** [Analytical evidence and handoff](../methods/evidence-and-handoff.md).\n\n## Inputs\n\n- Decision variables, objective, units, hard and soft constraints, variable bounds, integrality, uncertainty, and operational tolerances.\n\n## Method\n\n- Translate the decision into variables, an objective, and constraints with consistent units.\n- Distinguish hard feasibility requirements from preferences expressed as penalties.\n- Check whether a simple feasible baseline exists.\n- Choose a solver suited to linearity, nonlinearity, discreteness, and problem scale.\n- Report solver status, time limits, and optimality gap where available.\n- Independently recompute the objective and constraint violations from the returned solution.\n- Do not label a feasible time-limited solution globally optimal without evidence.\n- Diagnose infeasibility before relaxing constraints; name any proposed relaxation explicitly.\n- Evaluate sensitivity and robustness to uncertain inputs.\n- Expose trade-offs when objectives conflict instead of inventing stakeholder weights.\n\n## Deliverable\n\n- Model specification, feasible allocation, objective value, constraint residuals, solver status or gap, and sensitivity to assumptions.\n\n## Validation probe\n\n- For maximize 3x+2y with x+y<=4, x<=2, x,y>=0, recover x=2, y=2 and objective 10; an infeasible variant should be reported as infeasible.\n",
+      "properties": [
+        {
+          "key": "wiki_path",
+          "label": "wiki_path",
+          "dataType": "text",
+          "defaultValue": "reference/analyst/optimization/index.md"
+        },
+        {
+          "key": "content_sha256",
+          "label": "content_sha256",
+          "dataType": "text",
+          "defaultValue": "d248019486bbfb16472efee36b97132acf6f134b955e6e7a3cfbc1596dc21bc7"
+        },
+        {
+          "key": "evidence_pages",
+          "label": "evidence_pages",
+          "dataType": "json",
+          "defaultValue": [
+            "reference/analyst/methods/evidence-and-handoff.md"
+          ]
+        },
+        {
+          "key": "external",
+          "label": "external",
+          "dataType": "boolean",
+          "defaultValue": false
+        }
+      ],
+      "actions": [],
+      "x": 1250,
+      "y": 1530,
+      "pinned": false
+    },
+    {
+      "id": "wiki:analyst.predictive-modelling",
+      "label": "Regression and Predictive Modelling",
+      "type": "method",
+      "description": "# Regression and Predictive Modelling\n\n- **Basis:** authored method guidance; validate suitability against the task evidence.\n- **Shared method:** [Analytical evidence and handoff](../methods/evidence-and-handoff.md).\n\n## Inputs\n\n- Target, prediction time, row or entity grain, features available at prediction, sample, error costs, and deployment population.\n\n## Method\n\n- Define the prediction event and prevent target or future-information leakage.\n- Split by time, group, or entity according to the intended use.\n- Fit preprocessing and feature selection inside training folds.\n- Establish a simple baseline before tuning complex models.\n- Choose metrics aligned with imbalance and decision costs.\n- Use validation data for tuning and keep final test data untouched until model selection is complete.\n- Inspect residuals or calibration and performance across meaningful subgroups.\n- Report uncertainty or prediction intervals when appropriate.\n- Distinguish coefficient associations and feature importance from causal effects.\n- Identify unsupported extrapolation and distribution shifts.\n\n## Deliverable\n\n- Reproducible model pipeline, feature contract, baseline comparison, held-out results, calibration or residual diagnostics, and use limitations.\n\n## Validation probe\n\n- A feature recorded after the target event should be excluded even if it sharply improves validation accuracy.\n",
+      "properties": [
+        {
+          "key": "wiki_path",
+          "label": "wiki_path",
+          "dataType": "text",
+          "defaultValue": "reference/analyst/predictive-modelling/index.md"
+        },
+        {
+          "key": "content_sha256",
+          "label": "content_sha256",
+          "dataType": "text",
+          "defaultValue": "8fcb210c34973b514b9e41a05f132899a6f7470f53b5996a473d4734216b569f"
+        },
+        {
+          "key": "evidence_pages",
+          "label": "evidence_pages",
+          "dataType": "json",
+          "defaultValue": [
+            "reference/analyst/methods/evidence-and-handoff.md"
+          ]
+        },
+        {
+          "key": "external",
+          "label": "external",
+          "dataType": "boolean",
+          "defaultValue": false
+        }
+      ],
+      "actions": [],
+      "x": 1500,
+      "y": 1530,
+      "pinned": false
+    },
+    {
+      "id": "wiki:analyst.routing",
+      "label": "Choosing an Analytical Method",
+      "type": "method",
+      "description": "# Choosing an Analytical Method\n\n- **Foundation:** [Analytical evidence and handoff](../methods/evidence-and-handoff.md).\n- **Start:** identify the decision and the evidence gap before choosing a technique.\n- **Sequence:** check data fitness before exploration or modelling when the result depends on data quality.\n- **Selection:** distinguish describing data, predicting outcomes, estimating causal effects, simulating uncertainty, and choosing actions.\n- **Scope:** run the smallest useful set of methods; do not execute the whole catalogue for every request.\n- **Routing:** respect an explicitly selected suitable method.\n- **Role:** this analyst supports quantitative work; DS elsewhere in this repository means deployment strategist.\n- **Boundary:** each method's default context is its curated reference subset, not the full repository.\n\n## Select a method\n\n- **Data Quality Assessment:** [data-quality](../../../skills/analyst/data-quality/SKILL.md) — Assess whether a dataset is fit for an analysis or decision; use for missingness, duplicate records, schema inconsistencies, and suspect measurements.\n- **Exploratory Data Analysis:** [exploratory-data-analysis](../../../skills/analyst/exploratory-data-analysis/SKILL.md) — Explore a dataset to understand distributions, relationships, outliers, and promising hypotheses before formal modelling.\n- **Monte Carlo Analysis:** [monte-carlo](../../../skills/analyst/monte-carlo/SKILL.md) — Simulate uncertain inputs to estimate outcome distributions, threshold probabilities, and risk for a specified model.\n- **Sensitivity Analysis:** [sensitivity-analysis](../../../skills/analyst/sensitivity-analysis/SKILL.md) — Identify which uncertain inputs or assumptions drive a model output or change a decision.\n- **Decision Analysis:** [decision-analysis](../../../skills/analyst/decision-analysis/SKILL.md) — Compare actions under uncertainty using expected outcomes, risk preferences, and the value of further information.\n- **Scenario Analysis:** [scenario-analysis](../../../skills/analyst/scenario-analysis/SKILL.md) — Compare coherent baseline, upside, downside, and stress futures when probabilities are unavailable or structural changes matter.\n- **Statistical Inference:** [statistical-inference](../../../skills/analyst/statistical-inference/SKILL.md) — Estimate population effects and uncertainty or test a specified statistical hypothesis from sampled data.\n- **Experiment Design and A/B Testing:** [experiment-design](../../../skills/analyst/experiment-design/SKILL.md) — Design or analyze a controlled experiment with an explicit assignment unit, outcome, sample size, and decision rule.\n- **Causal Analysis:** [causal-analysis](../../../skills/analyst/causal-analysis/SKILL.md) — Evaluate whether an intervention caused an outcome using a defensible experimental or observational identification strategy.\n- **Time-Series Forecasting:** [time-series-forecasting](../../../skills/analyst/time-series-forecasting/SKILL.md) — Forecast time-indexed outcomes with out-of-time evaluation and uncertainty over a specified horizon.\n- **Regression and Predictive Modelling:** [predictive-modelling](../../../skills/analyst/predictive-modelling/SKILL.md) — Build and evaluate regression or classification models for prediction; use for supervised outcomes rather than causal-effect claims.\n- **Segmentation and Clustering:** [segmentation-clustering](../../../skills/analyst/segmentation-clustering/SKILL.md) — Discover useful groups in customers, behaviours, or operations without assuming that clusters are true or causal categories.\n- **Optimization:** [optimization](../../../skills/analyst/optimization/SKILL.md) — Choose feasible actions or allocate resources by optimizing an explicit objective under constraints.\n- **Data Visualization and Reporting:** [data-visualization](../../../skills/analyst/data-visualization/SKILL.md) — Turn analytical evidence into accurate charts, tables, and decision briefs; use when presenting results or designing analytical reports.\n",
+      "properties": [
+        {
+          "key": "wiki_path",
+          "label": "wiki_path",
+          "dataType": "text",
+          "defaultValue": "reference/analyst/routing/index.md"
+        },
+        {
+          "key": "content_sha256",
+          "label": "content_sha256",
+          "dataType": "text",
+          "defaultValue": "a04445698fa00e4fede4d7c317b8634e8cb51d6cc6c7411c7bae775965eab085"
+        },
+        {
+          "key": "evidence_pages",
+          "label": "evidence_pages",
+          "dataType": "json",
+          "defaultValue": [
+            "reference/analyst/methods/evidence-and-handoff.md"
+          ]
+        },
+        {
+          "key": "external",
+          "label": "external",
+          "dataType": "boolean",
+          "defaultValue": false
+        }
+      ],
+      "actions": [],
+      "x": 1750,
+      "y": 1530,
+      "pinned": false
+    },
+    {
+      "id": "wiki:analyst.scenario-analysis",
+      "label": "Scenario Analysis",
+      "type": "method",
+      "description": "# Scenario Analysis\n\n- **Basis:** authored method guidance; validate suitability against the task evidence.\n- **Shared method:** [Analytical evidence and handoff](../methods/evidence-and-handoff.md).\n\n## Inputs\n\n- Decision, time horizon, baseline, external drivers, model relationships, constraints, and candidate future conditions.\n\n## Method\n\n- Separate scenarios describing possible futures from forecasts of likely outcomes.\n- Define internally consistent combinations of drivers rather than independently selecting every best or worst value.\n- Name the mechanism connecting each driver to the result.\n- Apply identical accounting rules and horizons across scenarios.\n- Include a severe but plausible stress case and a reverse stress case that finds failure conditions.\n- Do not attach probabilities or compute weighted expected outcomes without a defensible probability model.\n- Identify actions robust across scenarios and actions that depend on one future.\n- Define observable signposts that would trigger a change in plan.\n\n## Deliverable\n\n- Scenario assumptions, comparable outcome table, vulnerabilities, robust actions, and monitoring triggers.\n\n## Validation probe\n\n- A capacity-limited operation should never deliver more than its capacity in an upside-demand scenario unless capacity is explicitly changed.\n",
+      "properties": [
+        {
+          "key": "wiki_path",
+          "label": "wiki_path",
+          "dataType": "text",
+          "defaultValue": "reference/analyst/scenario-analysis/index.md"
+        },
+        {
+          "key": "content_sha256",
+          "label": "content_sha256",
+          "dataType": "text",
+          "defaultValue": "2f2cfef045be8c16a81e17c8a64ab8f1389b2b52eee4a5ab66ffe555a0681f89"
+        },
+        {
+          "key": "evidence_pages",
+          "label": "evidence_pages",
+          "dataType": "json",
+          "defaultValue": [
+            "reference/analyst/methods/evidence-and-handoff.md"
+          ]
+        },
+        {
+          "key": "external",
+          "label": "external",
+          "dataType": "boolean",
+          "defaultValue": false
+        }
+      ],
+      "actions": [],
+      "x": 2000,
+      "y": 1530,
+      "pinned": false
+    },
+    {
+      "id": "wiki:analyst.segmentation-clustering",
+      "label": "Segmentation and Clustering",
+      "type": "method",
+      "description": "# Segmentation and Clustering\n\n- **Basis:** authored method guidance; validate suitability against the task evidence.\n- **Shared method:** [Analytical evidence and handoff](../methods/evidence-and-handoff.md).\n\n## Inputs\n\n- Entity grain, purpose of segmentation, features, distance meaning, population, and intended use of groups.\n\n## Method\n\n- Choose features that describe the intended grouping rather than convenient identifiers.\n- Handle missing values, mixed types, scaling, and redundant features before choosing distance measures.\n- Compare clustering choices with a simple interpretable segmentation baseline.\n- Assess stability under resampling, seed changes, and plausible preprocessing choices.\n- Use internal separation metrics as diagnostics rather than proof of business usefulness.\n- Describe group sizes, feature distributions, overlap, and assignment uncertainty.\n- Check whether segments remain useful on held-out or later data.\n- Avoid presenting unstable clusters as inherent labels for people.\n- Document how new observations receive a group and how groups can change.\n\n## Deliverable\n\n- Segment profiles, assignment procedure, stability evidence, actionable distinctions, and limits on interpretation.\n\n## Validation probe\n\n- Rescaling a measurement from metres to centimetres should not silently redefine a standardized distance-based segmentation.\n",
+      "properties": [
+        {
+          "key": "wiki_path",
+          "label": "wiki_path",
+          "dataType": "text",
+          "defaultValue": "reference/analyst/segmentation-clustering/index.md"
+        },
+        {
+          "key": "content_sha256",
+          "label": "content_sha256",
+          "dataType": "text",
+          "defaultValue": "352d1b68aeb7c533b39706730f80ab24276a502e3a90e5e1e78167f58aa6953c"
+        },
+        {
+          "key": "evidence_pages",
+          "label": "evidence_pages",
+          "dataType": "json",
+          "defaultValue": [
+            "reference/analyst/methods/evidence-and-handoff.md"
+          ]
+        },
+        {
+          "key": "external",
+          "label": "external",
+          "dataType": "boolean",
+          "defaultValue": false
+        }
+      ],
+      "actions": [],
+      "x": 2250,
+      "y": 1530,
+      "pinned": false
+    },
+    {
+      "id": "wiki:analyst.sensitivity-analysis",
+      "label": "Sensitivity Analysis",
+      "type": "method",
+      "description": "# Sensitivity Analysis\n\n- **Basis:** authored method guidance; validate suitability against the task evidence.\n- **Shared method:** [Analytical evidence and handoff](../methods/evidence-and-handoff.md).\n\n## Inputs\n\n- Executable model, input ranges or joint distributions, baseline, output metric, and decision threshold.\n\n## Method\n\n- Distinguish local derivatives, one-at-a-time scenarios, and global sensitivity to a joint uncertainty model.\n- Set meaningful input ranges and preserve feasibility constraints when perturbing inputs.\n- Use one-at-a-time analysis for local questions; disclose that it can miss interactions.\n- Choose a global method when nonlinearities or interactions matter.\n- Use independent-input variance decompositions only when independence is justified; otherwise use a dependence-aware method or conditional scenario analysis.\n- Separate parameter influence from parameter uncertainty.\n- Use common random numbers where helpful to reduce simulation noise between comparisons.\n- Check ranking stability under resampling and plausible input-range changes.\n- Locate break-even thresholds where the preferred action changes.\n\n## Deliverable\n\n- Influence ranking with units and ranges, interaction caveats, ranking stability, and decision-switch thresholds.\n\n## Validation probe\n\n- For Y=X1*X2 near (0,0), show that one-at-a-time changes miss the interaction revealed by jointly varying both inputs.\n",
+      "properties": [
+        {
+          "key": "wiki_path",
+          "label": "wiki_path",
+          "dataType": "text",
+          "defaultValue": "reference/analyst/sensitivity-analysis/index.md"
+        },
+        {
+          "key": "content_sha256",
+          "label": "content_sha256",
+          "dataType": "text",
+          "defaultValue": "7318b13d795c2c988350807d3b162b59a8b24b37d86e42a9135c162107d2d8d5"
+        },
+        {
+          "key": "evidence_pages",
+          "label": "evidence_pages",
+          "dataType": "json",
+          "defaultValue": [
+            "reference/analyst/methods/evidence-and-handoff.md"
+          ]
+        },
+        {
+          "key": "external",
+          "label": "external",
+          "dataType": "boolean",
+          "defaultValue": false
+        }
+      ],
+      "actions": [],
+      "x": 0,
+      "y": 1700,
+      "pinned": false
+    },
+    {
+      "id": "wiki:analyst.statistical-inference",
+      "label": "Statistical Inference",
+      "type": "method",
+      "description": "# Statistical Inference\n\n- **Basis:** authored method guidance; validate suitability against the task evidence.\n- **Shared method:** [Analytical evidence and handoff](../methods/evidence-and-handoff.md).\n\n## Inputs\n\n- Estimand, population, sampling mechanism, observational unit, dependence structure, sample, and practical effect threshold.\n\n## Method\n\n- Define the estimand and hypothesis before choosing a test.\n- Identify paired, clustered, repeated, or time-dependent observations.\n- Check sampling bias and measurement limitations that uncertainty intervals cannot fix.\n- Choose a model or resampling method compatible with the data and sampling design.\n- Report effect size and uncertainty in meaningful units alongside any p-value.\n- Distinguish confidence intervals, prediction intervals, and Bayesian credible intervals.\n- Account for multiple comparisons and exploratory selection when interpreting evidence.\n- Do not treat a non-significant result as proof of equality; use an appropriate equivalence design for that claim.\n- Check robustness to influential observations and plausible modelling choices.\n\n## Deliverable\n\n- Estimand, method justification, effect and interval, assumptions, diagnostic evidence, and practical interpretation.\n\n## Validation probe\n\n- Repeated observations from the same person should use the person-level dependence structure rather than falsely treating every row as independent.\n",
+      "properties": [
+        {
+          "key": "wiki_path",
+          "label": "wiki_path",
+          "dataType": "text",
+          "defaultValue": "reference/analyst/statistical-inference/index.md"
+        },
+        {
+          "key": "content_sha256",
+          "label": "content_sha256",
+          "dataType": "text",
+          "defaultValue": "37c236f19862aa15efec9382e99027a508c733bdd912b96d3a74fe9adf3d0ee6"
+        },
+        {
+          "key": "evidence_pages",
+          "label": "evidence_pages",
+          "dataType": "json",
+          "defaultValue": [
+            "reference/analyst/methods/evidence-and-handoff.md"
+          ]
+        },
+        {
+          "key": "external",
+          "label": "external",
+          "dataType": "boolean",
+          "defaultValue": false
+        }
+      ],
+      "actions": [],
+      "x": 250,
+      "y": 1700,
+      "pinned": false
+    },
+    {
+      "id": "wiki:analyst.time-series-forecasting",
+      "label": "Time-Series Forecasting",
+      "type": "method",
+      "description": "# Time-Series Forecasting\n\n- **Basis:** authored method guidance; validate suitability against the task evidence.\n- **Shared method:** [Analytical evidence and handoff](../methods/evidence-and-handoff.md).\n\n## Inputs\n\n- Timestamped history, frequency, horizon, target, available-at-prediction covariates, calendar effects, and forecast decision costs.\n\n## Method\n\n- Resolve timestamps, timezones, frequency, gaps, and revisions before modelling.\n- Distinguish missing observations from genuine zero activity.\n- Compare against naive and seasonal-naive forecasts where applicable.\n- Use rolling-origin or expanding-window evaluation aligned to the actual prediction horizon.\n- Fit transformations and models using training information only.\n- Use future covariates only when they will be known at prediction time; otherwise forecast or scenario-model them.\n- Check residual dependence and structural breaks.\n- Report horizon-specific errors and prediction-interval coverage.\n- Choose error measures compatible with zeros, scale, and decision costs.\n- Separate expected future observations from uncertainty about the expected mean.\n\n## Deliverable\n\n- Forecast table with dates and intervals, backtest against baselines, assumptions about future drivers, and refresh or failure triggers.\n\n## Validation probe\n\n- A seasonal series should be evaluated against a seasonal-naive baseline; a random train/test split should be rejected for future forecasting.\n",
+      "properties": [
+        {
+          "key": "wiki_path",
+          "label": "wiki_path",
+          "dataType": "text",
+          "defaultValue": "reference/analyst/time-series-forecasting/index.md"
+        },
+        {
+          "key": "content_sha256",
+          "label": "content_sha256",
+          "dataType": "text",
+          "defaultValue": "23330723c1bcf67af65df84a9c198147f032ede19f2e4665e25440fb98eb3f93"
+        },
+        {
+          "key": "evidence_pages",
+          "label": "evidence_pages",
+          "dataType": "json",
+          "defaultValue": [
+            "reference/analyst/methods/evidence-and-handoff.md"
+          ]
+        },
+        {
+          "key": "external",
+          "label": "external",
+          "dataType": "boolean",
+          "defaultValue": false
+        }
+      ],
+      "actions": [],
+      "x": 500,
+      "y": 1700,
+      "pinned": false
+    },
+    {
+      "id": "skill:analyst",
+      "label": "Analyst / Data Scientist [skill]",
+      "type": "skill",
+      "description": "---\nname: analyst\ndescription: Choose and apply quantitative analysis methods for a data question or decision, including uncertainty simulation, forecasting, inference, experiments, prediction, and optimization. Use when an analyst is requested or the analytical method is unclear; do not replace deployment-strategy advice with statistical modelling.\n---\n\n# Analyst / Data Scientist\n\n- **Read:** [Method selection](../../reference/analyst/routing/index.md).\n- **Read:** [Evidence and handoff](../../reference/analyst/methods/evidence-and-handoff.md).\n- **Clarify:** establish the decision, data available, unit of analysis, horizon, and acceptable uncertainty.\n- **Select:** explain which method resolves the next evidence gap.\n- **Load:** read the selected child skill before executing it.\n- **Proceed:** perform the authorized analysis rather than stopping at a method recommendation.\n- **Boundary:** if the user asks only for advice, recommend a method without treating that as permission for a new data operation.\n- **Knowledge:** use [the analyst graph](../../reference/analyst/knowladge_graph/README.md) to select methods, then load the selected skill's bounded graph.\n\n## Skills\n\n- `/data-quality` → [Data Quality Assessment](data-quality/SKILL.md).\n- `/exploratory-data-analysis` → [Exploratory Data Analysis](exploratory-data-analysis/SKILL.md).\n- `/monte-carlo` → [Monte Carlo Analysis](monte-carlo/SKILL.md).\n- `/sensitivity-analysis` → [Sensitivity Analysis](sensitivity-analysis/SKILL.md).\n- `/decision-analysis` → [Decision Analysis](decision-analysis/SKILL.md).\n- `/scenario-analysis` → [Scenario Analysis](scenario-analysis/SKILL.md).\n- `/statistical-inference` → [Statistical Inference](statistical-inference/SKILL.md).\n- `/experiment-design` → [Experiment Design and A/B Testing](experiment-design/SKILL.md).\n- `/causal-analysis` → [Causal Analysis](causal-analysis/SKILL.md).\n- `/time-series-forecasting` → [Time-Series Forecasting](time-series-forecasting/SKILL.md).\n- `/predictive-modelling` → [Regression and Predictive Modelling](predictive-modelling/SKILL.md).\n- `/segmentation-clustering` → [Segmentation and Clustering](segmentation-clustering/SKILL.md).\n- `/optimization` → [Optimization](optimization/SKILL.md).\n- `/data-visualization` → [Data Visualization and Reporting](data-visualization/SKILL.md).\n",
+      "properties": [
+        {
+          "key": "wiki_path",
+          "label": "wiki_path",
+          "dataType": "text",
+          "defaultValue": "skills/analyst/SKILL.md"
+        },
+        {
+          "key": "content_sha256",
+          "label": "content_sha256",
+          "dataType": "text",
+          "defaultValue": "52212e506d1b19436ba08a99259df93111f166e2f4552cada329a03fae05d817"
+        },
+        {
+          "key": "evidence_pages",
+          "label": "evidence_pages",
+          "dataType": "json",
+          "defaultValue": [
+            "reference/analyst/routing/index.md",
+            "reference/analyst/methods/evidence-and-handoff.md"
+          ]
+        },
+        {
+          "key": "external",
+          "label": "external",
+          "dataType": "boolean",
+          "defaultValue": false
+        }
+      ],
+      "actions": [],
+      "x": 750,
+      "y": 1700,
+      "pinned": false
+    },
+    {
+      "id": "skill:causal-analysis",
+      "label": "Causal Analysis [skill]",
+      "type": "skill",
+      "description": "---\nname: causal-analysis\ndescription: \"Evaluate whether an intervention caused an outcome using a defensible experimental or observational identification strategy.\"\n---\n\n# Causal Analysis\n\n- **Read:** [Task method](../../../reference/analyst/causal-analysis/index.md).\n- **Read:** [Shared evidence and handoff rules](../../../reference/analyst/methods/evidence-and-handoff.md).\n- **Scope:** resolve the decision, population, units, horizon, and material missing inputs before calculating.\n- **Execute:** apply the linked method using the task data and available analysis tools.\n- **Verify:** run its validation probe or a task-specific equivalent before relying on the result.\n- **Deliver:** provide the method's stated outputs with reproducible evidence and limitations.\n- **Knowledge:** use [this skill's curated graph](../../../reference/analyst/knowladge_graph/causal-analysis.md) for reference navigation.\n- **Boundary:** raw datasets and broad code indexes are not default method knowledge.\n",
+      "properties": [
+        {
+          "key": "wiki_path",
+          "label": "wiki_path",
+          "dataType": "text",
+          "defaultValue": "skills/analyst/causal-analysis/SKILL.md"
+        },
+        {
+          "key": "content_sha256",
+          "label": "content_sha256",
+          "dataType": "text",
+          "defaultValue": "d047218c2b2dd0535c2432c2cc0f2436fef8ec822e2dda16e6d92c8e8311b135"
+        },
+        {
+          "key": "evidence_pages",
+          "label": "evidence_pages",
+          "dataType": "json",
+          "defaultValue": [
+            "reference/analyst/methods/evidence-and-handoff.md",
+            "reference/analyst/causal-analysis/index.md"
+          ]
+        },
+        {
+          "key": "external",
+          "label": "external",
+          "dataType": "boolean",
+          "defaultValue": false
+        }
+      ],
+      "actions": [],
+      "x": 1000,
+      "y": 1700,
+      "pinned": false
+    },
+    {
+      "id": "skill:data-quality",
+      "label": "Data Quality Assessment [skill]",
+      "type": "skill",
+      "description": "---\nname: data-quality\ndescription: \"Assess whether a dataset is fit for an analysis or decision; use for missingness, duplicate records, schema inconsistencies, and suspect measurements.\"\n---\n\n# Data Quality Assessment\n\n- **Read:** [Task method](../../../reference/analyst/data-quality/index.md).\n- **Read:** [Shared evidence and handoff rules](../../../reference/analyst/methods/evidence-and-handoff.md).\n- **Scope:** resolve the decision, population, units, horizon, and material missing inputs before calculating.\n- **Execute:** apply the linked method using the task data and available analysis tools.\n- **Verify:** run its validation probe or a task-specific equivalent before relying on the result.\n- **Deliver:** provide the method's stated outputs with reproducible evidence and limitations.\n- **Knowledge:** use [this skill's curated graph](../../../reference/analyst/knowladge_graph/data-quality.md) for reference navigation.\n- **Boundary:** raw datasets and broad code indexes are not default method knowledge.\n",
+      "properties": [
+        {
+          "key": "wiki_path",
+          "label": "wiki_path",
+          "dataType": "text",
+          "defaultValue": "skills/analyst/data-quality/SKILL.md"
+        },
+        {
+          "key": "content_sha256",
+          "label": "content_sha256",
+          "dataType": "text",
+          "defaultValue": "4e32a092d04857c0fa9010ae135e543d9a012577ab188788133f2be7c8bf5626"
+        },
+        {
+          "key": "evidence_pages",
+          "label": "evidence_pages",
+          "dataType": "json",
+          "defaultValue": [
+            "reference/analyst/methods/evidence-and-handoff.md",
+            "reference/analyst/data-quality/index.md"
+          ]
+        },
+        {
+          "key": "external",
+          "label": "external",
+          "dataType": "boolean",
+          "defaultValue": false
+        }
+      ],
+      "actions": [],
+      "x": 1250,
+      "y": 1700,
+      "pinned": false
+    },
+    {
+      "id": "skill:data-visualization",
+      "label": "Data Visualization and Reporting [skill]",
+      "type": "skill",
+      "description": "---\nname: data-visualization\ndescription: \"Turn analytical evidence into accurate charts, tables, and decision briefs; use when presenting results or designing analytical reports.\"\n---\n\n# Data Visualization and Reporting\n\n- **Read:** [Task method](../../../reference/analyst/data-visualization/index.md).\n- **Read:** [Shared evidence and handoff rules](../../../reference/analyst/methods/evidence-and-handoff.md).\n- **Scope:** resolve the decision, population, units, horizon, and material missing inputs before calculating.\n- **Execute:** apply the linked method using the task data and available analysis tools.\n- **Verify:** run its validation probe or a task-specific equivalent before relying on the result.\n- **Deliver:** provide the method's stated outputs with reproducible evidence and limitations.\n- **Knowledge:** use [this skill's curated graph](../../../reference/analyst/knowladge_graph/data-visualization.md) for reference navigation.\n- **Boundary:** raw datasets and broad code indexes are not default method knowledge.\n",
+      "properties": [
+        {
+          "key": "wiki_path",
+          "label": "wiki_path",
+          "dataType": "text",
+          "defaultValue": "skills/analyst/data-visualization/SKILL.md"
+        },
+        {
+          "key": "content_sha256",
+          "label": "content_sha256",
+          "dataType": "text",
+          "defaultValue": "a08ae0a6d56b280646a6e6b2c152d58a702824864cd372e5eab9381ea909510b"
+        },
+        {
+          "key": "evidence_pages",
+          "label": "evidence_pages",
+          "dataType": "json",
+          "defaultValue": [
+            "reference/analyst/methods/evidence-and-handoff.md",
+            "reference/analyst/data-visualization/index.md"
+          ]
+        },
+        {
+          "key": "external",
+          "label": "external",
+          "dataType": "boolean",
+          "defaultValue": false
+        }
+      ],
+      "actions": [],
+      "x": 1500,
+      "y": 1700,
+      "pinned": false
+    },
+    {
+      "id": "skill:decision-analysis",
+      "label": "Decision Analysis [skill]",
+      "type": "skill",
+      "description": "---\nname: decision-analysis\ndescription: \"Compare actions under uncertainty using expected outcomes, risk preferences, and the value of further information.\"\n---\n\n# Decision Analysis\n\n- **Read:** [Task method](../../../reference/analyst/decision-analysis/index.md).\n- **Read:** [Shared evidence and handoff rules](../../../reference/analyst/methods/evidence-and-handoff.md).\n- **Scope:** resolve the decision, population, units, horizon, and material missing inputs before calculating.\n- **Execute:** apply the linked method using the task data and available analysis tools.\n- **Verify:** run its validation probe or a task-specific equivalent before relying on the result.\n- **Deliver:** provide the method's stated outputs with reproducible evidence and limitations.\n- **Knowledge:** use [this skill's curated graph](../../../reference/analyst/knowladge_graph/decision-analysis.md) for reference navigation.\n- **Boundary:** raw datasets and broad code indexes are not default method knowledge.\n",
+      "properties": [
+        {
+          "key": "wiki_path",
+          "label": "wiki_path",
+          "dataType": "text",
+          "defaultValue": "skills/analyst/decision-analysis/SKILL.md"
+        },
+        {
+          "key": "content_sha256",
+          "label": "content_sha256",
+          "dataType": "text",
+          "defaultValue": "0f2bc84996d54c95547e1f316776b59be06bf0f6dd42c8ec3f2a24909c1faecd"
+        },
+        {
+          "key": "evidence_pages",
+          "label": "evidence_pages",
+          "dataType": "json",
+          "defaultValue": [
+            "reference/analyst/methods/evidence-and-handoff.md",
+            "reference/analyst/decision-analysis/index.md"
+          ]
+        },
+        {
+          "key": "external",
+          "label": "external",
+          "dataType": "boolean",
+          "defaultValue": false
+        }
+      ],
+      "actions": [],
+      "x": 1750,
+      "y": 1700,
+      "pinned": false
+    },
+    {
+      "id": "skill:experiment-design",
+      "label": "Experiment Design and A/B Testing [skill]",
+      "type": "skill",
+      "description": "---\nname: experiment-design\ndescription: \"Design or analyze a controlled experiment with an explicit assignment unit, outcome, sample size, and decision rule.\"\n---\n\n# Experiment Design and A/B Testing\n\n- **Read:** [Task method](../../../reference/analyst/experiment-design/index.md).\n- **Read:** [Shared evidence and handoff rules](../../../reference/analyst/methods/evidence-and-handoff.md).\n- **Scope:** resolve the decision, population, units, horizon, and material missing inputs before calculating.\n- **Execute:** apply the linked method using the task data and available analysis tools.\n- **Verify:** run its validation probe or a task-specific equivalent before relying on the result.\n- **Deliver:** provide the method's stated outputs with reproducible evidence and limitations.\n- **Knowledge:** use [this skill's curated graph](../../../reference/analyst/knowladge_graph/experiment-design.md) for reference navigation.\n- **Boundary:** raw datasets and broad code indexes are not default method knowledge.\n",
+      "properties": [
+        {
+          "key": "wiki_path",
+          "label": "wiki_path",
+          "dataType": "text",
+          "defaultValue": "skills/analyst/experiment-design/SKILL.md"
+        },
+        {
+          "key": "content_sha256",
+          "label": "content_sha256",
+          "dataType": "text",
+          "defaultValue": "40a3e60a07e429f2965f05e15365b7bd14ef3014afdf4e3ae2fd3ddfa1253b7b"
+        },
+        {
+          "key": "evidence_pages",
+          "label": "evidence_pages",
+          "dataType": "json",
+          "defaultValue": [
+            "reference/analyst/methods/evidence-and-handoff.md",
+            "reference/analyst/experiment-design/index.md"
+          ]
+        },
+        {
+          "key": "external",
+          "label": "external",
+          "dataType": "boolean",
+          "defaultValue": false
+        }
+      ],
+      "actions": [],
+      "x": 2000,
+      "y": 1700,
+      "pinned": false
+    },
+    {
+      "id": "skill:exploratory-data-analysis",
+      "label": "Exploratory Data Analysis [skill]",
+      "type": "skill",
+      "description": "---\nname: exploratory-data-analysis\ndescription: \"Explore a dataset to understand distributions, relationships, outliers, and promising hypotheses before formal modelling.\"\n---\n\n# Exploratory Data Analysis\n\n- **Read:** [Task method](../../../reference/analyst/exploratory-data-analysis/index.md).\n- **Read:** [Shared evidence and handoff rules](../../../reference/analyst/methods/evidence-and-handoff.md).\n- **Scope:** resolve the decision, population, units, horizon, and material missing inputs before calculating.\n- **Execute:** apply the linked method using the task data and available analysis tools.\n- **Verify:** run its validation probe or a task-specific equivalent before relying on the result.\n- **Deliver:** provide the method's stated outputs with reproducible evidence and limitations.\n- **Knowledge:** use [this skill's curated graph](../../../reference/analyst/knowladge_graph/exploratory-data-analysis.md) for reference navigation.\n- **Boundary:** raw datasets and broad code indexes are not default method knowledge.\n",
+      "properties": [
+        {
+          "key": "wiki_path",
+          "label": "wiki_path",
+          "dataType": "text",
+          "defaultValue": "skills/analyst/exploratory-data-analysis/SKILL.md"
+        },
+        {
+          "key": "content_sha256",
+          "label": "content_sha256",
+          "dataType": "text",
+          "defaultValue": "cb6359babff754f9020a4a05317442241647c65abbbc65a226b5b9c8c2bb675b"
+        },
+        {
+          "key": "evidence_pages",
+          "label": "evidence_pages",
+          "dataType": "json",
+          "defaultValue": [
+            "reference/analyst/methods/evidence-and-handoff.md",
+            "reference/analyst/exploratory-data-analysis/index.md"
+          ]
+        },
+        {
+          "key": "external",
+          "label": "external",
+          "dataType": "boolean",
+          "defaultValue": false
+        }
+      ],
+      "actions": [],
+      "x": 2250,
+      "y": 1700,
+      "pinned": false
+    },
+    {
+      "id": "skill:monte-carlo",
+      "label": "Monte Carlo Analysis [skill]",
+      "type": "skill",
+      "description": "---\nname: monte-carlo\ndescription: \"Simulate uncertain inputs to estimate outcome distributions, threshold probabilities, and risk for a specified model.\"\n---\n\n# Monte Carlo Analysis\n\n- **Read:** [Task method](../../../reference/analyst/monte-carlo/index.md).\n- **Read:** [Shared evidence and handoff rules](../../../reference/analyst/methods/evidence-and-handoff.md).\n- **Scope:** resolve the decision, population, units, horizon, and material missing inputs before calculating.\n- **Execute:** apply the linked method using the task data and available analysis tools.\n- **Verify:** run its validation probe or a task-specific equivalent before relying on the result.\n- **Deliver:** provide the method's stated outputs with reproducible evidence and limitations.\n- **Knowledge:** use [this skill's curated graph](../../../reference/analyst/knowladge_graph/monte-carlo.md) for reference navigation.\n- **Boundary:** raw datasets and broad code indexes are not default method knowledge.\n",
+      "properties": [
+        {
+          "key": "wiki_path",
+          "label": "wiki_path",
+          "dataType": "text",
+          "defaultValue": "skills/analyst/monte-carlo/SKILL.md"
+        },
+        {
+          "key": "content_sha256",
+          "label": "content_sha256",
+          "dataType": "text",
+          "defaultValue": "052a01a33da6050c08754662d99810350af5c852a4586693486badc8c0de4566"
+        },
+        {
+          "key": "evidence_pages",
+          "label": "evidence_pages",
+          "dataType": "json",
+          "defaultValue": [
+            "reference/analyst/methods/evidence-and-handoff.md",
+            "reference/analyst/monte-carlo/index.md"
+          ]
+        },
+        {
+          "key": "external",
+          "label": "external",
+          "dataType": "boolean",
+          "defaultValue": false
+        }
+      ],
+      "actions": [],
+      "x": 0,
+      "y": 1870,
+      "pinned": false
+    },
+    {
+      "id": "skill:optimization",
+      "label": "Optimization [skill]",
+      "type": "skill",
+      "description": "---\nname: optimization\ndescription: \"Choose feasible actions or allocate resources by optimizing an explicit objective under constraints.\"\n---\n\n# Optimization\n\n- **Read:** [Task method](../../../reference/analyst/optimization/index.md).\n- **Read:** [Shared evidence and handoff rules](../../../reference/analyst/methods/evidence-and-handoff.md).\n- **Scope:** resolve the decision, population, units, horizon, and material missing inputs before calculating.\n- **Execute:** apply the linked method using the task data and available analysis tools.\n- **Verify:** run its validation probe or a task-specific equivalent before relying on the result.\n- **Deliver:** provide the method's stated outputs with reproducible evidence and limitations.\n- **Knowledge:** use [this skill's curated graph](../../../reference/analyst/knowladge_graph/optimization.md) for reference navigation.\n- **Boundary:** raw datasets and broad code indexes are not default method knowledge.\n",
+      "properties": [
+        {
+          "key": "wiki_path",
+          "label": "wiki_path",
+          "dataType": "text",
+          "defaultValue": "skills/analyst/optimization/SKILL.md"
+        },
+        {
+          "key": "content_sha256",
+          "label": "content_sha256",
+          "dataType": "text",
+          "defaultValue": "3187a57c9476bc44048b2f54ce7df8bb8ebd2367f66b2954743f503036af7220"
+        },
+        {
+          "key": "evidence_pages",
+          "label": "evidence_pages",
+          "dataType": "json",
+          "defaultValue": [
+            "reference/analyst/methods/evidence-and-handoff.md",
+            "reference/analyst/optimization/index.md"
+          ]
+        },
+        {
+          "key": "external",
+          "label": "external",
+          "dataType": "boolean",
+          "defaultValue": false
+        }
+      ],
+      "actions": [],
+      "x": 250,
+      "y": 1870,
+      "pinned": false
+    },
+    {
+      "id": "skill:predictive-modelling",
+      "label": "Regression and Predictive Modelling [skill]",
+      "type": "skill",
+      "description": "---\nname: predictive-modelling\ndescription: \"Build and evaluate regression or classification models for prediction; use for supervised outcomes rather than causal-effect claims.\"\n---\n\n# Regression and Predictive Modelling\n\n- **Read:** [Task method](../../../reference/analyst/predictive-modelling/index.md).\n- **Read:** [Shared evidence and handoff rules](../../../reference/analyst/methods/evidence-and-handoff.md).\n- **Scope:** resolve the decision, population, units, horizon, and material missing inputs before calculating.\n- **Execute:** apply the linked method using the task data and available analysis tools.\n- **Verify:** run its validation probe or a task-specific equivalent before relying on the result.\n- **Deliver:** provide the method's stated outputs with reproducible evidence and limitations.\n- **Knowledge:** use [this skill's curated graph](../../../reference/analyst/knowladge_graph/predictive-modelling.md) for reference navigation.\n- **Boundary:** raw datasets and broad code indexes are not default method knowledge.\n",
+      "properties": [
+        {
+          "key": "wiki_path",
+          "label": "wiki_path",
+          "dataType": "text",
+          "defaultValue": "skills/analyst/predictive-modelling/SKILL.md"
+        },
+        {
+          "key": "content_sha256",
+          "label": "content_sha256",
+          "dataType": "text",
+          "defaultValue": "19e7428aa56cf66fa7d99d34fa3642c74bfed20581dfc936c0c3cea49d19e7ff"
+        },
+        {
+          "key": "evidence_pages",
+          "label": "evidence_pages",
+          "dataType": "json",
+          "defaultValue": [
+            "reference/analyst/methods/evidence-and-handoff.md",
+            "reference/analyst/predictive-modelling/index.md"
+          ]
+        },
+        {
+          "key": "external",
+          "label": "external",
+          "dataType": "boolean",
+          "defaultValue": false
+        }
+      ],
+      "actions": [],
+      "x": 500,
+      "y": 1870,
+      "pinned": false
+    },
+    {
+      "id": "skill:scenario-analysis",
+      "label": "Scenario Analysis [skill]",
+      "type": "skill",
+      "description": "---\nname: scenario-analysis\ndescription: \"Compare coherent baseline, upside, downside, and stress futures when probabilities are unavailable or structural changes matter.\"\n---\n\n# Scenario Analysis\n\n- **Read:** [Task method](../../../reference/analyst/scenario-analysis/index.md).\n- **Read:** [Shared evidence and handoff rules](../../../reference/analyst/methods/evidence-and-handoff.md).\n- **Scope:** resolve the decision, population, units, horizon, and material missing inputs before calculating.\n- **Execute:** apply the linked method using the task data and available analysis tools.\n- **Verify:** run its validation probe or a task-specific equivalent before relying on the result.\n- **Deliver:** provide the method's stated outputs with reproducible evidence and limitations.\n- **Knowledge:** use [this skill's curated graph](../../../reference/analyst/knowladge_graph/scenario-analysis.md) for reference navigation.\n- **Boundary:** raw datasets and broad code indexes are not default method knowledge.\n",
+      "properties": [
+        {
+          "key": "wiki_path",
+          "label": "wiki_path",
+          "dataType": "text",
+          "defaultValue": "skills/analyst/scenario-analysis/SKILL.md"
+        },
+        {
+          "key": "content_sha256",
+          "label": "content_sha256",
+          "dataType": "text",
+          "defaultValue": "e4fe9aa9acd97c7b7362bda7dd236f9bbb3374702f3f91bf905877f56149257f"
+        },
+        {
+          "key": "evidence_pages",
+          "label": "evidence_pages",
+          "dataType": "json",
+          "defaultValue": [
+            "reference/analyst/methods/evidence-and-handoff.md",
+            "reference/analyst/scenario-analysis/index.md"
+          ]
+        },
+        {
+          "key": "external",
+          "label": "external",
+          "dataType": "boolean",
+          "defaultValue": false
+        }
+      ],
+      "actions": [],
+      "x": 750,
+      "y": 1870,
+      "pinned": false
+    },
+    {
+      "id": "skill:segmentation-clustering",
+      "label": "Segmentation and Clustering [skill]",
+      "type": "skill",
+      "description": "---\nname: segmentation-clustering\ndescription: \"Discover useful groups in customers, behaviours, or operations without assuming that clusters are true or causal categories.\"\n---\n\n# Segmentation and Clustering\n\n- **Read:** [Task method](../../../reference/analyst/segmentation-clustering/index.md).\n- **Read:** [Shared evidence and handoff rules](../../../reference/analyst/methods/evidence-and-handoff.md).\n- **Scope:** resolve the decision, population, units, horizon, and material missing inputs before calculating.\n- **Execute:** apply the linked method using the task data and available analysis tools.\n- **Verify:** run its validation probe or a task-specific equivalent before relying on the result.\n- **Deliver:** provide the method's stated outputs with reproducible evidence and limitations.\n- **Knowledge:** use [this skill's curated graph](../../../reference/analyst/knowladge_graph/segmentation-clustering.md) for reference navigation.\n- **Boundary:** raw datasets and broad code indexes are not default method knowledge.\n",
+      "properties": [
+        {
+          "key": "wiki_path",
+          "label": "wiki_path",
+          "dataType": "text",
+          "defaultValue": "skills/analyst/segmentation-clustering/SKILL.md"
+        },
+        {
+          "key": "content_sha256",
+          "label": "content_sha256",
+          "dataType": "text",
+          "defaultValue": "0acf8515cd88fc510a40234c7b31b58a4e2c37f5b8360a6899ee2dfc7ef8b92d"
+        },
+        {
+          "key": "evidence_pages",
+          "label": "evidence_pages",
+          "dataType": "json",
+          "defaultValue": [
+            "reference/analyst/methods/evidence-and-handoff.md",
+            "reference/analyst/segmentation-clustering/index.md"
+          ]
+        },
+        {
+          "key": "external",
+          "label": "external",
+          "dataType": "boolean",
+          "defaultValue": false
+        }
+      ],
+      "actions": [],
+      "x": 1000,
+      "y": 1870,
+      "pinned": false
+    },
+    {
+      "id": "skill:sensitivity-analysis",
+      "label": "Sensitivity Analysis [skill]",
+      "type": "skill",
+      "description": "---\nname: sensitivity-analysis\ndescription: \"Identify which uncertain inputs or assumptions drive a model output or change a decision.\"\n---\n\n# Sensitivity Analysis\n\n- **Read:** [Task method](../../../reference/analyst/sensitivity-analysis/index.md).\n- **Read:** [Shared evidence and handoff rules](../../../reference/analyst/methods/evidence-and-handoff.md).\n- **Scope:** resolve the decision, population, units, horizon, and material missing inputs before calculating.\n- **Execute:** apply the linked method using the task data and available analysis tools.\n- **Verify:** run its validation probe or a task-specific equivalent before relying on the result.\n- **Deliver:** provide the method's stated outputs with reproducible evidence and limitations.\n- **Knowledge:** use [this skill's curated graph](../../../reference/analyst/knowladge_graph/sensitivity-analysis.md) for reference navigation.\n- **Boundary:** raw datasets and broad code indexes are not default method knowledge.\n",
+      "properties": [
+        {
+          "key": "wiki_path",
+          "label": "wiki_path",
+          "dataType": "text",
+          "defaultValue": "skills/analyst/sensitivity-analysis/SKILL.md"
+        },
+        {
+          "key": "content_sha256",
+          "label": "content_sha256",
+          "dataType": "text",
+          "defaultValue": "a336c900886bed2a7e0d69ac58b710b3f5fd2b383712efd7a63cacfc643b4357"
+        },
+        {
+          "key": "evidence_pages",
+          "label": "evidence_pages",
+          "dataType": "json",
+          "defaultValue": [
+            "reference/analyst/methods/evidence-and-handoff.md",
+            "reference/analyst/sensitivity-analysis/index.md"
+          ]
+        },
+        {
+          "key": "external",
+          "label": "external",
+          "dataType": "boolean",
+          "defaultValue": false
+        }
+      ],
+      "actions": [],
+      "x": 1250,
+      "y": 1870,
+      "pinned": false
+    },
+    {
+      "id": "skill:statistical-inference",
+      "label": "Statistical Inference [skill]",
+      "type": "skill",
+      "description": "---\nname: statistical-inference\ndescription: \"Estimate population effects and uncertainty or test a specified statistical hypothesis from sampled data.\"\n---\n\n# Statistical Inference\n\n- **Read:** [Task method](../../../reference/analyst/statistical-inference/index.md).\n- **Read:** [Shared evidence and handoff rules](../../../reference/analyst/methods/evidence-and-handoff.md).\n- **Scope:** resolve the decision, population, units, horizon, and material missing inputs before calculating.\n- **Execute:** apply the linked method using the task data and available analysis tools.\n- **Verify:** run its validation probe or a task-specific equivalent before relying on the result.\n- **Deliver:** provide the method's stated outputs with reproducible evidence and limitations.\n- **Knowledge:** use [this skill's curated graph](../../../reference/analyst/knowladge_graph/statistical-inference.md) for reference navigation.\n- **Boundary:** raw datasets and broad code indexes are not default method knowledge.\n",
+      "properties": [
+        {
+          "key": "wiki_path",
+          "label": "wiki_path",
+          "dataType": "text",
+          "defaultValue": "skills/analyst/statistical-inference/SKILL.md"
+        },
+        {
+          "key": "content_sha256",
+          "label": "content_sha256",
+          "dataType": "text",
+          "defaultValue": "927e4f786196ec522fc0d47a0d2a85e4cb502c87c2177244024e549fb43fcf8a"
+        },
+        {
+          "key": "evidence_pages",
+          "label": "evidence_pages",
+          "dataType": "json",
+          "defaultValue": [
+            "reference/analyst/methods/evidence-and-handoff.md",
+            "reference/analyst/statistical-inference/index.md"
+          ]
+        },
+        {
+          "key": "external",
+          "label": "external",
+          "dataType": "boolean",
+          "defaultValue": false
+        }
+      ],
+      "actions": [],
+      "x": 1500,
+      "y": 1870,
+      "pinned": false
+    },
+    {
+      "id": "skill:time-series-forecasting",
+      "label": "Time-Series Forecasting [skill]",
+      "type": "skill",
+      "description": "---\nname: time-series-forecasting\ndescription: \"Forecast time-indexed outcomes with out-of-time evaluation and uncertainty over a specified horizon.\"\n---\n\n# Time-Series Forecasting\n\n- **Read:** [Task method](../../../reference/analyst/time-series-forecasting/index.md).\n- **Read:** [Shared evidence and handoff rules](../../../reference/analyst/methods/evidence-and-handoff.md).\n- **Scope:** resolve the decision, population, units, horizon, and material missing inputs before calculating.\n- **Execute:** apply the linked method using the task data and available analysis tools.\n- **Verify:** run its validation probe or a task-specific equivalent before relying on the result.\n- **Deliver:** provide the method's stated outputs with reproducible evidence and limitations.\n- **Knowledge:** use [this skill's curated graph](../../../reference/analyst/knowladge_graph/time-series-forecasting.md) for reference navigation.\n- **Boundary:** raw datasets and broad code indexes are not default method knowledge.\n",
+      "properties": [
+        {
+          "key": "wiki_path",
+          "label": "wiki_path",
+          "dataType": "text",
+          "defaultValue": "skills/analyst/time-series-forecasting/SKILL.md"
+        },
+        {
+          "key": "content_sha256",
+          "label": "content_sha256",
+          "dataType": "text",
+          "defaultValue": "908adaecee8e825ed79352b16ca5e446e1df681a05b3a649b0b81edd48d128e5"
+        },
+        {
+          "key": "evidence_pages",
+          "label": "evidence_pages",
+          "dataType": "json",
+          "defaultValue": [
+            "reference/analyst/methods/evidence-and-handoff.md",
+            "reference/analyst/time-series-forecasting/index.md"
+          ]
+        },
+        {
+          "key": "external",
+          "label": "external",
+          "dataType": "boolean",
+          "defaultValue": false
+        }
+      ],
+      "actions": [],
+      "x": 1750,
+      "y": 1870,
+      "pinned": false
+    }
+  ],
+  "relationships": [
+    {
+      "id": "link:3ca471d600e40e10447fd9df",
+      "source": "wiki:analyst.causal-analysis",
+      "target": "wiki:analyst.evidence",
+      "label": "derived_from",
+      "properties": {
+        "source_page": "reference/analyst/causal-analysis/index.md",
+        "source_section": "Causal Analysis",
+        "target_fragment": ""
+      }
+    },
+    {
+      "id": "link:772fb18236562bbf357a6974",
+      "source": "wiki:analyst.data-quality",
+      "target": "wiki:analyst.evidence",
+      "label": "derived_from",
+      "properties": {
+        "source_page": "reference/analyst/data-quality/index.md",
+        "source_section": "Data Quality Assessment",
+        "target_fragment": ""
+      }
+    },
+    {
+      "id": "link:6b03f9a03433d2e0c40270f9",
+      "source": "wiki:analyst.data-visualization",
+      "target": "wiki:analyst.evidence",
+      "label": "derived_from",
+      "properties": {
+        "source_page": "reference/analyst/data-visualization/index.md",
+        "source_section": "Data Visualization and Reporting",
+        "target_fragment": ""
+      }
+    },
+    {
+      "id": "link:77194cfae89f2ad59984fd08",
+      "source": "wiki:analyst.decision-analysis",
+      "target": "wiki:analyst.evidence",
+      "label": "derived_from",
+      "properties": {
+        "source_page": "reference/analyst/decision-analysis/index.md",
+        "source_section": "Decision Analysis",
+        "target_fragment": ""
+      }
+    },
+    {
+      "id": "link:1fdf1fc1d454af41e68f9305",
+      "source": "wiki:analyst.experiment-design",
+      "target": "wiki:analyst.evidence",
+      "label": "derived_from",
+      "properties": {
+        "source_page": "reference/analyst/experiment-design/index.md",
+        "source_section": "Experiment Design and A/B Testing",
+        "target_fragment": ""
+      }
+    },
+    {
+      "id": "link:5feed7829a531fa66b8adbb4",
+      "source": "wiki:analyst.exploratory-data-analysis",
+      "target": "wiki:analyst.evidence",
+      "label": "derived_from",
+      "properties": {
+        "source_page": "reference/analyst/exploratory-data-analysis/index.md",
+        "source_section": "Exploratory Data Analysis",
+        "target_fragment": ""
+      }
+    },
+    {
+      "id": "link:022c3a23000b1c8d14a9bccc",
+      "source": "wiki:analyst.monte-carlo",
+      "target": "wiki:analyst.evidence",
+      "label": "derived_from",
+      "properties": {
+        "source_page": "reference/analyst/monte-carlo/index.md",
+        "source_section": "Monte Carlo Analysis",
+        "target_fragment": ""
+      }
+    },
+    {
+      "id": "link:9f8c176e977eabef11d3da1e",
+      "source": "wiki:analyst.optimization",
+      "target": "wiki:analyst.evidence",
+      "label": "derived_from",
+      "properties": {
+        "source_page": "reference/analyst/optimization/index.md",
+        "source_section": "Optimization",
+        "target_fragment": ""
+      }
+    },
+    {
+      "id": "link:26a620dff7ee2c122bf9be7f",
+      "source": "wiki:analyst.predictive-modelling",
+      "target": "wiki:analyst.evidence",
+      "label": "derived_from",
+      "properties": {
+        "source_page": "reference/analyst/predictive-modelling/index.md",
+        "source_section": "Regression and Predictive Modelling",
+        "target_fragment": ""
+      }
+    },
+    {
+      "id": "link:ca85a0e69290eb33fbf6e22c",
+      "source": "wiki:analyst.routing",
+      "target": "wiki:analyst.evidence",
+      "label": "derived_from",
+      "properties": {
+        "source_page": "reference/analyst/routing/index.md",
+        "source_section": "Choosing an Analytical Method",
+        "target_fragment": ""
+      }
+    },
+    {
+      "id": "link:827a02ecc646e07449aa5143",
+      "source": "wiki:analyst.routing",
+      "target": "skill:causal-analysis",
+      "label": "references",
+      "properties": {
+        "source_page": "reference/analyst/routing/index.md",
+        "source_section": "Select a method",
+        "target_fragment": ""
+      }
+    },
+    {
+      "id": "link:03f2145dd164c6f5b5b74789",
+      "source": "wiki:analyst.routing",
+      "target": "skill:data-quality",
+      "label": "references",
+      "properties": {
+        "source_page": "reference/analyst/routing/index.md",
+        "source_section": "Select a method",
+        "target_fragment": ""
+      }
+    },
+    {
+      "id": "link:6b9789b47ad7ef0afb20e290",
+      "source": "wiki:analyst.routing",
+      "target": "skill:data-visualization",
+      "label": "references",
+      "properties": {
+        "source_page": "reference/analyst/routing/index.md",
+        "source_section": "Select a method",
+        "target_fragment": ""
+      }
+    },
+    {
+      "id": "link:ea7b757bfb8b552ef04f8ae2",
+      "source": "wiki:analyst.routing",
+      "target": "skill:decision-analysis",
+      "label": "references",
+      "properties": {
+        "source_page": "reference/analyst/routing/index.md",
+        "source_section": "Select a method",
+        "target_fragment": ""
+      }
+    },
+    {
+      "id": "link:4547d9f75a04b64b0b39bf06",
+      "source": "wiki:analyst.routing",
+      "target": "skill:experiment-design",
+      "label": "references",
+      "properties": {
+        "source_page": "reference/analyst/routing/index.md",
+        "source_section": "Select a method",
+        "target_fragment": ""
+      }
+    },
+    {
+      "id": "link:7810aee159fbf40b8151f8bb",
+      "source": "wiki:analyst.routing",
+      "target": "skill:exploratory-data-analysis",
+      "label": "references",
+      "properties": {
+        "source_page": "reference/analyst/routing/index.md",
+        "source_section": "Select a method",
+        "target_fragment": ""
+      }
+    },
+    {
+      "id": "link:8bfa40bc99a6e930595e39ec",
+      "source": "wiki:analyst.routing",
+      "target": "skill:monte-carlo",
+      "label": "references",
+      "properties": {
+        "source_page": "reference/analyst/routing/index.md",
+        "source_section": "Select a method",
+        "target_fragment": ""
+      }
+    },
+    {
+      "id": "link:5aac55357a2db9d07386e49a",
+      "source": "wiki:analyst.routing",
+      "target": "skill:optimization",
+      "label": "references",
+      "properties": {
+        "source_page": "reference/analyst/routing/index.md",
+        "source_section": "Select a method",
+        "target_fragment": ""
+      }
+    },
+    {
+      "id": "link:ced68b1ada3427b651800d41",
+      "source": "wiki:analyst.routing",
+      "target": "skill:predictive-modelling",
+      "label": "references",
+      "properties": {
+        "source_page": "reference/analyst/routing/index.md",
+        "source_section": "Select a method",
+        "target_fragment": ""
+      }
+    },
+    {
+      "id": "link:9b671c85dc673d26b4a3e715",
+      "source": "wiki:analyst.routing",
+      "target": "skill:scenario-analysis",
+      "label": "references",
+      "properties": {
+        "source_page": "reference/analyst/routing/index.md",
+        "source_section": "Select a method",
+        "target_fragment": ""
+      }
+    },
+    {
+      "id": "link:07afd5b984df034480a85879",
+      "source": "wiki:analyst.routing",
+      "target": "skill:segmentation-clustering",
+      "label": "references",
+      "properties": {
+        "source_page": "reference/analyst/routing/index.md",
+        "source_section": "Select a method",
+        "target_fragment": ""
+      }
+    },
+    {
+      "id": "link:2487e687f9dc5de06bebe432",
+      "source": "wiki:analyst.routing",
+      "target": "skill:sensitivity-analysis",
+      "label": "references",
+      "properties": {
+        "source_page": "reference/analyst/routing/index.md",
+        "source_section": "Select a method",
+        "target_fragment": ""
+      }
+    },
+    {
+      "id": "link:bc9840cf7c5c113d7b115f41",
+      "source": "wiki:analyst.routing",
+      "target": "skill:statistical-inference",
+      "label": "references",
+      "properties": {
+        "source_page": "reference/analyst/routing/index.md",
+        "source_section": "Select a method",
+        "target_fragment": ""
+      }
+    },
+    {
+      "id": "link:c02a88866e779c641394a945",
+      "source": "wiki:analyst.routing",
+      "target": "skill:time-series-forecasting",
+      "label": "references",
+      "properties": {
+        "source_page": "reference/analyst/routing/index.md",
+        "source_section": "Select a method",
+        "target_fragment": ""
+      }
+    },
+    {
+      "id": "link:35bbf00d3b4f6b630230b78c",
+      "source": "wiki:analyst.scenario-analysis",
+      "target": "wiki:analyst.evidence",
+      "label": "derived_from",
+      "properties": {
+        "source_page": "reference/analyst/scenario-analysis/index.md",
+        "source_section": "Scenario Analysis",
+        "target_fragment": ""
+      }
+    },
+    {
+      "id": "link:e7c192b02211976a11ab5d60",
+      "source": "wiki:analyst.segmentation-clustering",
+      "target": "wiki:analyst.evidence",
+      "label": "derived_from",
+      "properties": {
+        "source_page": "reference/analyst/segmentation-clustering/index.md",
+        "source_section": "Segmentation and Clustering",
+        "target_fragment": ""
+      }
+    },
+    {
+      "id": "link:7fda9c001c481b1fa2614006",
+      "source": "wiki:analyst.sensitivity-analysis",
+      "target": "wiki:analyst.evidence",
+      "label": "derived_from",
+      "properties": {
+        "source_page": "reference/analyst/sensitivity-analysis/index.md",
+        "source_section": "Sensitivity Analysis",
+        "target_fragment": ""
+      }
+    },
+    {
+      "id": "link:72faf93018ec4f937559c4cc",
+      "source": "wiki:analyst.statistical-inference",
+      "target": "wiki:analyst.evidence",
+      "label": "derived_from",
+      "properties": {
+        "source_page": "reference/analyst/statistical-inference/index.md",
+        "source_section": "Statistical Inference",
+        "target_fragment": ""
+      }
+    },
+    {
+      "id": "link:8e84ec5a5a01d0c26cc78e95",
+      "source": "wiki:analyst.time-series-forecasting",
+      "target": "wiki:analyst.evidence",
+      "label": "derived_from",
+      "properties": {
+        "source_page": "reference/analyst/time-series-forecasting/index.md",
+        "source_section": "Time-Series Forecasting",
+        "target_fragment": ""
+      }
+    },
+    {
+      "id": "link:d0f774c62a0783065f76795f",
+      "source": "skill:analyst",
+      "target": "wiki:analyst.evidence",
+      "label": "derived_from",
+      "properties": {
+        "source_page": "skills/analyst/SKILL.md",
+        "source_section": "Analyst / Data Scientist",
+        "target_fragment": ""
+      }
+    },
+    {
+      "id": "link:57d7eb500929360dda877af3",
+      "source": "skill:analyst",
+      "target": "wiki:analyst.routing",
+      "label": "derived_from",
+      "properties": {
+        "source_page": "skills/analyst/SKILL.md",
+        "source_section": "Analyst / Data Scientist",
+        "target_fragment": ""
+      }
+    },
+    {
+      "id": "link:0b79fb5becba8b492211db2b",
+      "source": "skill:analyst",
+      "target": "skill:causal-analysis",
+      "label": "uses",
+      "properties": {
+        "source_page": "skills/analyst/SKILL.md",
+        "source_section": "Skills",
+        "target_fragment": ""
+      }
+    },
+    {
+      "id": "link:ebbda167cf2c5a042e7a14ef",
+      "source": "skill:analyst",
+      "target": "skill:data-quality",
+      "label": "uses",
+      "properties": {
+        "source_page": "skills/analyst/SKILL.md",
+        "source_section": "Skills",
+        "target_fragment": ""
+      }
+    },
+    {
+      "id": "link:9181fd02477296399e0c3efd",
+      "source": "skill:analyst",
+      "target": "skill:data-visualization",
+      "label": "uses",
+      "properties": {
+        "source_page": "skills/analyst/SKILL.md",
+        "source_section": "Skills",
+        "target_fragment": ""
+      }
+    },
+    {
+      "id": "link:335e9f40a64d6b1616c06422",
+      "source": "skill:analyst",
+      "target": "skill:decision-analysis",
+      "label": "uses",
+      "properties": {
+        "source_page": "skills/analyst/SKILL.md",
+        "source_section": "Skills",
+        "target_fragment": ""
+      }
+    },
+    {
+      "id": "link:b2a0dc321739602f49d0361c",
+      "source": "skill:analyst",
+      "target": "skill:experiment-design",
+      "label": "uses",
+      "properties": {
+        "source_page": "skills/analyst/SKILL.md",
+        "source_section": "Skills",
+        "target_fragment": ""
+      }
+    },
+    {
+      "id": "link:a55041a68824c59ffe02284f",
+      "source": "skill:analyst",
+      "target": "skill:exploratory-data-analysis",
+      "label": "uses",
+      "properties": {
+        "source_page": "skills/analyst/SKILL.md",
+        "source_section": "Skills",
+        "target_fragment": ""
+      }
+    },
+    {
+      "id": "link:3e96d8186caedbe804ff5713",
+      "source": "skill:analyst",
+      "target": "skill:monte-carlo",
+      "label": "uses",
+      "properties": {
+        "source_page": "skills/analyst/SKILL.md",
+        "source_section": "Skills",
+        "target_fragment": ""
+      }
+    },
+    {
+      "id": "link:83cf52069d5356118b60483e",
+      "source": "skill:analyst",
+      "target": "skill:optimization",
+      "label": "uses",
+      "properties": {
+        "source_page": "skills/analyst/SKILL.md",
+        "source_section": "Skills",
+        "target_fragment": ""
+      }
+    },
+    {
+      "id": "link:cdf31e8cf500ca587258be2d",
+      "source": "skill:analyst",
+      "target": "skill:predictive-modelling",
+      "label": "uses",
+      "properties": {
+        "source_page": "skills/analyst/SKILL.md",
+        "source_section": "Skills",
+        "target_fragment": ""
+      }
+    },
+    {
+      "id": "link:c88775755208c8212f997d36",
+      "source": "skill:analyst",
+      "target": "skill:scenario-analysis",
+      "label": "uses",
+      "properties": {
+        "source_page": "skills/analyst/SKILL.md",
+        "source_section": "Skills",
+        "target_fragment": ""
+      }
+    },
+    {
+      "id": "link:52b7c069e895602cb2e0fa5a",
+      "source": "skill:analyst",
+      "target": "skill:segmentation-clustering",
+      "label": "uses",
+      "properties": {
+        "source_page": "skills/analyst/SKILL.md",
+        "source_section": "Skills",
+        "target_fragment": ""
+      }
+    },
+    {
+      "id": "link:8ec397c58f628315bfa789dd",
+      "source": "skill:analyst",
+      "target": "skill:sensitivity-analysis",
+      "label": "uses",
+      "properties": {
+        "source_page": "skills/analyst/SKILL.md",
+        "source_section": "Skills",
+        "target_fragment": ""
+      }
+    },
+    {
+      "id": "link:6d5234f8f9043f796e0f658d",
+      "source": "skill:analyst",
+      "target": "skill:statistical-inference",
+      "label": "uses",
+      "properties": {
+        "source_page": "skills/analyst/SKILL.md",
+        "source_section": "Skills",
+        "target_fragment": ""
+      }
+    },
+    {
+      "id": "link:8c524540c528945358637054",
+      "source": "skill:analyst",
+      "target": "skill:time-series-forecasting",
+      "label": "uses",
+      "properties": {
+        "source_page": "skills/analyst/SKILL.md",
+        "source_section": "Skills",
+        "target_fragment": ""
+      }
+    },
+    {
+      "id": "link:782d47ed5b5dfb82a1538317",
+      "source": "skill:causal-analysis",
+      "target": "wiki:analyst.causal-analysis",
+      "label": "derived_from",
+      "properties": {
+        "source_page": "skills/analyst/causal-analysis/SKILL.md",
+        "source_section": "Causal Analysis",
+        "target_fragment": ""
+      }
+    },
+    {
+      "id": "link:d1f1cc3a87450795c1a75e2b",
+      "source": "skill:causal-analysis",
+      "target": "wiki:analyst.evidence",
+      "label": "derived_from",
+      "properties": {
+        "source_page": "skills/analyst/causal-analysis/SKILL.md",
+        "source_section": "Causal Analysis",
+        "target_fragment": ""
+      }
+    },
+    {
+      "id": "link:f4b2b1c648921da499221290",
+      "source": "skill:data-quality",
+      "target": "wiki:analyst.data-quality",
+      "label": "derived_from",
+      "properties": {
+        "source_page": "skills/analyst/data-quality/SKILL.md",
+        "source_section": "Data Quality Assessment",
+        "target_fragment": ""
+      }
+    },
+    {
+      "id": "link:eb396c7c0bd516561a884be7",
+      "source": "skill:data-quality",
+      "target": "wiki:analyst.evidence",
+      "label": "derived_from",
+      "properties": {
+        "source_page": "skills/analyst/data-quality/SKILL.md",
+        "source_section": "Data Quality Assessment",
+        "target_fragment": ""
+      }
+    },
+    {
+      "id": "link:3a8a181f9369fd0d2b4f9c6b",
+      "source": "skill:data-visualization",
+      "target": "wiki:analyst.data-visualization",
+      "label": "derived_from",
+      "properties": {
+        "source_page": "skills/analyst/data-visualization/SKILL.md",
+        "source_section": "Data Visualization and Reporting",
+        "target_fragment": ""
+      }
+    },
+    {
+      "id": "link:fcd031c40016a9338857cb30",
+      "source": "skill:data-visualization",
+      "target": "wiki:analyst.evidence",
+      "label": "derived_from",
+      "properties": {
+        "source_page": "skills/analyst/data-visualization/SKILL.md",
+        "source_section": "Data Visualization and Reporting",
+        "target_fragment": ""
+      }
+    },
+    {
+      "id": "link:77d2d84545f4a5b0119b999b",
+      "source": "skill:decision-analysis",
+      "target": "wiki:analyst.decision-analysis",
+      "label": "derived_from",
+      "properties": {
+        "source_page": "skills/analyst/decision-analysis/SKILL.md",
+        "source_section": "Decision Analysis",
+        "target_fragment": ""
+      }
+    },
+    {
+      "id": "link:513078583a17e13c5ce9eb2e",
+      "source": "skill:decision-analysis",
+      "target": "wiki:analyst.evidence",
+      "label": "derived_from",
+      "properties": {
+        "source_page": "skills/analyst/decision-analysis/SKILL.md",
+        "source_section": "Decision Analysis",
+        "target_fragment": ""
+      }
+    },
+    {
+      "id": "link:e17589b84303a5d8118cccf9",
+      "source": "skill:experiment-design",
+      "target": "wiki:analyst.experiment-design",
+      "label": "derived_from",
+      "properties": {
+        "source_page": "skills/analyst/experiment-design/SKILL.md",
+        "source_section": "Experiment Design and A/B Testing",
+        "target_fragment": ""
+      }
+    },
+    {
+      "id": "link:4a444a1f310032711418045c",
+      "source": "skill:experiment-design",
+      "target": "wiki:analyst.evidence",
+      "label": "derived_from",
+      "properties": {
+        "source_page": "skills/analyst/experiment-design/SKILL.md",
+        "source_section": "Experiment Design and A/B Testing",
+        "target_fragment": ""
+      }
+    },
+    {
+      "id": "link:8a6f1228aca06c7734598be0",
+      "source": "skill:exploratory-data-analysis",
+      "target": "wiki:analyst.exploratory-data-analysis",
+      "label": "derived_from",
+      "properties": {
+        "source_page": "skills/analyst/exploratory-data-analysis/SKILL.md",
+        "source_section": "Exploratory Data Analysis",
+        "target_fragment": ""
+      }
+    },
+    {
+      "id": "link:a0564a6218f0483caf04fb27",
+      "source": "skill:exploratory-data-analysis",
+      "target": "wiki:analyst.evidence",
+      "label": "derived_from",
+      "properties": {
+        "source_page": "skills/analyst/exploratory-data-analysis/SKILL.md",
+        "source_section": "Exploratory Data Analysis",
+        "target_fragment": ""
+      }
+    },
+    {
+      "id": "link:2ce7295a09d258c9c3338820",
+      "source": "skill:monte-carlo",
+      "target": "wiki:analyst.evidence",
+      "label": "derived_from",
+      "properties": {
+        "source_page": "skills/analyst/monte-carlo/SKILL.md",
+        "source_section": "Monte Carlo Analysis",
+        "target_fragment": ""
+      }
+    },
+    {
+      "id": "link:33faec2b96733d086c62ce3c",
+      "source": "skill:monte-carlo",
+      "target": "wiki:analyst.monte-carlo",
+      "label": "derived_from",
+      "properties": {
+        "source_page": "skills/analyst/monte-carlo/SKILL.md",
+        "source_section": "Monte Carlo Analysis",
+        "target_fragment": ""
+      }
+    },
+    {
+      "id": "link:ef7d2bece5c04cf9e9ae0d14",
+      "source": "skill:optimization",
+      "target": "wiki:analyst.evidence",
+      "label": "derived_from",
+      "properties": {
+        "source_page": "skills/analyst/optimization/SKILL.md",
+        "source_section": "Optimization",
+        "target_fragment": ""
+      }
+    },
+    {
+      "id": "link:3346615d0d0270d19e87a732",
+      "source": "skill:optimization",
+      "target": "wiki:analyst.optimization",
+      "label": "derived_from",
+      "properties": {
+        "source_page": "skills/analyst/optimization/SKILL.md",
+        "source_section": "Optimization",
+        "target_fragment": ""
+      }
+    },
+    {
+      "id": "link:95f37d1cc2502ed9ce3561c7",
+      "source": "skill:predictive-modelling",
+      "target": "wiki:analyst.evidence",
+      "label": "derived_from",
+      "properties": {
+        "source_page": "skills/analyst/predictive-modelling/SKILL.md",
+        "source_section": "Regression and Predictive Modelling",
+        "target_fragment": ""
+      }
+    },
+    {
+      "id": "link:0fa5c2c8366bb93fe6b22886",
+      "source": "skill:predictive-modelling",
+      "target": "wiki:analyst.predictive-modelling",
+      "label": "derived_from",
+      "properties": {
+        "source_page": "skills/analyst/predictive-modelling/SKILL.md",
+        "source_section": "Regression and Predictive Modelling",
+        "target_fragment": ""
+      }
+    },
+    {
+      "id": "link:a1206780c154f4ba3547fd88",
+      "source": "skill:scenario-analysis",
+      "target": "wiki:analyst.evidence",
+      "label": "derived_from",
+      "properties": {
+        "source_page": "skills/analyst/scenario-analysis/SKILL.md",
+        "source_section": "Scenario Analysis",
+        "target_fragment": ""
+      }
+    },
+    {
+      "id": "link:5cd1baaa5f740458926a0ac1",
+      "source": "skill:scenario-analysis",
+      "target": "wiki:analyst.scenario-analysis",
+      "label": "derived_from",
+      "properties": {
+        "source_page": "skills/analyst/scenario-analysis/SKILL.md",
+        "source_section": "Scenario Analysis",
+        "target_fragment": ""
+      }
+    },
+    {
+      "id": "link:71c779d6566c6dbae593c948",
+      "source": "skill:segmentation-clustering",
+      "target": "wiki:analyst.evidence",
+      "label": "derived_from",
+      "properties": {
+        "source_page": "skills/analyst/segmentation-clustering/SKILL.md",
+        "source_section": "Segmentation and Clustering",
+        "target_fragment": ""
+      }
+    },
+    {
+      "id": "link:2aeb4321e7a468036b20e296",
+      "source": "skill:segmentation-clustering",
+      "target": "wiki:analyst.segmentation-clustering",
+      "label": "derived_from",
+      "properties": {
+        "source_page": "skills/analyst/segmentation-clustering/SKILL.md",
+        "source_section": "Segmentation and Clustering",
+        "target_fragment": ""
+      }
+    },
+    {
+      "id": "link:91ab738017b1556e8622f8e7",
+      "source": "skill:sensitivity-analysis",
+      "target": "wiki:analyst.evidence",
+      "label": "derived_from",
+      "properties": {
+        "source_page": "skills/analyst/sensitivity-analysis/SKILL.md",
+        "source_section": "Sensitivity Analysis",
+        "target_fragment": ""
+      }
+    },
+    {
+      "id": "link:589fccc04ebd152cda501b7e",
+      "source": "skill:sensitivity-analysis",
+      "target": "wiki:analyst.sensitivity-analysis",
+      "label": "derived_from",
+      "properties": {
+        "source_page": "skills/analyst/sensitivity-analysis/SKILL.md",
+        "source_section": "Sensitivity Analysis",
+        "target_fragment": ""
+      }
+    },
+    {
+      "id": "link:7b91af72f36ca3bb4f213be6",
+      "source": "skill:statistical-inference",
+      "target": "wiki:analyst.evidence",
+      "label": "derived_from",
+      "properties": {
+        "source_page": "skills/analyst/statistical-inference/SKILL.md",
+        "source_section": "Statistical Inference",
+        "target_fragment": ""
+      }
+    },
+    {
+      "id": "link:621fff88ed1dd9f2230b6516",
+      "source": "skill:statistical-inference",
+      "target": "wiki:analyst.statistical-inference",
+      "label": "derived_from",
+      "properties": {
+        "source_page": "skills/analyst/statistical-inference/SKILL.md",
+        "source_section": "Statistical Inference",
+        "target_fragment": ""
+      }
+    },
+    {
+      "id": "link:a7078d241c1e8cd8b9c17944",
+      "source": "skill:time-series-forecasting",
+      "target": "wiki:analyst.evidence",
+      "label": "derived_from",
+      "properties": {
+        "source_page": "skills/analyst/time-series-forecasting/SKILL.md",
+        "source_section": "Time-Series Forecasting",
+        "target_fragment": ""
+      }
+    },
+    {
+      "id": "link:c8e533f53a18148b03724df1",
+      "source": "skill:time-series-forecasting",
+      "target": "wiki:analyst.time-series-forecasting",
+      "label": "derived_from",
+      "properties": {
+        "source_page": "skills/analyst/time-series-forecasting/SKILL.md",
+        "source_section": "Time-Series Forecasting",
+        "target_fragment": ""
+      }
+    }
+  ]
+}

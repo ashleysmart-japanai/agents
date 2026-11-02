@@ -1,11 +1,11 @@
 ---
 name: local-agent-skills
-description: Load and use local single-file agent skills from ~/agents/skills. Use when the user references @~/agents/skills, asks to read/install/use local skills, invokes slash commands such as /clean-check, /acs-review, /update-main, /cherry-pick, /squash-rebase, /rebase-squash, /check-spec, or names the corresponding commands without a slash. Also route FDE/DS work requests through the work-skill command map, including advise_me, murderboard, ontology design, discovery, scoping, steering, and product opportunities.
+description: Load and use local flat and grouped agent skills from ~/agents/skills. Use when the user references @~/agents/skills, asks to read/install/use local skills, invokes slash commands such as /clean-check, /acs-review, /update-main, /cherry-pick, /squash-rebase, /rebase-squash, /check-spec, or names the corresponding commands without a slash. Also route FDE/DS work requests through the work-skill command map, including advise_me, murderboard, ontology design, discovery, scoping, steering, and product opportunities. Route quantitative analysis requests to the analyst group, including Monte Carlo, forecasting, inference, and optimization.
 ---
 
 # Local Agent Skills
 
-Treat every Markdown file in `~/agents/skills/` as a usable local skill, not only files named `SKILL.md`.
+Discover flat Markdown skills in `~/agents/skills/` and grouped skills recursively through `<group>/<skill>/SKILL.md`. Group entrypoints route tasks to child skills; reference documents are supporting knowledge, not separate skills.
 
 ## Discovery
 
@@ -37,7 +37,7 @@ Use these aliases:
 - Follow the target skill file's frontmatter and workflow instructions.
 - Prefer the local skill file over similarly named built-in or repo-generated command files when the user references `~/agents/skills`.
 - Treat explicit slash-command usage as approval for any action that the selected local skill says is approved by that slash command, while still using runtime approval mechanisms when required.
-- Do not infer that a command is unavailable just because it is not represented as a `SKILL.md` folder; this directory uses single-file skills.
+- Do not infer that a command is unavailable just because it is not represented as a `SKILL.md` folder; this directory supports both flat files and grouped skill folders.
 - If a requested local skill is missing, report the missing file and continue only with the closest safe fallback.
 
 ## FDE / DS work skills
@@ -69,3 +69,10 @@ Use these aliases:
 
 - Use `advise_me` when the user needs help choosing a work method.
 - Respect an explicitly selected suitable skill rather than routing every request through the advisor.
+
+## Analyst skills
+
+- `/analyst` → [Analyst / Data Scientist](analyst/SKILL.md).
+- Route quantitative method selection through the analyst entrypoint.
+- Direct analyst commands resolve to `analyst/<command>/SKILL.md`.
+- Read the selected child skill and its linked curated references; do not load every child by default.

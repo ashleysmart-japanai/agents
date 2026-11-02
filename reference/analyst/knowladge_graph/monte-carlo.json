@@ -1,0 +1,156 @@
+{
+  "schemaVersion": 2,
+  "id": "skill:monte-carlo-knowledge",
+  "title": "Monte Carlo Analysis",
+  "revision": 0,
+  "entities": [
+    {
+      "id": "wiki:analyst.evidence",
+      "label": "Analytical Evidence and Handoff",
+      "type": "method",
+      "description": "# Analytical Evidence and Handoff\n\n- **Purpose:** support reproducible decisions from data without overstating what the evidence identifies.\n- **Decision:** record the question, owner, population, unit of analysis, time horizon, and decision threshold.\n- **Evidence:** record source paths or queries, extraction time, definitions, units, filters, and sample counts.\n- **Assumptions:** label observed facts, estimates, elicited assumptions, and unresolved inputs separately.\n- **Missing inputs:** ask for facts that change the method; use labeled illustrative inputs when a demonstration is requested.\n- **Integrity:** inspect missingness, duplication, measurement changes, selection bias, and dependence before modelling.\n- **Uncertainty:** distinguish outcome variability, parameter uncertainty, structural uncertainty, and numerical estimation error.\n- **Reproducibility:** retain executable analysis, input snapshot or reproducible query, parameters, software versions, and random seeds when applicable.\n- **Execution:** run the analysis before claiming numerical results; describe unexecuted work as a plan or illustration.\n- **Validation:** compare to a simple baseline or known result and check units, bounds, edge cases, and method-specific assumptions.\n- **Handoff:** provide the finding, supporting evidence, uncertainty, limitations, decision implications, and next useful evidence.\n- **Privacy:** keep identifiable records out of reusable skill references and generated knowledge graphs.\n- **Knowledge boundary:** retrieve method guidance from the selected analyst skill graph and its allowlisted reference pages.\n- **Task data:** analyze user-authorized datasets separately from the method knowledge graph.\n- **Graphify:** code-dependency analysis is a separate gated workflow; this curated graph is not a Graphify index.\n- **Provenance:** these methods are newly authored analytical guidance, not claims extracted from the DS/FDE training slides.\n",
+      "properties": [
+        {
+          "key": "wiki_path",
+          "label": "wiki_path",
+          "dataType": "text",
+          "defaultValue": "reference/analyst/methods/evidence-and-handoff.md"
+        },
+        {
+          "key": "content_sha256",
+          "label": "content_sha256",
+          "dataType": "text",
+          "defaultValue": "5352f6c59dcf4d3b58b1b907443a8da88790d70d4933ab1d09a343b0d293514f"
+        },
+        {
+          "key": "evidence_pages",
+          "label": "evidence_pages",
+          "dataType": "json",
+          "defaultValue": []
+        },
+        {
+          "key": "external",
+          "label": "external",
+          "dataType": "boolean",
+          "defaultValue": false
+        }
+      ],
+      "actions": [],
+      "x": 750,
+      "y": 1530,
+      "pinned": false
+    },
+    {
+      "id": "wiki:analyst.monte-carlo",
+      "label": "Monte Carlo Analysis",
+      "type": "method",
+      "description": "# Monte Carlo Analysis\n\n- **Basis:** authored method guidance; validate suitability against the task evidence.\n- **Shared method:** [Analytical evidence and handoff](../methods/evidence-and-handoff.md).\n\n## Inputs\n\n- Outcome equation or simulator, input units, bounds, distributions or data, dependencies, horizon, and decision thresholds.\n\n## Method\n\n- Write the deterministic model and test its units and limiting cases before sampling.\n- Document the evidence for each distribution; label elicited ranges as assumptions.\n- Use distributions with appropriate support; do not assign an unbounded normal to a strictly positive input without justification.\n- Represent dependencies explicitly; preserve time structure or joint observations when resampling.\n- Separate variability in outcomes from uncertainty about parameters and model structure.\n- Use a recorded random seed and retain code, configuration, input snapshot, and dependency versions.\n- Increase draws until the decision-relevant quantities stabilize to a stated tolerance across independent runs.\n- Report Monte Carlo estimation error separately from the spread of simulated outcomes.\n- Estimate threshold probabilities and relevant quantiles; do not interpret zero observed failures as impossible failure.\n- Compare alternative plausible distribution and dependence assumptions.\n- Use paired random draws when comparing options under the same uncertain future.\n\n## Deliverable\n\n- Reproducible simulation code, assumption table, outcome quantiles, threshold probabilities with estimation uncertainty, convergence evidence, and decision limitations.\n\n## Validation probe\n\n- For X uniform on [0,1] and Y=2X, recover mean 1, P(Y>1.5)=0.25, and the 95th percentile 1.9 within declared Monte Carlo tolerances.\n",
+      "properties": [
+        {
+          "key": "wiki_path",
+          "label": "wiki_path",
+          "dataType": "text",
+          "defaultValue": "reference/analyst/monte-carlo/index.md"
+        },
+        {
+          "key": "content_sha256",
+          "label": "content_sha256",
+          "dataType": "text",
+          "defaultValue": "2fc11f0ea8b833e631c3a0e535922db205d202f8f7ee54999f45462d65e1372a"
+        },
+        {
+          "key": "evidence_pages",
+          "label": "evidence_pages",
+          "dataType": "json",
+          "defaultValue": [
+            "reference/analyst/methods/evidence-and-handoff.md"
+          ]
+        },
+        {
+          "key": "external",
+          "label": "external",
+          "dataType": "boolean",
+          "defaultValue": false
+        }
+      ],
+      "actions": [],
+      "x": 1000,
+      "y": 1530,
+      "pinned": false
+    },
+    {
+      "id": "skill:monte-carlo",
+      "label": "Monte Carlo Analysis [skill]",
+      "type": "skill",
+      "description": "---\nname: monte-carlo\ndescription: \"Simulate uncertain inputs to estimate outcome distributions, threshold probabilities, and risk for a specified model.\"\n---\n\n# Monte Carlo Analysis\n\n- **Read:** [Task method](../../../reference/analyst/monte-carlo/index.md).\n- **Read:** [Shared evidence and handoff rules](../../../reference/analyst/methods/evidence-and-handoff.md).\n- **Scope:** resolve the decision, population, units, horizon, and material missing inputs before calculating.\n- **Execute:** apply the linked method using the task data and available analysis tools.\n- **Verify:** run its validation probe or a task-specific equivalent before relying on the result.\n- **Deliver:** provide the method's stated outputs with reproducible evidence and limitations.\n- **Knowledge:** use [this skill's curated graph](../../../reference/analyst/knowladge_graph/monte-carlo.md) for reference navigation.\n- **Boundary:** raw datasets and broad code indexes are not default method knowledge.\n",
+      "properties": [
+        {
+          "key": "wiki_path",
+          "label": "wiki_path",
+          "dataType": "text",
+          "defaultValue": "skills/analyst/monte-carlo/SKILL.md"
+        },
+        {
+          "key": "content_sha256",
+          "label": "content_sha256",
+          "dataType": "text",
+          "defaultValue": "052a01a33da6050c08754662d99810350af5c852a4586693486badc8c0de4566"
+        },
+        {
+          "key": "evidence_pages",
+          "label": "evidence_pages",
+          "dataType": "json",
+          "defaultValue": [
+            "reference/analyst/methods/evidence-and-handoff.md",
+            "reference/analyst/monte-carlo/index.md"
+          ]
+        },
+        {
+          "key": "external",
+          "label": "external",
+          "dataType": "boolean",
+          "defaultValue": false
+        }
+      ],
+      "actions": [],
+      "x": 0,
+      "y": 1870,
+      "pinned": false
+    }
+  ],
+  "relationships": [
+    {
+      "id": "link:022c3a23000b1c8d14a9bccc",
+      "source": "wiki:analyst.monte-carlo",
+      "target": "wiki:analyst.evidence",
+      "label": "derived_from",
+      "properties": {
+        "source_page": "reference/analyst/monte-carlo/index.md",
+        "source_section": "Monte Carlo Analysis",
+        "target_fragment": ""
+      }
+    },
+    {
+      "id": "link:2ce7295a09d258c9c3338820",
+      "source": "skill:monte-carlo",
+      "target": "wiki:analyst.evidence",
+      "label": "derived_from",
+      "properties": {
+        "source_page": "skills/analyst/monte-carlo/SKILL.md",
+        "source_section": "Monte Carlo Analysis",
+        "target_fragment": ""
+      }
+    },
+    {
+      "id": "link:33faec2b96733d086c62ce3c",
+      "source": "skill:monte-carlo",
+      "target": "wiki:analyst.monte-carlo",
+      "label": "derived_from",
+      "properties": {
+        "source_page": "skills/analyst/monte-carlo/SKILL.md",
+        "source_section": "Monte Carlo Analysis",
+        "target_fragment": ""
+      }
+    }
+  ]
+}

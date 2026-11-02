@@ -18,12 +18,12 @@ class KnowledgeTests(unittest.TestCase):
         self.temp = tempfile.TemporaryDirectory()
         self.addCleanup(self.temp.cleanup)
         self.root = Path(self.temp.name)
-        for track in ['fde','ds']:
+        for track in knowledge.TRACKS:
             shutil.copytree(REPO/'reference'/track,self.root/'reference'/track)
         pages = knowledge.read_manifest(REPO)['pages']
         for page in pages:
             if page['type']=='skill':
-                target = self.root/page['path'];target.parent.mkdir(exist_ok=True)
+                target = self.root/page['path'];target.parent.mkdir(parents=True,exist_ok=True)
                 shutil.copy2(REPO/page['path'],target)
         (self.root/'skills/SKILL.md').write_text((REPO/'skills/SKILL.md').read_text())
         for relative in ['reference/design-principles.md','reference/anti-patterns.md','reference/design-principles/domain-driven-design.md']:
@@ -35,7 +35,7 @@ class KnowledgeTests(unittest.TestCase):
 
     def test_skill_graphs_have_valid_endpoints_and_in_repo_evidence(self):
         graph, skills = self.project()
-        self.assertEqual(len(skills),17)
+        self.assertEqual(len(skills),32)
         for subgraph in [graph,*skills.values()]:
             ids = {n['id'] for n in subgraph['entities']}
             self.assertEqual(len(ids),len(subgraph['entities']))
@@ -55,12 +55,12 @@ class KnowledgeTests(unittest.TestCase):
 
     def test_graph_and_diagram_generation_is_deterministic(self):
         first = knowledge.build(self.root,self.root)
-        self.assertEqual(first['trackGraphs'],2)
-        files = lambda: {str(p.relative_to(self.root)):p.read_bytes() for track in ['fde','ds'] for p in (self.root/'reference'/track/'knowladge_graph').iterdir() if p.suffix in ['.json','.md']}
+        self.assertEqual(first['trackGraphs'],3)
+        files = lambda: {str(p.relative_to(self.root)):p.read_bytes() for track in knowledge.TRACKS for p in (self.root/'reference'/track/'knowladge_graph').iterdir() if p.suffix in ['.json','.md']}
         before = files()
         self.assertEqual(knowledge.build(self.root,self.root),first)
         self.assertEqual(files(),before)
-        for track in ['fde','ds']:
+        for track in knowledge.TRACKS:
             overview = (self.root/'reference'/track/'knowladge_graph/README.md').read_text()
             self.assertIn('```mermaid\nflowchart TD',overview)
             self.assertIn('## Skill graphs',overview)
@@ -113,13 +113,14 @@ class KnowledgeTests(unittest.TestCase):
             self.assertIn('**Role:**',text)
             self.assertIn('**Stage:**',text)
             self.assertIn('**Why:**',text)
-        self.assertFalse(list((self.root/'skills').glob('*/SKILL.md')))
+        self.assertTrue((self.root/'skills/analyst/SKILL.md').is_file())
 
     def test_advisor_context_covers_selectable_skills_for_both_roles(self):
         _, skills = self.project()
         advisor = skills['advise-me']
         ids = {node['id'] for node in advisor['entities']}
-        self.assertTrue({'skill:'+name for name in skills}.issubset(ids))
+        fde_ds_ids = {p['id'] for p in knowledge.read_manifest(self.root)['pages'] if p['type'] == 'skill' and p['track'] != 'analyst'}
+        self.assertTrue(fde_ds_ids.issubset(ids))
         self.assertTrue(any(node['type']=='method' for node in advisor['entities']))
         self.assertFalse(any('/source/' in prop['defaultValue'] for node in advisor['entities'] for prop in node['properties'] if prop['key']=='wiki_path'))
         knowledge.build(self.root,self.root)
@@ -128,10 +129,36 @@ class KnowledgeTests(unittest.TestCase):
             self.assertEqual(json.loads(path.read_text()),advisor)
             self.assertIn('[advise-me](advise-me.md)',(path.parent/'README.md').read_text())
 
+    def test_analyst_skill_context_is_bounded(self):
+        _, skills = self.project()
+        graph = skills['monte-carlo']
+        paths = {p['defaultValue'] for node in graph['entities'] for p in node['properties'] if p['key'] == 'wiki_path'}
+        self.assertEqual(paths, {
+            'skills/analyst/monte-carlo/SKILL.md',
+            'reference/analyst/monte-carlo/index.md',
+            'reference/analyst/methods/evidence-and-handoff.md',
+        })
+        self.assertIn('skill:monte-carlo', {n['id'] for n in skills['analyst']['entities']})
+
+    def test_analyst_rejects_unlisted_reference_and_raw_data(self):
+        page = self.root/'reference/analyst/monte-carlo/index.md'
+        original = page.read_text()
+        for target in ['../unlisted.md', '../../../skills/CLEAN_CHECKS.md']:
+            page.write_text(original+'\n- [Unapproved]('+target+').\n')
+            with self.assertRaisesRegex(ValueError, 'Outside analyst knowledge boundary'):
+                self.project()
+        page.write_text(original)
+        manifest_path = self.root/knowledge.MANIFESTS[2]
+        manifest = json.loads(manifest_path.read_text())
+        manifest['pages'][0]['path'] = 'data/private.csv'
+        manifest_path.write_text(json.dumps(manifest))
+        with self.assertRaisesRegex(ValueError, 'Outside analyst knowledge boundary'):
+            self.project()
+
     def test_source_conversion_is_complete_and_has_no_original_file_dependency(self):
         total = 0
         expected = {'delivery-and-review':46,'diagnosis-and-value':52,'decisions-and-ontology':50,'readiness-and-positioning':41,'discovery-and-ownership':43,'product-reuse-and-growth':39,'scope-and-stakeholders':42}
-        for track in ['fde','ds']:
+        for track in knowledge.TRACKS:
             for file in (self.root/'reference'/track/'source').glob('*/slides.md'):
                 text = file.read_text();slides = list(map(int,re.findall(r'^## Slide (\d+)$',text,re.M)))
                 self.assertEqual(slides,list(range(1,expected[file.parent.name]+1)))
