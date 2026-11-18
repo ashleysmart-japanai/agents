@@ -31,7 +31,8 @@ Run these steps for each claim, in order.
    - Read its `<ID>.md` detail file: title, description, evidence, file, status.
    - Read the code at the cited `file:line` in the current checkout.
    - State the problem in one or two lines as data flow, control flow, call order, or state.
-   - Prove it with a trace or a red test per `~/agents/CODER.md`; a claim that cannot be proved is reported unproven.
+   - Prove it locally: trace the code path, or run the existing failing test; a claim that cannot be proved is reported unproven.
+   - Do not write or commit red tests, and do not run review-triage gates; that is `/review-triage`, run only when the user asks.
 2. **Locate similar items with Graphify GraphRAG:**
    - `GQ=$(mktemp /tmp/kg-gq-XXXXXX.txt)`
    - `graphify query "<claim title>" --seed "finding:<store>/<ID>" $CTX --graph $G --budget 8000 > "$GQ"`
@@ -87,6 +88,8 @@ Run these steps for each claim, in order.
 ## Rules
 
 - When the user explicitly asks to use `/kg-review`, treat that request as approval to run the graph commands and to append the rulings the user gives to memory.
+- `/kg-review` does not run `/review-triage`; it does not move claims through triage gates or change their status.
+- Review tracking follows `~/agents/review/ISSUE_TRACKING.md`; review triage (`~/agents/skills/REVIEW_TRIAGE.md`) runs only when the user asks.
 - Ask before applying any fix; apply only the confirmed set.
 - Never commit or push.
 - Never apply a `NEEDS_REVIEW:cascade` claim without the user's explicit ruling.
