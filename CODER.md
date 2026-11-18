@@ -219,6 +219,10 @@ SOLID applies to statements too — docs, specs, PR descriptions, commit message
 - Never silently swallow exceptions. Log and re-raise, or convert to a typed domain error with context.
 - Every public function that can fail has a documented failure contract.
 - Errors are typed — avoid bare catch-all error types.
+- Never silence a nullish crash with an inline fallback (`?? {}`, `?? []`, `?.`); fix the data contract at the boundary.
+  - Validate once at the boundary, use the parsed result, and pass typed values inward.
+  - A real default is a named constant set at the boundary.
+  - See `reference/anti-patterns/defensive-duct-taping.md`.
 
 ### Dependencies
 
@@ -365,9 +369,15 @@ SOLID applies to statements too — docs, specs, PR descriptions, commit message
   - Code references follow `style/QUICK_REF.md` and `style/CODE_SNIP.md`; the chat form is their chat exception.
 - Use the status tokens only (`OPEN`, `NEEDS_REVIEW:coder`, `CLOSED verified:<yyyy-mm-dd>`, …). **Never** describe a finding with a loose adjective like "present", "resolved", "done", or "handled".
 - A fix that is written but not yet verified is `OPEN`, not `CLOSED verified:` — "verified" requires a passing reverify command, test, or trace, not merely that the code is present.
-- Do **not** write to `review.md` or the `~/reviews/<repo>-pr-<number>/` directory. That persisted store is the reviewer/orchestrator's job (see `~/agents/review/ISSUE_TRACKING.md`). Your report is the in-chat list.
-  - **Exception 1:** the review-claim triage and red-light procedure below. When executing it, the coder records and updates the claims it is processing in the review store per ISSUE_TRACKING.md.
-  - **Exception 2:** `task.md` — the coder owns the file, the user owns the content (grammar: `review/TASK_FILE.md`). Never update it without the user's approval: propose the exact text in chat, write it only once approved, and keep the user's words near-verbatim — correcting only grammar, spelling, and shorthand. `# DECISIONS` entries are gated: only major actions and direction shifts qualify, each tagged with a short name (e.g. `record-not-resource`) — never task steps or work narration.
+- **Always track reviewer comments when reading them**, including requests to read, explain, or list claims without implementing fixes.
+- Follow `~/agents/review/ISSUE_TRACKING.md` and `~/agents/review/REVIEW_METHOD.md` for persisted review tracking.
+- Record every review point from every reviewer, including bots and low-priority comments, in `~/reviews/<repo>-pr-<number>/` before reporting the claims to the user.
+- Reuse existing full tracking IDs for recurring claims and retain the source comment URL, reviewer claim ID, evidence, and history.
+- Reconcile status changes and reviewer acknowledgements against existing records on every read.
+- Keep the index, detail records, and metadata consistent through `~/agents/skills/review_triage.py`.
+- Include full tracking IDs when reporting review claims to the user.
+- Review tracking does not authorize implementation changes, posting replies, or closing claims without the evidence and approvals required by the tracking procedure.
+- `task.md` — the coder owns the file, the user owns the content (grammar: `review/TASK_FILE.md`). Never update it without the user's approval: propose the exact text in chat, write it only once approved, and keep the user's words near-verbatim — correcting only grammar, spelling, and shorthand. `# DECISIONS` entries are gated: only major actions and direction shifts qualify, each tagged with a short name (e.g. `record-not-resource`) — never task steps or work narration.
 - Ground every claim: audit each progress claim against a tool result from this session before reporting it.
   - Report only work you can point to evidence for.
   - Say explicitly what is not yet verified.

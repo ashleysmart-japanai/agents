@@ -150,6 +150,14 @@ Verify none of the following exist in the code under review. See [anti-patterns.
 - [ ] No catch block is empty or logs without re-raising.
 - [ ] Every caught exception is either handled explicitly or re-raised with context.
 
+#### Defensive Duct-Taping
+- [ ] No inline fallback fabricates input: `f(x ?? {})`, `(x ?? {}).prop`, `x ?? []` as a prop.
+- [ ] No validator or parser result is discarded.
+- [ ] Each input has a stated contract: required, optional with a named default, or absent.
+- [ ] Missing required input is rejected at the boundary, not defaulted.
+- [ ] No `?.` or `??` guards a value the boundary already validated or the type marks non-optional.
+- [ ] No guard on the same value is repeated across layers.
+
 #### Circular Dependencies
 - [ ] The dependency graph contains no cycles.
 - [ ] No module imports another that imports it back.

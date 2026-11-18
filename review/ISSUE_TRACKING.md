@@ -79,6 +79,48 @@ When asked to provide a list of open `NEEDS_REVIEW` items, list `:reviewer`, `:c
 - No detail records in `review.md`. Ever.
 - One detail file per issue ID.
 
+### Allowed files
+
+- The review directory holds these files at its root:
+  - `review.md`
+  - `feedback.md`
+  - `feedback.lock.md` — transient, during feedback processing.
+  - `task.md`
+  - `log.md`
+  - `<ID>.md` detail files
+- Do not create subdirectories in the review directory.
+- Do not write any other file into the review directory or anywhere under `~/reviews/`.
+- Do not put git clones, worktrees, or checkouts under `~/reviews/`.
+  - Scratch checkouts go in `mktemp -d`.
+  - Remove a scratch checkout after use.
+- Do not save PR comment dumps, external-review snapshots, or claim maps (`sources/`, `external-review-*.json`, `comments-*.json`).
+  - Record each point as an issue instead.
+- Do not save copies or backups of `review.md` or detail files (`history/`, `pre-*.md`, `*-backup.md`).
+- Do not save full logs or raw tool output (`*.log`, `evidence/`, `rebase-*`).
+- Do not save patches, bundles, probe scripts, or test specs (`*.patch`, `*.bundle`, `*.cjs`, `*.spec.ts`).
+- Do not save coverage, checklist, or audit write-ups (`coverage.md`, `anti-patterns-*/`, `premerge-*.md`).
+  - Full-review coverage goes in `review.md` per REVIEW_METHOD.md § Evidence of completion.
+- Do not save session notes, handoffs, or integration notes (`integration.md`).
+  - Session state goes in `task.md` `# STATUS`.
+- Temporary output goes in `mktemp` or `mktemp -d`.
+
+### Evidence
+
+- Evidence is a code-snip in the `<ID>.md` `evidence:` field.
+- Keep a code-snip to the lines that prove the claim.
+- Quote the failing assertion or error lines from a log, not the log.
+- Reference what git or GitHub already holds; do not copy it.
+  - A commit is cited by SHA.
+  - A test is cited by `<sha> <file:case>`.
+  - A PR comment or review is cited by its URL.
+  - A CI run is cited by its URL.
+- **The committed red test is the proof of the bug.**
+  - Record it as `redlight:<sha> <file:case>`.
+  - Rerunning that test at that SHA reproduces the failure.
+  - Do not save red or green test output, logs, patches, or bundles as extra proof.
+  - Quote the one failing assertion line in `evidence:` when it helps the reader.
+- Do not keep a separate evidence copy of anything a SHA or URL already reaches.
+
 ## META section
 
 - `# META` stores grepable review metadata.
@@ -253,6 +295,7 @@ If a fix is reverted or no longer holds:
 - Never move `# SUMMARY` out of `review.md`.
 - Never remove an issue from `# SUMMARY`.
 - Never create index sections beyond `# META` and `# SUMMARY`.
+- Do not create files or directories in the review directory beyond § Allowed files.
 - Do not create a separate cross-PR tracking section. Cross-PR parent/child context belongs in each issue's `pr:` field.
 - Multiple agents work with these files concurrently. Structural changes break their references.
 - State must match across all three places:

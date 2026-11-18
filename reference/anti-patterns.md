@@ -12,6 +12,7 @@
 | [Circular Dependencies](anti-patterns/circular-dependencies.md) | Module A imports module B, which imports module A. The dependency graph contains a cycle |
 | [Copy-Paste Programming](anti-patterns/copy-paste-programming.md) | Duplicating code rather than abstracting a shared implementation. The logic exists in many places, each slightly different |
 | [Data Clumps](anti-patterns/data-clumps.md) | The same group of data items (e.g. `street`, `city`, `postcode`) appear together repeatedly across parameters, fields, and returns but are never encapsulated into a single type |
+| [Defensive Duct-Taping](anti-patterns/defensive-duct-taping.md) | Fallback operators (`?? {}`, `?? []`, `?.`) slapped on expressions to silence crashes instead of fixing the data contract at the boundary |
 | [Dependency Hell](anti-patterns/dependency-hell.md) | A web of transitive dependencies with conflicting version requirements that cannot all be satisfied simultaneously |
 | [Distributed Monolith](anti-patterns/distributed-monolith.md) | A system split into multiple services that are so tightly coupled — shared databases, synchronous call chains, coordinated deploys — that they cannot be developed or deployed independently |
 | [Exception Swallowing](anti-patterns/exception-swallowing.md) | Catching an exception and doing nothing with it — silently ignoring a failure |

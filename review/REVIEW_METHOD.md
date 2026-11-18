@@ -212,6 +212,10 @@ Rules:
 - Verify data flow end-to-end: endpoint -> service -> data layer -> response.
 - For any refactored data-fetching: verify the old filters, mappings, and return types are all preserved.
 - The review document contract (output format, issue tracking) is separate from the review judgment. The codebase is the source of truth for findings, not this file.
+- Do not write logs, patches, comment dumps, checkouts, or other working files into `~/reviews/`.
+  - Allowed store files: [ISSUE_TRACKING.md § Allowed files](ISSUE_TRACKING.md#allowed-files).
+  - Evidence is a code-snip in `<ID>.md`; cite commits, tests, PR comments, and CI runs by SHA or URL instead of copying them ([ISSUE_TRACKING.md § Evidence](ISSUE_TRACKING.md#evidence)).
+  - Working output goes in `mktemp`.
 - When persisting to a `review.md` store, follow [ISSUE_TRACKING.md](ISSUE_TRACKING.md) for all file mechanics (`<ID>.md` detail files, `# SUMMARY`, keeping titles and detail in sync). Those rules do not apply to in-chat finding reports.
 
 ## Acceptance Gate Verification
