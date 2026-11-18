@@ -1,0 +1,107 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+script_dir=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd -P)
+image=${CODEX_IMAGE:-codex-sandbox:local}
+agents_dir=${CODEX_AGENTS_DIR:-$HOME/agents}
+review_dir=${CODEX_REVIEW_DIR:-$HOME/reviews}
+home_volume=${CODEX_HOME_VOLUME:-codex-sandbox-home}
+current_dir=$(pwd -P)
+host_codex_home=${CODEX_HOST_HOME:-${CODEX_HOME:-$HOME/.codex}}
+
+if [[ $(id -u) == 0 ]]; then
+    echo 'Run this script as your normal user, without sudo.' >&2
+    exit 1
+fi
+if ! command -v docker >/dev/null 2>&1; then
+    echo 'Docker is required. Install Docker Desktop or Docker with Colima.' >&2
+    exit 1
+fi
+if ! docker info >/dev/null 2>&1; then
+    echo 'Docker is not running. Start Docker Desktop or run: colima start' >&2
+    exit 1
+fi
+if ! docker image inspect "$image" >/dev/null 2>&1; then
+    printf 'Image %s is missing. Build it with: %s/build\n' "$image" "$script_dir" >&2
+    exit 1
+fi
+if [[ ! -d $agents_dir ]]; then
+    printf 'Read-only agents directory does not exist: %s\n' "$agents_dir" >&2
+    exit 1
+fi
+
+mkdir -p -- "$review_dir"
+agents_dir=$(cd -- "$agents_dir" && pwd -P)
+review_dir=$(cd -- "$review_dir" && pwd -P)
+if [[ $agents_dir == / || $review_dir == / || $agents_dir == "$review_dir" ||
+      $agents_dir == "$review_dir/"* || $review_dir == "$agents_dir/"* ]]; then
+    echo 'Mount directories must be separate, must not overlap, and must not be /.' >&2
+    exit 1
+fi
+for mount_path in "$agents_dir" "$review_dir" "$current_dir"; do
+    if [[ $mount_path == *','* || $mount_path == *$'\n'* || $mount_path == *'"'* ]]; then
+        echo 'Mount paths cannot contain commas, double quotes, or newlines.' >&2
+        exit 1
+    fi
+done
+if [[ ! $home_volume =~ ^[a-zA-Z0-9][a-zA-Z0-9_.-]*$ ]]; then
+    echo 'CODEX_HOME_VOLUME must be a Docker volume name, not a host path.' >&2
+    exit 1
+fi
+
+workdir_mount="type=bind,source=$current_dir,target=/workdir"
+if [[ $current_dir == / || $current_dir == "$agents_dir" ||
+      $current_dir == "$agents_dir/"* || $agents_dir == "$current_dir/"* ]]; then
+    workdir_mount+=,readonly
+fi
+
+run_args=(
+    run --rm --init --interactive
+    --user "$(id -u):$(id -g)"
+    --read-only
+    --cap-drop ALL
+    --security-opt no-new-privileges:true
+    --pids-limit 512
+    --network bridge
+    --tmpfs '/tmp:rw,nosuid,nodev,exec,size=2g,mode=1777'
+    --mount "type=volume,source=$home_volume,target=/home/sandbox"
+    --mount "type=bind,source=$agents_dir,target=/agents,readonly"
+    --mount "type=bind,source=$review_dir,target=/reviews"
+    --mount "$workdir_mount"
+    --workdir /workdir
+    --env "TERM=${TERM:-xterm-256color}"
+)
+if [[ -t 0 && -t 1 ]]; then
+    run_args+=(--tty)
+fi
+
+# Stream a copy into the Docker home volume; never mount host Codex settings.
+config_files=()
+if [[ -d $host_codex_home ]]; then
+    host_codex_home=$(cd -- "$host_codex_home" && pwd -P)
+    if [[ -f $host_codex_home/config.toml ]]; then
+        config_files+=(config.toml)
+    fi
+    for profile_file in "$host_codex_home/"*.config.toml; do
+        if [[ -f $profile_file ]]; then
+            config_files+=("${profile_file##*/}")
+        fi
+    done
+else
+    host_codex_home=$script_dir
+fi
+
+if (( ${#config_files[@]} )); then
+    tar -chf - -C "$host_codex_home" -- "${config_files[@]}"
+else
+    tar -cf - -T /dev/null
+fi |
+    docker run --rm --interactive \
+        --user "$(id -u):$(id -g)" \
+        --read-only --cap-drop ALL --security-opt no-new-privileges:true \
+        --network none --pids-limit 64 \
+        --mount "type=volume,source=$home_volume,target=/home/sandbox" \
+        --entrypoint /usr/local/bin/codex-import-config "$image"
+
+# Arguments after the image go to Codex; they cannot add Docker mounts or privileges.
+exec docker "${run_args[@]}" "$image" "$@"

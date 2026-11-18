@@ -7,6 +7,7 @@ All review-store writes during triage go through this script. It enforces:
   - required evidence per state (scope:, cascade-of:, redlight:, probe output)
   - agent-allowed transitions only (DEFERRED / WILL_NOT_FIX are human-only and refused)
   - META open: / SUMMARY checkbox / detail status: kept in sync, log.md appended
+  - external claims close only with the external reviewer's recorded agreement (NEEDS_REVIEW:external until then)
 
 Judgment stays with the agent (is it in scope? is it a cascade?) — the script only
 accepts a decision WITH its evidence and records it correctly, or refuses.
@@ -15,8 +16,11 @@ Usage: review_triage.py --dir ~/reviews/<repo>-pr-<n> [--repo <checkout>] <comma
 
 Commands:
   init      --repo-name R --pr N --branch B --base BASE --head SHA
-  open      --type B|SEC|I|S|O|D|T|M --sev CRITICAL|HIGH|MEDIUM|LOW --title T --file 'path:line'
+  open      --type B|SEC|I|S|O|D|T|M --sev CRITICAL|HIGH|MEDIUM|LOW --title T --file '<quick-ref: path + symbol>'
             --desc D --evidence E --fix F --reverify V        -> prints new full ID, warns on overlaps
+            [--source internal|external --reviewer WHO --thread URL]
+            external = raised by a reviewer outside this session (PR bot, human PR comment, other agent);
+            its closing verdicts (out-of-scope, disprove, close) become proposals held at NEEDS_REVIEW:external
   cascade-scan ID                                             -> prior issues overlapping this claim's files
   gate      ID (--pass | --doc-claim | --style-claim |
                 --cascade-of FULLID --why W |
@@ -36,6 +40,9 @@ Commands:
   needs-review ID --why W                                     -> NEEDS_REVIEW:coder pushback
   close     ID --fix-sha SHA --verify V                       -> CLOSED verified (needs triage pass + redlight)
   reopen    ID --why W
+  reply     ID --ref URL                                      -> records the posted explanation to the external reviewer
+  ack       ID (--agreed | --rejected) --ref URL --quote Q    -> reviewer's answer: agreed applies the proposed status;
+                                                                 rejected returns the claim to OPEN to address the counter
   list      [--all] [--tests]                                  -> --tests pairs each claim with its red-light test
   check                                                       -> store consistency lint (exit 1 on violation)
 """
@@ -60,7 +67,8 @@ def new_sid():
 PREFIXES = ["B", "SEC", "I", "S", "O", "D", "T", "M"]
 SEVERITIES = ["CRITICAL", "HIGH", "MEDIUM", "LOW"]
 ID_RE = re.compile(r"^(B|SEC|I|S|O|D|T|M)(\d+)\.([0-9A-Za-z]{22})$")
-NOT_CLOSED = ("OPEN", "NEEDS_REVIEW:reviewer", "NEEDS_REVIEW:coder", "NEEDS_REVIEW:cascade", "DEFERRED", "UNPROVEN")
+NOT_CLOSED = ("OPEN", "NEEDS_REVIEW:reviewer", "NEEDS_REVIEW:coder", "NEEDS_REVIEW:cascade", "NEEDS_REVIEW:external", "DEFERRED", "UNPROVEN")
+URL_RE = re.compile(r"^https?://\S+$")
 HUMAN_ONLY = ("DEFERRED", "WILL_NOT_FIX")
 WARNING = "** WARNING do not delete review entries ever **"
 
@@ -204,6 +212,26 @@ def require_triage_done(store, fid, for_what):
     return t
 
 
+def is_external(store, fid):
+    return store.detail_field(fid, "source") == "external"
+
+
+def resolve(store, fid, status, extra_lines, log_ref, log_msg):
+    """Apply a closing status, or — for an external claim — hold it as a proposal until the reviewer agrees."""
+    if not is_external(store, fid):
+        store.set_status(fid, status, True, extra_lines)
+        store.append_log(fid, status, log_ref, log_msg)
+        return True
+    store.set_status(fid, "NEEDS_REVIEW:external", False, extra_lines)
+    store.set_detail_field(fid, "proposed", status)
+    store.set_detail_field(fid, "reply", "pending")
+    store.append_log(fid, "NEEDS_REVIEW:external", log_ref, f"proposed {status}: {log_msg}")
+    print(f"{fid} -> NEEDS_REVIEW:external (proposed {status}). External claim: post the explanation to "
+          f"{store.detail_field(fid, 'reviewer')} in {store.detail_field(fid, 'thread')}, record it with `reply`, "
+          f"and close only via `ack --agreed`.")
+    return False
+
+
 # ---------- commands ----------
 
 def cmd_init(store, args):
@@ -251,6 +279,10 @@ def cmd_open(store, args):
         die(f"--type must be one of {PREFIXES}")
     if args.sev not in SEVERITIES:
         die(f"--sev must be one of {SEVERITIES}")
+    if args.source not in ("internal", "external"):
+        die("--source must be internal|external")
+    if args.source == "external" and not (args.reviewer and args.thread and URL_RE.match(args.thread)):
+        die("--source external requires --reviewer and --thread <URL of the reviewer's comment or review> — the reply goes there")
     items = store.summary_items()
     nums = [int(ID_RE.match(i).group(2)) for i in items if ID_RE.match(i) and ID_RE.match(i).group(1) == args.type]
     fid = f"{args.type}{max(nums) + 1 if nums else 1}.{new_sid()}"
@@ -260,7 +292,8 @@ def cmd_open(store, args):
             f"## {fid}\nID:{fid}\ntype:{args.type}\nseverity:{args.sev}\ntitle:{args.title}\n"
             f"file:`{args.file}`\npr:`#{meta.get('pr', '?')}`\nstatus:OPEN\ntriage:pending\ntrace:pending\nredlight:pending\n\n"
             f"description:\n{args.desc}\n\nevidence:\n```evidence\n{args.evidence}\n```\n\n"
-            f"fix:{args.fix}\nreverify:{args.reverify}\n"
+            f"fix:{args.fix}\nreverify:{args.reverify}\nsource:{args.source}\n"
+            + (f"reviewer:{args.reviewer}\nthread:{args.thread}\n" if args.source == "external" else "")
         )
     items[fid] = {"checked": False, "status": "OPEN", "severity": args.sev, "title": f"{args.title} `{args.file}`"}
     store.rewrite_summary(items)
@@ -302,10 +335,9 @@ def cmd_gate(store, args):
             die("--out-of-scope must be micro-spec|steering|scope-creep")
         if not args.why:
             die("--out-of-scope requires --why")
-        store.set_status(fid, "OUT_OF_SCOPE", True, [f"scope:{args.out_of_scope} - {args.why}"])
         store.set_detail_field(fid, "triage", "gated-scope")
-        store.append_log(fid, "OUT_OF_SCOPE", "-", f"{args.out_of_scope}: {args.why}")
-        print(f"{fid} -> OUT_OF_SCOPE ({args.out_of_scope})")
+        if resolve(store, fid, "OUT_OF_SCOPE", [f"scope:{args.out_of_scope} - {args.why}"], "-", f"{args.out_of_scope}: {args.why}"):
+            print(f"{fid} -> OUT_OF_SCOPE ({args.out_of_scope})")
     elif args.docs_nit or args.no_behavior_change:
         reason = "doc-claim" if args.docs_nit else "style-claim"
         store.set_detail_field(fid, "triage", "passed-docs")
@@ -330,14 +362,14 @@ def cmd_trace(store, args, repo):
         die("trace needs exactly one of --possible / --impossible / --already-fixed SHA")
     if args.possible:
         if not args.path:
-            die("--possible requires --path: the current-HEAD file:line trace of how the defect manifests")
+            die("--possible requires --path: the current-HEAD quick-ref trace of how the defect manifests")
         store.set_detail_field(fid, "trace", "possible")
         store.set_status(fid, "OPEN", False, ["trace-evidence:", "```evidence", args.path, "```"])
         store.append_log(fid, "OPEN", "-", "trace: defect possible on current HEAD")
         print(f"{fid} trace:possible — proceed to red-light")
     elif args.impossible:
         if not args.evidence:
-            die("--impossible requires --evidence: current-HEAD file:line quotes (types, guards, constraints) showing the defect cannot manifest")
+            die("--impossible requires --evidence: current-HEAD code-snip quotes (types, guards, constraints) showing the defect cannot manifest")
         store.set_detail_field(fid, "trace", "impossible")
         store.set_status(fid, "OPEN", False, ["trace-evidence:", "```evidence", args.evidence, "```"])
         store.append_log(fid, "OPEN", "-", "trace: defect impossible on current HEAD; green disproof test required")
@@ -347,7 +379,7 @@ def cmd_trace(store, args, repo):
         if not re.match(r"^[0-9a-f]{7,40}$", sha):
             die("--already-fixed must be a commit sha")
         if not args.evidence:
-            die("--already-fixed requires --evidence: current-HEAD file:line quotes showing the fix in place")
+            die("--already-fixed requires --evidence: current-HEAD code-snip quotes showing the fix in place")
         if repo:
             r = subprocess.run(["git", "-C", repo, "merge-base", "--is-ancestor", sha, "HEAD"], capture_output=True)
             if r.returncode != 0:
@@ -376,11 +408,11 @@ def cmd_disprove(store, args, repo):
     store.set_detail_field(fid, "redlight", f"disproof {args.sha} {args.test}")
     fixed_by = store.detail_field(fid, "fixed-by")
     note = f"already fixed by {fixed_by}; " if fixed_by else ""
-    store.set_status(fid, f"CLOSED verified:{today()}", True,
-                     [f"commit:`{fixed_by or args.sha}`", "disproof-output:", "```evidence", args.output or "(green)", "```",
-                      f"fixed:{note}claim disproven by green test {args.test}"])
-    store.append_log(fid, f"CLOSED verified:{today()}", args.test, f"{note}disproven by green test at {args.sha}")
-    print(f"{fid} -> CLOSED verified:{today()} — {note}disproven by green test {args.test} ({args.sha})")
+    if resolve(store, fid, f"CLOSED verified:{today()}",
+               [f"commit:`{fixed_by or args.sha}`", "disproof-output:", "```evidence", args.output or "(green)", "```",
+                f"fixed:{note}claim disproven by green test {args.test}"],
+               args.test, f"{note}disproven by green test at {args.sha}"):
+        print(f"{fid} -> CLOSED verified:{today()} — {note}disproven by green test {args.test} ({args.sha})")
 
 
 def cmd_redlight(store, args, repo):
@@ -444,12 +476,12 @@ def cmd_close(store, args, repo):
         r = subprocess.run(["git", "-C", repo, "cat-file", "-t", args.fix_sha], capture_output=True, text=True)
         if r.stdout.strip() != "commit":
             die(f"fix sha {args.fix_sha} not found in {repo}", 1)
-    store.set_status(fid, f"CLOSED verified:{today()}", True,
-                     [f"commit:`{args.fix_sha}`", f"fixed:{args.verify}",
-                      "justification:", "```evidence", args.justification.strip(), "```"])
-    store.append_log(fid, f"CLOSED verified:{today()}", "-", f"fix {args.fix_sha}; proven by {red}; {args.verify}")
     proof = "docs-only change (no test applicable)" if red == "n/a-docs" else f"proven by test {red}"
-    print(f"{fid} -> CLOSED verified:{today()} — fix {args.fix_sha}; {proof}")
+    if resolve(store, fid, f"CLOSED verified:{today()}",
+               [f"commit:`{args.fix_sha}`", f"fixed:{args.verify}",
+                "justification:", "```evidence", args.justification.strip(), "```"],
+               "-", f"fix {args.fix_sha}; proven by {red}; {args.verify}"):
+        print(f"{fid} -> CLOSED verified:{today()} — fix {args.fix_sha}; {proof}")
 
 
 def cmd_reopen(store, args):
@@ -460,6 +492,46 @@ def cmd_reopen(store, args):
     print(f"{fid} -> OPEN")
     if was_cascade:
         print(f"{fid} was cascade-gated: read the prior issue's justification, state where it went wrong, follow the cascade-of chain to its root, and redesign the fix from the ground up (REVIEW_TRIAGE.md § Cascade fixes). Then re-run gate/trace/red-light.")
+
+
+def require_external_pending(store, fid, what):
+    if store.detail_field(fid, "status") != "NEEDS_REVIEW:external":
+        die(f"{what} applies to NEEDS_REVIEW:external claims; {fid} is {store.detail_field(fid, 'status')}", 1)
+
+
+def cmd_reply(store, args):
+    fid = require_id(args.id)
+    require_external_pending(store, fid, "reply")
+    if not URL_RE.match(args.ref):
+        die("--ref must be the URL of the reply posted to the reviewer")
+    store.set_detail_field(fid, "reply", f"{today()} {args.ref}")
+    store.append_log(fid, "NEEDS_REVIEW:external", "-", f"explanation posted to reviewer: {args.ref}")
+    print(f"{fid} reply recorded ({args.ref}) — stays NEEDS_REVIEW:external until the reviewer answers; record it with `ack`")
+
+
+def cmd_ack(store, args):
+    fid = require_id(args.id)
+    require_external_pending(store, fid, "ack")
+    if (store.detail_field(fid, "reply") or "pending") == "pending":
+        die(f"cannot ack {fid}: no reply recorded. Explain the verdict to the reviewer in its thread and record it with `reply` first.", 1)
+    if args.agreed == args.rejected:
+        die("ack needs exactly one of --agreed / --rejected")
+    if not URL_RE.match(args.ref) or not args.quote.strip():
+        die("ack requires --ref <URL of the reviewer's answer> and --quote <the reviewer's words>")
+    proposed = store.detail_field(fid, "proposed")
+    if args.agreed:
+        store.set_status(fid, proposed, True, [f"reviewer-ack:{today()} {args.ref} - {args.quote.strip()}"])
+        store.append_log(fid, proposed, "-", f"external reviewer agreed: {args.ref}")
+        print(f"{fid} -> {proposed} (external reviewer agreed: {args.ref})")
+        return
+    store.set_status(fid, "OPEN", False, [f"reviewer-rejected:{today()} {args.ref} - {args.quote.strip()}"])
+    store.set_detail_field(fid, "proposed", "none")
+    store.set_detail_field(fid, "reply", "pending")
+    if proposed == "OUT_OF_SCOPE":
+        store.set_detail_field(fid, "triage", "pending")
+    store.append_log(fid, "OPEN", "-", f"external reviewer rejected proposed {proposed}: {args.ref}")
+    print(f"{fid} -> OPEN (reviewer rejected proposed {proposed}). Re-derive the counter-argument from the code, "
+          f"then re-gate, fix, or answer it with new evidence and propose again — the claim stays open until the reviewer agrees.")
 
 
 def cmd_list(store, args):
@@ -503,6 +575,11 @@ def cmd_check(store, args):
             problems.append(f"{fid}: NEEDS_REVIEW:cascade without cascade-of:")
         if v["status"] == "OUT_OF_SCOPE" and not store.detail_field(fid, "scope"):
             problems.append(f"{fid}: OUT_OF_SCOPE without scope:")
+        if v["status"] == "NEEDS_REVIEW:external" and (store.detail_field(fid, "proposed") or "none") == "none":
+            problems.append(f"{fid}: NEEDS_REVIEW:external without proposed:")
+        if not not_closed and store.detail_field(fid, "source") == "external" and v["status"] != "WILL_NOT_FIX" \
+                and not store.detail_field(fid, "reviewer-ack"):
+            problems.append(f"{fid}: external claim closed without reviewer-ack:")
         if v["status"].startswith("CLOSED") and (store.detail_field(fid, "redlight") or "pending") == "pending":
             problems.append(f"{fid}: CLOSED without a redlight record")
     if problems:
@@ -527,6 +604,9 @@ def main():
     p = sub.add_parser("open")
     for opt in ("--type", "--sev", "--title", "--file", "--desc", "--evidence", "--fix", "--reverify"):
         p.add_argument(opt, required=True)
+    p.add_argument("--source", default="internal", help="internal (this session / its subagents) or external (PR bot, human reviewer, other agent)")
+    p.add_argument("--reviewer", default=None, help="external reviewer handle")
+    p.add_argument("--thread", default=None, help="URL of the external reviewer's comment/review — where the reply goes")
 
     p = sub.add_parser("cascade-scan")
     p.add_argument("id")
@@ -582,6 +662,17 @@ def main():
     p.add_argument("id")
     p.add_argument("--why", required=True)
 
+    p = sub.add_parser("reply")
+    p.add_argument("id")
+    p.add_argument("--ref", required=True)
+
+    p = sub.add_parser("ack")
+    p.add_argument("id")
+    p.add_argument("--agreed", action="store_true")
+    p.add_argument("--rejected", action="store_true")
+    p.add_argument("--ref", required=True)
+    p.add_argument("--quote", required=True)
+
     p = sub.add_parser("list")
     p.add_argument("--all", action="store_true")
     p.add_argument("--tests", action="store_true", help="show each claim's matching red-light test")
@@ -615,6 +706,10 @@ def main():
         cmd_close(store, args, args.repo)
     elif args.cmd == "reopen":
         cmd_reopen(store, args)
+    elif args.cmd == "reply":
+        cmd_reply(store, args)
+    elif args.cmd == "ack":
+        cmd_ack(store, args)
     elif args.cmd == "list":
         cmd_list(store, args)
     elif args.cmd == "check":

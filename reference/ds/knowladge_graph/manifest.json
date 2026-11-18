@@ -1,0 +1,322 @@
+{
+  "version": 1,
+  "pages": [
+    {
+      "id": "wiki:reference.ds.discovery-interviewer.index",
+      "path": "reference/ds/discovery-interviewer/index.md",
+      "title": "Discovery Interviewer / 業務発見インタビュー",
+      "type": "tool",
+      "track": "ds",
+      "day": 1,
+      "sources": [
+        "reference/ds/methods/discovery-and-ownership.md"
+      ]
+    },
+    {
+      "id": "wiki:reference.ds.discovery-interviewer.worksheet",
+      "path": "reference/ds/discovery-interviewer/worksheet.md",
+      "title": "Discovery Interviewer / 業務発見インタビュー — worksheet / ワークシート",
+      "type": "template",
+      "track": "ds",
+      "day": 1,
+      "sources": [
+        "reference/ds/methods/discovery-and-ownership.md"
+      ]
+    },
+    {
+      "id": "wiki:reference.ds.discovery-interviewer.failure-patterns",
+      "path": "reference/ds/discovery-interviewer/failure-patterns.md",
+      "title": "Discovery Interviewer / 業務発見インタビュー — failure patterns / 失敗パターン",
+      "type": "patterns",
+      "track": "ds",
+      "day": 1,
+      "sources": [
+        "reference/ds/methods/discovery-and-ownership.md"
+      ]
+    },
+    {
+      "id": "skill:discovery-interviewer",
+      "path": "skills/DISCOVERY_INTERVIEWER.md",
+      "title": "Discovery Interviewer / 業務発見インタビュー",
+      "type": "skill",
+      "track": "ds",
+      "day": 1,
+      "sources": [
+        "reference/ds/methods/discovery-and-ownership.md"
+      ],
+      "entrypoint": "reference/ds/discovery-interviewer/index.md"
+    },
+    {
+      "id": "wiki:reference.ds.ownership-handoff.index",
+      "path": "reference/ds/ownership-handoff/index.md",
+      "title": "Ownership & Handoff Designer / 責任分担・引き継ぎ",
+      "type": "tool",
+      "track": "ds",
+      "day": 1,
+      "sources": [
+        "reference/ds/methods/discovery-and-ownership.md"
+      ]
+    },
+    {
+      "id": "wiki:reference.ds.ownership-handoff.worksheet",
+      "path": "reference/ds/ownership-handoff/worksheet.md",
+      "title": "Ownership & Handoff Designer / 責任分担・引き継ぎ — worksheet / ワークシート",
+      "type": "template",
+      "track": "ds",
+      "day": 1,
+      "sources": [
+        "reference/ds/methods/discovery-and-ownership.md"
+      ]
+    },
+    {
+      "id": "wiki:reference.ds.ownership-handoff.failure-patterns",
+      "path": "reference/ds/ownership-handoff/failure-patterns.md",
+      "title": "Ownership & Handoff Designer / 責任分担・引き継ぎ — failure patterns / 失敗パターン",
+      "type": "patterns",
+      "track": "ds",
+      "day": 1,
+      "sources": [
+        "reference/ds/methods/discovery-and-ownership.md"
+      ]
+    },
+    {
+      "id": "skill:ownership-handoff",
+      "path": "skills/OWNERSHIP_HANDOFF.md",
+      "title": "Ownership & Handoff Designer / 責任分担・引き継ぎ",
+      "type": "skill",
+      "track": "ds",
+      "day": 1,
+      "sources": [
+        "reference/ds/methods/discovery-and-ownership.md"
+      ],
+      "entrypoint": "reference/ds/ownership-handoff/index.md"
+    },
+    {
+      "id": "wiki:reference.ds.product-opportunity.index",
+      "path": "reference/ds/product-opportunity/index.md",
+      "title": "Product Opportunity Scout / 製品化機会の探索",
+      "type": "tool",
+      "track": "ds",
+      "day": 2,
+      "sources": [
+        "reference/ds/methods/product-reuse-and-growth.md"
+      ]
+    },
+    {
+      "id": "wiki:reference.ds.product-opportunity.worksheet",
+      "path": "reference/ds/product-opportunity/worksheet.md",
+      "title": "Product Opportunity Scout / 製品化機会の探索 — worksheet / ワークシート",
+      "type": "template",
+      "track": "ds",
+      "day": 2,
+      "sources": [
+        "reference/ds/methods/product-reuse-and-growth.md"
+      ]
+    },
+    {
+      "id": "wiki:reference.ds.product-opportunity.failure-patterns",
+      "path": "reference/ds/product-opportunity/failure-patterns.md",
+      "title": "Product Opportunity Scout / 製品化機会の探索 — failure patterns / 失敗パターン",
+      "type": "patterns",
+      "track": "ds",
+      "day": 2,
+      "sources": [
+        "reference/ds/methods/product-reuse-and-growth.md"
+      ]
+    },
+    {
+      "id": "skill:product-opportunity",
+      "path": "skills/PRODUCT_OPPORTUNITY.md",
+      "title": "Product Opportunity Scout / 製品化機会の探索",
+      "type": "skill",
+      "track": "ds",
+      "day": 2,
+      "sources": [
+        "reference/ds/methods/product-reuse-and-growth.md"
+      ],
+      "entrypoint": "reference/ds/product-opportunity/index.md"
+    },
+    {
+      "id": "wiki:reference.ds.account-growth.index",
+      "path": "reference/ds/account-growth/index.md",
+      "title": "Account Growth Planner / アカウント成長計画",
+      "type": "tool",
+      "track": "ds",
+      "day": 2,
+      "sources": [
+        "reference/ds/methods/product-reuse-and-growth.md"
+      ]
+    },
+    {
+      "id": "wiki:reference.ds.account-growth.worksheet",
+      "path": "reference/ds/account-growth/worksheet.md",
+      "title": "Account Growth Planner / アカウント成長計画 — worksheet / ワークシート",
+      "type": "template",
+      "track": "ds",
+      "day": 2,
+      "sources": [
+        "reference/ds/methods/product-reuse-and-growth.md"
+      ]
+    },
+    {
+      "id": "wiki:reference.ds.account-growth.failure-patterns",
+      "path": "reference/ds/account-growth/failure-patterns.md",
+      "title": "Account Growth Planner / アカウント成長計画 — failure patterns / 失敗パターン",
+      "type": "patterns",
+      "track": "ds",
+      "day": 2,
+      "sources": [
+        "reference/ds/methods/product-reuse-and-growth.md"
+      ]
+    },
+    {
+      "id": "skill:account-growth",
+      "path": "skills/ACCOUNT_GROWTH.md",
+      "title": "Account Growth Planner / アカウント成長計画",
+      "type": "skill",
+      "track": "ds",
+      "day": 2,
+      "sources": [
+        "reference/ds/methods/product-reuse-and-growth.md"
+      ],
+      "entrypoint": "reference/ds/account-growth/index.md"
+    },
+    {
+      "id": "wiki:reference.ds.scope-success.index",
+      "path": "reference/ds/scope-success/index.md",
+      "title": "Scope & Success Designer / スコープ・成功条件",
+      "type": "tool",
+      "track": "ds",
+      "day": 3,
+      "sources": [
+        "reference/ds/methods/scope-and-stakeholders.md"
+      ]
+    },
+    {
+      "id": "wiki:reference.ds.scope-success.worksheet",
+      "path": "reference/ds/scope-success/worksheet.md",
+      "title": "Scope & Success Designer / スコープ・成功条件 — worksheet / ワークシート",
+      "type": "template",
+      "track": "ds",
+      "day": 3,
+      "sources": [
+        "reference/ds/methods/scope-and-stakeholders.md"
+      ]
+    },
+    {
+      "id": "wiki:reference.ds.scope-success.failure-patterns",
+      "path": "reference/ds/scope-success/failure-patterns.md",
+      "title": "Scope & Success Designer / スコープ・成功条件 — failure patterns / 失敗パターン",
+      "type": "patterns",
+      "track": "ds",
+      "day": 3,
+      "sources": [
+        "reference/ds/methods/scope-and-stakeholders.md"
+      ]
+    },
+    {
+      "id": "skill:scope-success",
+      "path": "skills/SCOPE_SUCCESS.md",
+      "title": "Scope & Success Designer / スコープ・成功条件",
+      "type": "skill",
+      "track": "ds",
+      "day": 3,
+      "sources": [
+        "reference/ds/methods/scope-and-stakeholders.md"
+      ],
+      "entrypoint": "reference/ds/scope-success/index.md"
+    },
+    {
+      "id": "wiki:reference.ds.stakeholder-conversation.index",
+      "path": "reference/ds/stakeholder-conversation/index.md",
+      "title": "Stakeholder & Conversation Planner / 関係者・対話計画",
+      "type": "tool",
+      "track": "ds",
+      "day": 3,
+      "sources": [
+        "reference/ds/methods/scope-and-stakeholders.md"
+      ]
+    },
+    {
+      "id": "wiki:reference.ds.stakeholder-conversation.worksheet",
+      "path": "reference/ds/stakeholder-conversation/worksheet.md",
+      "title": "Stakeholder & Conversation Planner / 関係者・対話計画 — worksheet / ワークシート",
+      "type": "template",
+      "track": "ds",
+      "day": 3,
+      "sources": [
+        "reference/ds/methods/scope-and-stakeholders.md"
+      ]
+    },
+    {
+      "id": "wiki:reference.ds.stakeholder-conversation.failure-patterns",
+      "path": "reference/ds/stakeholder-conversation/failure-patterns.md",
+      "title": "Stakeholder & Conversation Planner / 関係者・対話計画 — failure patterns / 失敗パターン",
+      "type": "patterns",
+      "track": "ds",
+      "day": 3,
+      "sources": [
+        "reference/ds/methods/scope-and-stakeholders.md"
+      ]
+    },
+    {
+      "id": "skill:stakeholder-conversation",
+      "path": "skills/STAKEHOLDER_CONVERSATION.md",
+      "title": "Stakeholder & Conversation Planner / 関係者・対話計画",
+      "type": "skill",
+      "track": "ds",
+      "day": 3,
+      "sources": [
+        "reference/ds/methods/scope-and-stakeholders.md"
+      ],
+      "entrypoint": "reference/ds/stakeholder-conversation/index.md"
+    },
+    {
+      "id": "wiki:reference.ds.methods.discovery-and-ownership",
+      "path": "reference/ds/methods/discovery-and-ownership.md",
+      "title": "Discovery and responsibility / 業務発見と責任",
+      "type": "method",
+      "track": "ds",
+      "day": 1,
+      "sources": []
+    },
+    {
+      "id": "wiki:reference.ds.methods.product-reuse-and-growth",
+      "path": "reference/ds/methods/product-reuse-and-growth.md",
+      "title": "Product reuse and account growth / 製品再利用と成長",
+      "type": "method",
+      "track": "ds",
+      "day": 2,
+      "sources": []
+    },
+    {
+      "id": "wiki:reference.ds.methods.scope-and-stakeholders",
+      "path": "reference/ds/methods/scope-and-stakeholders.md",
+      "title": "Scope, success, and stakeholders / スコープ・成功・関係者",
+      "type": "method",
+      "track": "ds",
+      "day": 3,
+      "sources": []
+    },
+    {
+      "id": "wiki:reference.ds.index",
+      "path": "reference/ds/index.md",
+      "title": "DS work tools / 実務ツール",
+      "type": "index",
+      "track": "ds",
+      "day": null,
+      "sources": []
+    },
+    {
+      "id": "skill:ds-scope-checker",
+      "path": "skills/DS_SCOPE_CHECKER.md",
+      "title": "DS scope checker",
+      "type": "skill",
+      "track": "ds",
+      "sources": [
+        "reference/ds/methods/scope-and-stakeholders.md"
+      ],
+      "entrypoint": "reference/ds/scope-success/index.md"
+    }
+  ]
+}

@@ -1,0 +1,156 @@
+{
+  "schemaVersion": 2,
+  "id": "skill:exploratory-data-analysis-knowledge",
+  "title": "Exploratory Data Analysis",
+  "revision": 0,
+  "entities": [
+    {
+      "id": "wiki:analyst.exploratory-data-analysis",
+      "label": "Exploratory Data Analysis",
+      "type": "method",
+      "description": "# Exploratory Data Analysis\n\n- **Basis:** authored method guidance; validate suitability against the task evidence.\n- **Shared method:** [Analytical evidence and handoff](../methods/evidence-and-handoff.md).\n\n## Inputs\n\n- Data snapshot, variable definitions, row grain, target question, population, and available grouping or time fields.\n\n## Method\n\n- Check data quality and sampling coverage before interpreting patterns.\n- Summarize distributions with counts, missingness, quantiles, and appropriate measures of spread.\n- Plot skew, multimodality, extreme values, and time structure rather than relying on averages.\n- Compare relationships within meaningful cohorts to expose aggregation effects.\n- Inspect outliers in source context before excluding them.\n- Label discovered associations and post-hoc hypotheses as exploratory.\n- Separate exploratory data from any holdout reserved for later confirmation.\n- Choose a small set of hypotheses and the evidence needed to test each.\n\n## Deliverable\n\n- Exploratory report with reproducible summaries, labeled charts, observed patterns, competing explanations, and follow-up questions.\n\n## Validation probe\n\n- Use grouped data with a reversed aggregate trend; report the within-group and aggregate relationships separately.\n",
+      "properties": [
+        {
+          "key": "wiki_path",
+          "label": "wiki_path",
+          "dataType": "text",
+          "defaultValue": "reference/analyst/exploratory-data-analysis/index.md"
+        },
+        {
+          "key": "content_sha256",
+          "label": "content_sha256",
+          "dataType": "text",
+          "defaultValue": "faef9f10727c471c1c3805f3aee59d9c19a9494d9e15707d24f1ff07a51e9d73"
+        },
+        {
+          "key": "evidence_pages",
+          "label": "evidence_pages",
+          "dataType": "json",
+          "defaultValue": [
+            "reference/analyst/methods/evidence-and-handoff.md"
+          ]
+        },
+        {
+          "key": "external",
+          "label": "external",
+          "dataType": "boolean",
+          "defaultValue": false
+        }
+      ],
+      "actions": [],
+      "x": 500,
+      "y": 1530,
+      "pinned": false
+    },
+    {
+      "id": "wiki:analyst.evidence",
+      "label": "Analytical Evidence and Handoff",
+      "type": "method",
+      "description": "# Analytical Evidence and Handoff\n\n- **Purpose:** support reproducible decisions from data without overstating what the evidence identifies.\n- **Decision:** record the question, owner, population, unit of analysis, time horizon, and decision threshold.\n- **Evidence:** record source paths or queries, extraction time, definitions, units, filters, and sample counts.\n- **Assumptions:** label observed facts, estimates, elicited assumptions, and unresolved inputs separately.\n- **Missing inputs:** ask for facts that change the method; use labeled illustrative inputs when a demonstration is requested.\n- **Integrity:** inspect missingness, duplication, measurement changes, selection bias, and dependence before modelling.\n- **Uncertainty:** distinguish outcome variability, parameter uncertainty, structural uncertainty, and numerical estimation error.\n- **Reproducibility:** retain executable analysis, input snapshot or reproducible query, parameters, software versions, and random seeds when applicable.\n- **Execution:** run the analysis before claiming numerical results; describe unexecuted work as a plan or illustration.\n- **Validation:** compare to a simple baseline or known result and check units, bounds, edge cases, and method-specific assumptions.\n- **Handoff:** provide the finding, supporting evidence, uncertainty, limitations, decision implications, and next useful evidence.\n- **Privacy:** keep identifiable records out of reusable skill references and generated knowledge graphs.\n- **Knowledge boundary:** retrieve method guidance from the selected analyst skill graph and its allowlisted reference pages.\n- **Task data:** analyze user-authorized datasets separately from the method knowledge graph.\n- **Graphify:** code-dependency analysis is a separate gated workflow; this curated graph is not a Graphify index.\n- **Provenance:** these methods are newly authored analytical guidance, not claims extracted from the DS/FDE training slides.\n",
+      "properties": [
+        {
+          "key": "wiki_path",
+          "label": "wiki_path",
+          "dataType": "text",
+          "defaultValue": "reference/analyst/methods/evidence-and-handoff.md"
+        },
+        {
+          "key": "content_sha256",
+          "label": "content_sha256",
+          "dataType": "text",
+          "defaultValue": "5352f6c59dcf4d3b58b1b907443a8da88790d70d4933ab1d09a343b0d293514f"
+        },
+        {
+          "key": "evidence_pages",
+          "label": "evidence_pages",
+          "dataType": "json",
+          "defaultValue": []
+        },
+        {
+          "key": "external",
+          "label": "external",
+          "dataType": "boolean",
+          "defaultValue": false
+        }
+      ],
+      "actions": [],
+      "x": 750,
+      "y": 1530,
+      "pinned": false
+    },
+    {
+      "id": "skill:exploratory-data-analysis",
+      "label": "Exploratory Data Analysis [skill]",
+      "type": "skill",
+      "description": "---\nname: exploratory-data-analysis\ndescription: \"Explore a dataset to understand distributions, relationships, outliers, and promising hypotheses before formal modelling.\"\n---\n\n# Exploratory Data Analysis\n\n- **Read:** [Task method](../../../reference/analyst/exploratory-data-analysis/index.md).\n- **Read:** [Shared evidence and handoff rules](../../../reference/analyst/methods/evidence-and-handoff.md).\n- **Scope:** resolve the decision, population, units, horizon, and material missing inputs before calculating.\n- **Execute:** apply the linked method using the task data and available analysis tools.\n- **Verify:** run its validation probe or a task-specific equivalent before relying on the result.\n- **Deliver:** provide the method's stated outputs with reproducible evidence and limitations.\n- **Knowledge:** use [this skill's curated graph](../../../reference/analyst/knowladge_graph/exploratory-data-analysis.md) for reference navigation.\n- **Boundary:** raw datasets and broad code indexes are not default method knowledge.\n",
+      "properties": [
+        {
+          "key": "wiki_path",
+          "label": "wiki_path",
+          "dataType": "text",
+          "defaultValue": "skills/analyst/exploratory-data-analysis/SKILL.md"
+        },
+        {
+          "key": "content_sha256",
+          "label": "content_sha256",
+          "dataType": "text",
+          "defaultValue": "cb6359babff754f9020a4a05317442241647c65abbbc65a226b5b9c8c2bb675b"
+        },
+        {
+          "key": "evidence_pages",
+          "label": "evidence_pages",
+          "dataType": "json",
+          "defaultValue": [
+            "reference/analyst/methods/evidence-and-handoff.md",
+            "reference/analyst/exploratory-data-analysis/index.md"
+          ]
+        },
+        {
+          "key": "external",
+          "label": "external",
+          "dataType": "boolean",
+          "defaultValue": false
+        }
+      ],
+      "actions": [],
+      "x": 2250,
+      "y": 1700,
+      "pinned": false
+    }
+  ],
+  "relationships": [
+    {
+      "id": "link:5feed7829a531fa66b8adbb4",
+      "source": "wiki:analyst.exploratory-data-analysis",
+      "target": "wiki:analyst.evidence",
+      "label": "derived_from",
+      "properties": {
+        "source_page": "reference/analyst/exploratory-data-analysis/index.md",
+        "source_section": "Exploratory Data Analysis",
+        "target_fragment": ""
+      }
+    },
+    {
+      "id": "link:8a6f1228aca06c7734598be0",
+      "source": "skill:exploratory-data-analysis",
+      "target": "wiki:analyst.exploratory-data-analysis",
+      "label": "derived_from",
+      "properties": {
+        "source_page": "skills/analyst/exploratory-data-analysis/SKILL.md",
+        "source_section": "Exploratory Data Analysis",
+        "target_fragment": ""
+      }
+    },
+    {
+      "id": "link:a0564a6218f0483caf04fb27",
+      "source": "skill:exploratory-data-analysis",
+      "target": "wiki:analyst.evidence",
+      "label": "derived_from",
+      "properties": {
+        "source_page": "skills/analyst/exploratory-data-analysis/SKILL.md",
+        "source_section": "Exploratory Data Analysis",
+        "target_fragment": ""
+      }
+    }
+  ]
+}

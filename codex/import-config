@@ -1,0 +1,58 @@
+#!/usr/bin/env python3
+"""Copy host configuration streamed as a tar archive into the container home."""
+
+import os
+import sys
+import tarfile
+import tempfile
+from pathlib import Path
+
+import tomlkit
+
+
+def write_config(path: Path, content: str) -> None:
+    """Replace a config file atomically without following an existing symlink."""
+    with tempfile.NamedTemporaryFile(mode="w", dir=path.parent, delete=False) as file:
+        temporary_path = Path(file.name)
+        try:
+            file.write(content)
+            file.flush()
+            os.replace(temporary_path, path)
+        finally:
+            temporary_path.unlink(missing_ok=True)
+
+
+def main() -> None:
+    """Import only configuration files and apply container execution settings."""
+    codex_home = Path(os.environ["CODEX_HOME"])
+    codex_home.mkdir(parents=True, exist_ok=True)
+    config_text = ""
+    profiles: dict[str, str] = {}
+    with tarfile.open(fileobj=sys.stdin.buffer, mode="r|*") as archive:
+        for member in archive:
+            name = member.name
+            if not member.isfile() or Path(name).name != name:
+                raise ValueError("Only regular top-level config files may be imported")
+            if name != "config.toml" and not name.endswith(".config.toml"):
+                raise ValueError("Unexpected file in configuration archive")
+            source = archive.extractfile(member)
+            if source is None:
+                raise ValueError("Configuration file could not be read")
+            content = source.read().decode("utf-8")
+            tomlkit.parse(content)
+            if name == "config.toml":
+                config_text = content
+            else:
+                profiles[name] = content
+
+    config = tomlkit.parse(config_text)
+    config["approval_policy"] = "never"
+    config["sandbox_mode"] = "danger-full-access"
+    config["cli_auth_credentials_store"] = "file"
+    write_config(codex_home / "config.toml", tomlkit.dumps(config))
+    for name, content in profiles.items():
+        write_config(codex_home / name, content)
+
+
+if __name__ == "__main__":
+    main()

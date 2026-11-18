@@ -1,0 +1,11 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+if [[ ${1:-} == --shell ]]; then
+    shift
+    exec bash "$@"
+fi
+
+# Set these on every invocation, including when an existing volume has old config.
+exec codex -c 'approval_policy="never"' -c 'sandbox_mode="danger-full-access"' \
+    -c 'cli_auth_credentials_store="file"' "$@"

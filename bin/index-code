@@ -1,0 +1,12 @@
+#!/bin/sh
+set -eu
+if command -v graphify >/dev/null 2>&1; then
+    graphify_bin=$(command -v graphify)
+elif [ -x "$HOME/.local/bin/graphify" ]; then
+    graphify_bin="$HOME/.local/bin/graphify"
+else
+    echo 'Graphify is missing; follow install.md.' >&2
+    exit 1
+fi
+echo 'Generating a local code knowledge graph for the current directory...'
+exec "$graphify_bin" extract . --code-only

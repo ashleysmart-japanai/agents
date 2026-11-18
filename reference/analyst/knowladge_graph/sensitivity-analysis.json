@@ -1,0 +1,156 @@
+{
+  "schemaVersion": 2,
+  "id": "skill:sensitivity-analysis-knowledge",
+  "title": "Sensitivity Analysis",
+  "revision": 0,
+  "entities": [
+    {
+      "id": "wiki:analyst.evidence",
+      "label": "Analytical Evidence and Handoff",
+      "type": "method",
+      "description": "# Analytical Evidence and Handoff\n\n- **Purpose:** support reproducible decisions from data without overstating what the evidence identifies.\n- **Decision:** record the question, owner, population, unit of analysis, time horizon, and decision threshold.\n- **Evidence:** record source paths or queries, extraction time, definitions, units, filters, and sample counts.\n- **Assumptions:** label observed facts, estimates, elicited assumptions, and unresolved inputs separately.\n- **Missing inputs:** ask for facts that change the method; use labeled illustrative inputs when a demonstration is requested.\n- **Integrity:** inspect missingness, duplication, measurement changes, selection bias, and dependence before modelling.\n- **Uncertainty:** distinguish outcome variability, parameter uncertainty, structural uncertainty, and numerical estimation error.\n- **Reproducibility:** retain executable analysis, input snapshot or reproducible query, parameters, software versions, and random seeds when applicable.\n- **Execution:** run the analysis before claiming numerical results; describe unexecuted work as a plan or illustration.\n- **Validation:** compare to a simple baseline or known result and check units, bounds, edge cases, and method-specific assumptions.\n- **Handoff:** provide the finding, supporting evidence, uncertainty, limitations, decision implications, and next useful evidence.\n- **Privacy:** keep identifiable records out of reusable skill references and generated knowledge graphs.\n- **Knowledge boundary:** retrieve method guidance from the selected analyst skill graph and its allowlisted reference pages.\n- **Task data:** analyze user-authorized datasets separately from the method knowledge graph.\n- **Graphify:** code-dependency analysis is a separate gated workflow; this curated graph is not a Graphify index.\n- **Provenance:** these methods are newly authored analytical guidance, not claims extracted from the DS/FDE training slides.\n",
+      "properties": [
+        {
+          "key": "wiki_path",
+          "label": "wiki_path",
+          "dataType": "text",
+          "defaultValue": "reference/analyst/methods/evidence-and-handoff.md"
+        },
+        {
+          "key": "content_sha256",
+          "label": "content_sha256",
+          "dataType": "text",
+          "defaultValue": "5352f6c59dcf4d3b58b1b907443a8da88790d70d4933ab1d09a343b0d293514f"
+        },
+        {
+          "key": "evidence_pages",
+          "label": "evidence_pages",
+          "dataType": "json",
+          "defaultValue": []
+        },
+        {
+          "key": "external",
+          "label": "external",
+          "dataType": "boolean",
+          "defaultValue": false
+        }
+      ],
+      "actions": [],
+      "x": 750,
+      "y": 1530,
+      "pinned": false
+    },
+    {
+      "id": "wiki:analyst.sensitivity-analysis",
+      "label": "Sensitivity Analysis",
+      "type": "method",
+      "description": "# Sensitivity Analysis\n\n- **Basis:** authored method guidance; validate suitability against the task evidence.\n- **Shared method:** [Analytical evidence and handoff](../methods/evidence-and-handoff.md).\n\n## Inputs\n\n- Executable model, input ranges or joint distributions, baseline, output metric, and decision threshold.\n\n## Method\n\n- Distinguish local derivatives, one-at-a-time scenarios, and global sensitivity to a joint uncertainty model.\n- Set meaningful input ranges and preserve feasibility constraints when perturbing inputs.\n- Use one-at-a-time analysis for local questions; disclose that it can miss interactions.\n- Choose a global method when nonlinearities or interactions matter.\n- Use independent-input variance decompositions only when independence is justified; otherwise use a dependence-aware method or conditional scenario analysis.\n- Separate parameter influence from parameter uncertainty.\n- Use common random numbers where helpful to reduce simulation noise between comparisons.\n- Check ranking stability under resampling and plausible input-range changes.\n- Locate break-even thresholds where the preferred action changes.\n\n## Deliverable\n\n- Influence ranking with units and ranges, interaction caveats, ranking stability, and decision-switch thresholds.\n\n## Validation probe\n\n- For Y=X1*X2 near (0,0), show that one-at-a-time changes miss the interaction revealed by jointly varying both inputs.\n",
+      "properties": [
+        {
+          "key": "wiki_path",
+          "label": "wiki_path",
+          "dataType": "text",
+          "defaultValue": "reference/analyst/sensitivity-analysis/index.md"
+        },
+        {
+          "key": "content_sha256",
+          "label": "content_sha256",
+          "dataType": "text",
+          "defaultValue": "7318b13d795c2c988350807d3b162b59a8b24b37d86e42a9135c162107d2d8d5"
+        },
+        {
+          "key": "evidence_pages",
+          "label": "evidence_pages",
+          "dataType": "json",
+          "defaultValue": [
+            "reference/analyst/methods/evidence-and-handoff.md"
+          ]
+        },
+        {
+          "key": "external",
+          "label": "external",
+          "dataType": "boolean",
+          "defaultValue": false
+        }
+      ],
+      "actions": [],
+      "x": 0,
+      "y": 1700,
+      "pinned": false
+    },
+    {
+      "id": "skill:sensitivity-analysis",
+      "label": "Sensitivity Analysis [skill]",
+      "type": "skill",
+      "description": "---\nname: sensitivity-analysis\ndescription: \"Identify which uncertain inputs or assumptions drive a model output or change a decision.\"\n---\n\n# Sensitivity Analysis\n\n- **Read:** [Task method](../../../reference/analyst/sensitivity-analysis/index.md).\n- **Read:** [Shared evidence and handoff rules](../../../reference/analyst/methods/evidence-and-handoff.md).\n- **Scope:** resolve the decision, population, units, horizon, and material missing inputs before calculating.\n- **Execute:** apply the linked method using the task data and available analysis tools.\n- **Verify:** run its validation probe or a task-specific equivalent before relying on the result.\n- **Deliver:** provide the method's stated outputs with reproducible evidence and limitations.\n- **Knowledge:** use [this skill's curated graph](../../../reference/analyst/knowladge_graph/sensitivity-analysis.md) for reference navigation.\n- **Boundary:** raw datasets and broad code indexes are not default method knowledge.\n",
+      "properties": [
+        {
+          "key": "wiki_path",
+          "label": "wiki_path",
+          "dataType": "text",
+          "defaultValue": "skills/analyst/sensitivity-analysis/SKILL.md"
+        },
+        {
+          "key": "content_sha256",
+          "label": "content_sha256",
+          "dataType": "text",
+          "defaultValue": "a336c900886bed2a7e0d69ac58b710b3f5fd2b383712efd7a63cacfc643b4357"
+        },
+        {
+          "key": "evidence_pages",
+          "label": "evidence_pages",
+          "dataType": "json",
+          "defaultValue": [
+            "reference/analyst/methods/evidence-and-handoff.md",
+            "reference/analyst/sensitivity-analysis/index.md"
+          ]
+        },
+        {
+          "key": "external",
+          "label": "external",
+          "dataType": "boolean",
+          "defaultValue": false
+        }
+      ],
+      "actions": [],
+      "x": 1250,
+      "y": 1870,
+      "pinned": false
+    }
+  ],
+  "relationships": [
+    {
+      "id": "link:7fda9c001c481b1fa2614006",
+      "source": "wiki:analyst.sensitivity-analysis",
+      "target": "wiki:analyst.evidence",
+      "label": "derived_from",
+      "properties": {
+        "source_page": "reference/analyst/sensitivity-analysis/index.md",
+        "source_section": "Sensitivity Analysis",
+        "target_fragment": ""
+      }
+    },
+    {
+      "id": "link:91ab738017b1556e8622f8e7",
+      "source": "skill:sensitivity-analysis",
+      "target": "wiki:analyst.evidence",
+      "label": "derived_from",
+      "properties": {
+        "source_page": "skills/analyst/sensitivity-analysis/SKILL.md",
+        "source_section": "Sensitivity Analysis",
+        "target_fragment": ""
+      }
+    },
+    {
+      "id": "link:589fccc04ebd152cda501b7e",
+      "source": "skill:sensitivity-analysis",
+      "target": "wiki:analyst.sensitivity-analysis",
+      "label": "derived_from",
+      "properties": {
+        "source_page": "skills/analyst/sensitivity-analysis/SKILL.md",
+        "source_section": "Sensitivity Analysis",
+        "target_fragment": ""
+      }
+    }
+  ]
+}

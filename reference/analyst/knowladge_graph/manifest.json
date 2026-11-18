@@ -1,0 +1,343 @@
+{
+  "version": 1,
+  "pages": [
+    {
+      "id": "wiki:analyst.evidence",
+      "path": "reference/analyst/methods/evidence-and-handoff.md",
+      "title": "Analytical Evidence and Handoff",
+      "type": "method",
+      "track": "analyst",
+      "sources": []
+    },
+    {
+      "id": "wiki:analyst.data-quality",
+      "path": "reference/analyst/data-quality/index.md",
+      "title": "Data Quality Assessment",
+      "type": "method",
+      "track": "analyst",
+      "sources": [
+        "reference/analyst/methods/evidence-and-handoff.md"
+      ]
+    },
+    {
+      "id": "skill:data-quality",
+      "path": "skills/analyst/data-quality/SKILL.md",
+      "title": "Data Quality Assessment",
+      "type": "skill",
+      "track": "analyst",
+      "sources": [
+        "reference/analyst/methods/evidence-and-handoff.md",
+        "reference/analyst/data-quality/index.md"
+      ],
+      "entrypoint": "reference/analyst/data-quality/index.md"
+    },
+    {
+      "id": "wiki:analyst.exploratory-data-analysis",
+      "path": "reference/analyst/exploratory-data-analysis/index.md",
+      "title": "Exploratory Data Analysis",
+      "type": "method",
+      "track": "analyst",
+      "sources": [
+        "reference/analyst/methods/evidence-and-handoff.md"
+      ]
+    },
+    {
+      "id": "skill:exploratory-data-analysis",
+      "path": "skills/analyst/exploratory-data-analysis/SKILL.md",
+      "title": "Exploratory Data Analysis",
+      "type": "skill",
+      "track": "analyst",
+      "sources": [
+        "reference/analyst/methods/evidence-and-handoff.md",
+        "reference/analyst/exploratory-data-analysis/index.md"
+      ],
+      "entrypoint": "reference/analyst/exploratory-data-analysis/index.md"
+    },
+    {
+      "id": "wiki:analyst.monte-carlo",
+      "path": "reference/analyst/monte-carlo/index.md",
+      "title": "Monte Carlo Analysis",
+      "type": "method",
+      "track": "analyst",
+      "sources": [
+        "reference/analyst/methods/evidence-and-handoff.md"
+      ]
+    },
+    {
+      "id": "skill:monte-carlo",
+      "path": "skills/analyst/monte-carlo/SKILL.md",
+      "title": "Monte Carlo Analysis",
+      "type": "skill",
+      "track": "analyst",
+      "sources": [
+        "reference/analyst/methods/evidence-and-handoff.md",
+        "reference/analyst/monte-carlo/index.md"
+      ],
+      "entrypoint": "reference/analyst/monte-carlo/index.md"
+    },
+    {
+      "id": "wiki:analyst.sensitivity-analysis",
+      "path": "reference/analyst/sensitivity-analysis/index.md",
+      "title": "Sensitivity Analysis",
+      "type": "method",
+      "track": "analyst",
+      "sources": [
+        "reference/analyst/methods/evidence-and-handoff.md"
+      ]
+    },
+    {
+      "id": "skill:sensitivity-analysis",
+      "path": "skills/analyst/sensitivity-analysis/SKILL.md",
+      "title": "Sensitivity Analysis",
+      "type": "skill",
+      "track": "analyst",
+      "sources": [
+        "reference/analyst/methods/evidence-and-handoff.md",
+        "reference/analyst/sensitivity-analysis/index.md"
+      ],
+      "entrypoint": "reference/analyst/sensitivity-analysis/index.md"
+    },
+    {
+      "id": "wiki:analyst.decision-analysis",
+      "path": "reference/analyst/decision-analysis/index.md",
+      "title": "Decision Analysis",
+      "type": "method",
+      "track": "analyst",
+      "sources": [
+        "reference/analyst/methods/evidence-and-handoff.md"
+      ]
+    },
+    {
+      "id": "skill:decision-analysis",
+      "path": "skills/analyst/decision-analysis/SKILL.md",
+      "title": "Decision Analysis",
+      "type": "skill",
+      "track": "analyst",
+      "sources": [
+        "reference/analyst/methods/evidence-and-handoff.md",
+        "reference/analyst/decision-analysis/index.md"
+      ],
+      "entrypoint": "reference/analyst/decision-analysis/index.md"
+    },
+    {
+      "id": "wiki:analyst.scenario-analysis",
+      "path": "reference/analyst/scenario-analysis/index.md",
+      "title": "Scenario Analysis",
+      "type": "method",
+      "track": "analyst",
+      "sources": [
+        "reference/analyst/methods/evidence-and-handoff.md"
+      ]
+    },
+    {
+      "id": "skill:scenario-analysis",
+      "path": "skills/analyst/scenario-analysis/SKILL.md",
+      "title": "Scenario Analysis",
+      "type": "skill",
+      "track": "analyst",
+      "sources": [
+        "reference/analyst/methods/evidence-and-handoff.md",
+        "reference/analyst/scenario-analysis/index.md"
+      ],
+      "entrypoint": "reference/analyst/scenario-analysis/index.md"
+    },
+    {
+      "id": "wiki:analyst.statistical-inference",
+      "path": "reference/analyst/statistical-inference/index.md",
+      "title": "Statistical Inference",
+      "type": "method",
+      "track": "analyst",
+      "sources": [
+        "reference/analyst/methods/evidence-and-handoff.md"
+      ]
+    },
+    {
+      "id": "skill:statistical-inference",
+      "path": "skills/analyst/statistical-inference/SKILL.md",
+      "title": "Statistical Inference",
+      "type": "skill",
+      "track": "analyst",
+      "sources": [
+        "reference/analyst/methods/evidence-and-handoff.md",
+        "reference/analyst/statistical-inference/index.md"
+      ],
+      "entrypoint": "reference/analyst/statistical-inference/index.md"
+    },
+    {
+      "id": "wiki:analyst.experiment-design",
+      "path": "reference/analyst/experiment-design/index.md",
+      "title": "Experiment Design and A/B Testing",
+      "type": "method",
+      "track": "analyst",
+      "sources": [
+        "reference/analyst/methods/evidence-and-handoff.md"
+      ]
+    },
+    {
+      "id": "skill:experiment-design",
+      "path": "skills/analyst/experiment-design/SKILL.md",
+      "title": "Experiment Design and A/B Testing",
+      "type": "skill",
+      "track": "analyst",
+      "sources": [
+        "reference/analyst/methods/evidence-and-handoff.md",
+        "reference/analyst/experiment-design/index.md"
+      ],
+      "entrypoint": "reference/analyst/experiment-design/index.md"
+    },
+    {
+      "id": "wiki:analyst.causal-analysis",
+      "path": "reference/analyst/causal-analysis/index.md",
+      "title": "Causal Analysis",
+      "type": "method",
+      "track": "analyst",
+      "sources": [
+        "reference/analyst/methods/evidence-and-handoff.md"
+      ]
+    },
+    {
+      "id": "skill:causal-analysis",
+      "path": "skills/analyst/causal-analysis/SKILL.md",
+      "title": "Causal Analysis",
+      "type": "skill",
+      "track": "analyst",
+      "sources": [
+        "reference/analyst/methods/evidence-and-handoff.md",
+        "reference/analyst/causal-analysis/index.md"
+      ],
+      "entrypoint": "reference/analyst/causal-analysis/index.md"
+    },
+    {
+      "id": "wiki:analyst.time-series-forecasting",
+      "path": "reference/analyst/time-series-forecasting/index.md",
+      "title": "Time-Series Forecasting",
+      "type": "method",
+      "track": "analyst",
+      "sources": [
+        "reference/analyst/methods/evidence-and-handoff.md"
+      ]
+    },
+    {
+      "id": "skill:time-series-forecasting",
+      "path": "skills/analyst/time-series-forecasting/SKILL.md",
+      "title": "Time-Series Forecasting",
+      "type": "skill",
+      "track": "analyst",
+      "sources": [
+        "reference/analyst/methods/evidence-and-handoff.md",
+        "reference/analyst/time-series-forecasting/index.md"
+      ],
+      "entrypoint": "reference/analyst/time-series-forecasting/index.md"
+    },
+    {
+      "id": "wiki:analyst.predictive-modelling",
+      "path": "reference/analyst/predictive-modelling/index.md",
+      "title": "Regression and Predictive Modelling",
+      "type": "method",
+      "track": "analyst",
+      "sources": [
+        "reference/analyst/methods/evidence-and-handoff.md"
+      ]
+    },
+    {
+      "id": "skill:predictive-modelling",
+      "path": "skills/analyst/predictive-modelling/SKILL.md",
+      "title": "Regression and Predictive Modelling",
+      "type": "skill",
+      "track": "analyst",
+      "sources": [
+        "reference/analyst/methods/evidence-and-handoff.md",
+        "reference/analyst/predictive-modelling/index.md"
+      ],
+      "entrypoint": "reference/analyst/predictive-modelling/index.md"
+    },
+    {
+      "id": "wiki:analyst.segmentation-clustering",
+      "path": "reference/analyst/segmentation-clustering/index.md",
+      "title": "Segmentation and Clustering",
+      "type": "method",
+      "track": "analyst",
+      "sources": [
+        "reference/analyst/methods/evidence-and-handoff.md"
+      ]
+    },
+    {
+      "id": "skill:segmentation-clustering",
+      "path": "skills/analyst/segmentation-clustering/SKILL.md",
+      "title": "Segmentation and Clustering",
+      "type": "skill",
+      "track": "analyst",
+      "sources": [
+        "reference/analyst/methods/evidence-and-handoff.md",
+        "reference/analyst/segmentation-clustering/index.md"
+      ],
+      "entrypoint": "reference/analyst/segmentation-clustering/index.md"
+    },
+    {
+      "id": "wiki:analyst.optimization",
+      "path": "reference/analyst/optimization/index.md",
+      "title": "Optimization",
+      "type": "method",
+      "track": "analyst",
+      "sources": [
+        "reference/analyst/methods/evidence-and-handoff.md"
+      ]
+    },
+    {
+      "id": "skill:optimization",
+      "path": "skills/analyst/optimization/SKILL.md",
+      "title": "Optimization",
+      "type": "skill",
+      "track": "analyst",
+      "sources": [
+        "reference/analyst/methods/evidence-and-handoff.md",
+        "reference/analyst/optimization/index.md"
+      ],
+      "entrypoint": "reference/analyst/optimization/index.md"
+    },
+    {
+      "id": "wiki:analyst.data-visualization",
+      "path": "reference/analyst/data-visualization/index.md",
+      "title": "Data Visualization and Reporting",
+      "type": "method",
+      "track": "analyst",
+      "sources": [
+        "reference/analyst/methods/evidence-and-handoff.md"
+      ]
+    },
+    {
+      "id": "skill:data-visualization",
+      "path": "skills/analyst/data-visualization/SKILL.md",
+      "title": "Data Visualization and Reporting",
+      "type": "skill",
+      "track": "analyst",
+      "sources": [
+        "reference/analyst/methods/evidence-and-handoff.md",
+        "reference/analyst/data-visualization/index.md"
+      ],
+      "entrypoint": "reference/analyst/data-visualization/index.md"
+    },
+    {
+      "id": "wiki:analyst.routing",
+      "path": "reference/analyst/routing/index.md",
+      "title": "Choosing an Analytical Method",
+      "type": "method",
+      "track": "analyst",
+      "sources": [
+        "reference/analyst/methods/evidence-and-handoff.md"
+      ]
+    },
+    {
+      "id": "skill:analyst",
+      "path": "skills/analyst/SKILL.md",
+      "title": "Analyst / Data Scientist",
+      "type": "skill",
+      "track": "analyst",
+      "sources": [
+        "reference/analyst/routing/index.md",
+        "reference/analyst/methods/evidence-and-handoff.md"
+      ],
+      "entrypoint": "reference/analyst/routing/index.md"
+    }
+  ]
+}

@@ -1,0 +1,156 @@
+{
+  "schemaVersion": 2,
+  "id": "skill:optimization-knowledge",
+  "title": "Optimization",
+  "revision": 0,
+  "entities": [
+    {
+      "id": "wiki:analyst.evidence",
+      "label": "Analytical Evidence and Handoff",
+      "type": "method",
+      "description": "# Analytical Evidence and Handoff\n\n- **Purpose:** support reproducible decisions from data without overstating what the evidence identifies.\n- **Decision:** record the question, owner, population, unit of analysis, time horizon, and decision threshold.\n- **Evidence:** record source paths or queries, extraction time, definitions, units, filters, and sample counts.\n- **Assumptions:** label observed facts, estimates, elicited assumptions, and unresolved inputs separately.\n- **Missing inputs:** ask for facts that change the method; use labeled illustrative inputs when a demonstration is requested.\n- **Integrity:** inspect missingness, duplication, measurement changes, selection bias, and dependence before modelling.\n- **Uncertainty:** distinguish outcome variability, parameter uncertainty, structural uncertainty, and numerical estimation error.\n- **Reproducibility:** retain executable analysis, input snapshot or reproducible query, parameters, software versions, and random seeds when applicable.\n- **Execution:** run the analysis before claiming numerical results; describe unexecuted work as a plan or illustration.\n- **Validation:** compare to a simple baseline or known result and check units, bounds, edge cases, and method-specific assumptions.\n- **Handoff:** provide the finding, supporting evidence, uncertainty, limitations, decision implications, and next useful evidence.\n- **Privacy:** keep identifiable records out of reusable skill references and generated knowledge graphs.\n- **Knowledge boundary:** retrieve method guidance from the selected analyst skill graph and its allowlisted reference pages.\n- **Task data:** analyze user-authorized datasets separately from the method knowledge graph.\n- **Graphify:** code-dependency analysis is a separate gated workflow; this curated graph is not a Graphify index.\n- **Provenance:** these methods are newly authored analytical guidance, not claims extracted from the DS/FDE training slides.\n",
+      "properties": [
+        {
+          "key": "wiki_path",
+          "label": "wiki_path",
+          "dataType": "text",
+          "defaultValue": "reference/analyst/methods/evidence-and-handoff.md"
+        },
+        {
+          "key": "content_sha256",
+          "label": "content_sha256",
+          "dataType": "text",
+          "defaultValue": "5352f6c59dcf4d3b58b1b907443a8da88790d70d4933ab1d09a343b0d293514f"
+        },
+        {
+          "key": "evidence_pages",
+          "label": "evidence_pages",
+          "dataType": "json",
+          "defaultValue": []
+        },
+        {
+          "key": "external",
+          "label": "external",
+          "dataType": "boolean",
+          "defaultValue": false
+        }
+      ],
+      "actions": [],
+      "x": 750,
+      "y": 1530,
+      "pinned": false
+    },
+    {
+      "id": "wiki:analyst.optimization",
+      "label": "Optimization",
+      "type": "method",
+      "description": "# Optimization\n\n- **Basis:** authored method guidance; validate suitability against the task evidence.\n- **Shared method:** [Analytical evidence and handoff](../methods/evidence-and-handoff.md).\n\n## Inputs\n\n- Decision variables, objective, units, hard and soft constraints, variable bounds, integrality, uncertainty, and operational tolerances.\n\n## Method\n\n- Translate the decision into variables, an objective, and constraints with consistent units.\n- Distinguish hard feasibility requirements from preferences expressed as penalties.\n- Check whether a simple feasible baseline exists.\n- Choose a solver suited to linearity, nonlinearity, discreteness, and problem scale.\n- Report solver status, time limits, and optimality gap where available.\n- Independently recompute the objective and constraint violations from the returned solution.\n- Do not label a feasible time-limited solution globally optimal without evidence.\n- Diagnose infeasibility before relaxing constraints; name any proposed relaxation explicitly.\n- Evaluate sensitivity and robustness to uncertain inputs.\n- Expose trade-offs when objectives conflict instead of inventing stakeholder weights.\n\n## Deliverable\n\n- Model specification, feasible allocation, objective value, constraint residuals, solver status or gap, and sensitivity to assumptions.\n\n## Validation probe\n\n- For maximize 3x+2y with x+y<=4, x<=2, x,y>=0, recover x=2, y=2 and objective 10; an infeasible variant should be reported as infeasible.\n",
+      "properties": [
+        {
+          "key": "wiki_path",
+          "label": "wiki_path",
+          "dataType": "text",
+          "defaultValue": "reference/analyst/optimization/index.md"
+        },
+        {
+          "key": "content_sha256",
+          "label": "content_sha256",
+          "dataType": "text",
+          "defaultValue": "d248019486bbfb16472efee36b97132acf6f134b955e6e7a3cfbc1596dc21bc7"
+        },
+        {
+          "key": "evidence_pages",
+          "label": "evidence_pages",
+          "dataType": "json",
+          "defaultValue": [
+            "reference/analyst/methods/evidence-and-handoff.md"
+          ]
+        },
+        {
+          "key": "external",
+          "label": "external",
+          "dataType": "boolean",
+          "defaultValue": false
+        }
+      ],
+      "actions": [],
+      "x": 1250,
+      "y": 1530,
+      "pinned": false
+    },
+    {
+      "id": "skill:optimization",
+      "label": "Optimization [skill]",
+      "type": "skill",
+      "description": "---\nname: optimization\ndescription: \"Choose feasible actions or allocate resources by optimizing an explicit objective under constraints.\"\n---\n\n# Optimization\n\n- **Read:** [Task method](../../../reference/analyst/optimization/index.md).\n- **Read:** [Shared evidence and handoff rules](../../../reference/analyst/methods/evidence-and-handoff.md).\n- **Scope:** resolve the decision, population, units, horizon, and material missing inputs before calculating.\n- **Execute:** apply the linked method using the task data and available analysis tools.\n- **Verify:** run its validation probe or a task-specific equivalent before relying on the result.\n- **Deliver:** provide the method's stated outputs with reproducible evidence and limitations.\n- **Knowledge:** use [this skill's curated graph](../../../reference/analyst/knowladge_graph/optimization.md) for reference navigation.\n- **Boundary:** raw datasets and broad code indexes are not default method knowledge.\n",
+      "properties": [
+        {
+          "key": "wiki_path",
+          "label": "wiki_path",
+          "dataType": "text",
+          "defaultValue": "skills/analyst/optimization/SKILL.md"
+        },
+        {
+          "key": "content_sha256",
+          "label": "content_sha256",
+          "dataType": "text",
+          "defaultValue": "3187a57c9476bc44048b2f54ce7df8bb8ebd2367f66b2954743f503036af7220"
+        },
+        {
+          "key": "evidence_pages",
+          "label": "evidence_pages",
+          "dataType": "json",
+          "defaultValue": [
+            "reference/analyst/methods/evidence-and-handoff.md",
+            "reference/analyst/optimization/index.md"
+          ]
+        },
+        {
+          "key": "external",
+          "label": "external",
+          "dataType": "boolean",
+          "defaultValue": false
+        }
+      ],
+      "actions": [],
+      "x": 250,
+      "y": 1870,
+      "pinned": false
+    }
+  ],
+  "relationships": [
+    {
+      "id": "link:9f8c176e977eabef11d3da1e",
+      "source": "wiki:analyst.optimization",
+      "target": "wiki:analyst.evidence",
+      "label": "derived_from",
+      "properties": {
+        "source_page": "reference/analyst/optimization/index.md",
+        "source_section": "Optimization",
+        "target_fragment": ""
+      }
+    },
+    {
+      "id": "link:ef7d2bece5c04cf9e9ae0d14",
+      "source": "skill:optimization",
+      "target": "wiki:analyst.evidence",
+      "label": "derived_from",
+      "properties": {
+        "source_page": "skills/analyst/optimization/SKILL.md",
+        "source_section": "Optimization",
+        "target_fragment": ""
+      }
+    },
+    {
+      "id": "link:3346615d0d0270d19e87a732",
+      "source": "skill:optimization",
+      "target": "wiki:analyst.optimization",
+      "label": "derived_from",
+      "properties": {
+        "source_page": "skills/analyst/optimization/SKILL.md",
+        "source_section": "Optimization",
+        "target_fragment": ""
+      }
+    }
+  ]
+}

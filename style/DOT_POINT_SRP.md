@@ -1,4 +1,4 @@
-# Dot-Point SRP Style
+# terse-srp-dot-point
 
 The writing style for guideline docs, specs, `task.md` (`review/TASK_FILE.md`), status reports, and chat responses.
 
@@ -14,7 +14,9 @@ The writing style for guideline docs, specs, `task.md` (`review/TASK_FILE.md`), 
 - Bold the lead term or verdict of a line; headers separate sections.
 - Quote code and source text in markdown: `inline code`, fenced blocks, `>` block quotes.
   - Not HTML (`<pre>`, `<code>`, …).
-- Cite code as `path:line`; quote the 2–5 lines that carry the point.
+- Cite code by durable reference — two forms, picked by what the reader needs.
+  - **quick-ref** (`style/QUICK_REF.md`) — points at code.
+  - **code-snip** (`style/CODE_SNIP.md`) — proves a claim.
 
 ## SOLID statements
 
