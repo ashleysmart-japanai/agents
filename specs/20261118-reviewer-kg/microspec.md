@@ -76,6 +76,7 @@
 - [ ] **R31 — Steering in the graph:** each `task.md` `# DECISIONS` entry becomes a steering node linked to the findings it reads like, and `match` returns matching steering decisions.
 - [ ] **R32 — Human comments surface:** each prior in `match` output carries its justification, reviewer acknowledgement, pushback, reply, scope, and thread.
 - [ ] **R34 — Run log:** every `/kg-review` run writes `~/review-kg/<timestamp>-<target>/` holding each claim's Graphify output and `match` result, an append-only event log of what the KG found, which priors the agent kept or dropped, the steering and reference data it used, its decisions with their evidence, its proposed fix, the user's answer, and recorded rulings, rendered to `run.md`.
+- [ ] **R35 — Report format:** the chat report gives, per claim, a heading with tracking ID, severity, and short problem; a two-to-three-line problem statement; the top three prior matches as `store/ID — Outcome: decision` lines; and a one-to-two-line fix direction; it holds no tables or diffs, and ends with one apply question and the run-log and patch paths.
 - [ ] **R33 — Per-claim summary:** for each claim the skill reports the kept priors with outcome and reason, the reference rules that applied, the pre-judgement, coverage gaps, and a proposed fix as a diff citing them.
 
 ## Scope
@@ -113,6 +114,7 @@
 - [ ] AC25: a fixture store's `task.md` decision becomes a steering node and is returned by a matching `match` (R31).
 - [ ] AC26: a fixture prior's `reply` and `reviewer_ack` appear in its `match` result (R32).
 - [ ] AC28: a fixture run logs `kg_match` from `match --log-run`, then `kept` and `proposal` steps with evidence and refs, and `run-report` renders all three into `run.md` (R34).
+- [ ] AC29: a `/kg-review` report on three claims has one block per claim with problem, three or fewer numbered prior matches, and fix direction, no table or diff, and the full diff is in `$RUN/proposed.patch` (R35).
 - [ ] AC27: `/kg-review` on three tracking IDs prints, per claim, the kept priors, reference rules, pre-judgement, gaps, and a proposed diff, then asks once (R28, R33).
 
 ## Verification

@@ -74,12 +74,12 @@ Run these steps for each claim, in order.
 6. **Propose the fix:**
    - Base it on the governing prior decision and the reference doc's fix, adapted to the current code.
    - A prior `rejected` or `out-of-scope` decision is stated first; propose against it only with a stated reason.
-   - Show the fix as a unified diff with `file:line` citations.
+   - Write the full unified diff to `$RUN/proposed.patch`, with `file:line` citations; it is not printed in the report.
    - Log `--kind decision` (what to do and why, with the evidence and refs it rests on) and `--kind proposal` (a summary of the fix and the files it touches).
 
 ## Proposal and ruling
 
-1. Print one table: tracking ID, severity, problem, governing prior and outcome, reference rule, pre-judgement, proposed fix.
+1. Print the report in the format of § Report format.
 2. Follow a `user-ruling` pre-judgement without asking how to handle the claim; cite the ruling ID.
 3. Ask once:
    - which fixes to apply: **all**, a list of tracking IDs, or **none**;
@@ -94,6 +94,50 @@ Run these steps for each claim, in order.
    - Record only rulings the user gave.
    - Log `--kind ruling` with the memory ID `remember` printed.
 7. Close the run: `python3 $KG run-report --run "$RUN"`; give the user the `run.md` path.
+
+## Report format
+
+The chat report is short and readable; detail lives in the run folder.
+
+- One block per claim, separated by a `———` line.
+- No tables, no diffs, no tool output, no lint or test logs in the report.
+- Write in plain language; name code only where the reader needs it.
+
+Each claim block, in this order:
+
+1. Heading: `**<full tracking ID> [<SEVERITY>] — <problem in a few words>**`
+2. **Problem:** two or three lines — what happens, under what condition, and the effect.
+3. **Ruling:** one line, only when the pre-judgement basis is `user-ruling` or `conflict` — the ruling ID and what it decides.
+4. **Prior matches:** a numbered list of the top three kept priors, best first.
+   - Each line: `<store>/<full ID> — <Outcome>: <what was decided, one line>`.
+   - Mark a superseded prior `(superseded by <ID>)` and state its current decision instead.
+   - Mark a wording-only match `(wording match, not relevant)`.
+   - Fewer than three: list those found and say `No further match found.`
+5. **Fix direction:** one or two lines — what to change and what to preserve.
+   - State a prior `rejected` or `out-of-scope` decision the fix must respect.
+6. **Needs:** one line, only when it applies — a cascade approval, a decision only the user can make, or a coverage gap that weakens the match.
+
+After the last block:
+
+- **Apply?** one line naming the choices: `all`, the listed tracking IDs, or `none`; give the recommendation in the same line.
+- **Run log:** the `run.md` path and the `proposed.patch` path.
+
+Example (invented store and IDs):
+
+```md
+**B4.3xYkQmVd8RtLp2WcZaNeHu [MEDIUM] — Checkout drops the selected currency**
+
+**Problem:** when the user picks a saved card, the request sends the card ID but drops the cart's currency. A non-default-currency cart is priced in the default currency.
+
+**Prior matches:**
+1. shop-pr-210/D7.1aBcDeFgHiJkLmNoPqRsTu — Fixed: checkout carries exactly one payment or cart selector.
+2. shop-pr-210/D9.2bCdEfGhIjKlMnOpQrStUv — Out of scope: card authorization uses the card's stored owner, not the supplied cart.
+3. shop-pr-188/I3.3cDeFgHiJkLmNoPqRsTuVw — Fixed: guest checkout uses the cart selector.
+
+**Fix direction:** forward the currency the cart already holds alongside the card ID; keep the one-selector rule and stored-owner authorization (D9).
+
+———
+```
 
 ## Support tasks (`/reviewer-kg`)
 
