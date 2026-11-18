@@ -75,13 +75,14 @@
 - [ ] **R30 — Rank against the claim:** `match --finding <claim>` queries from the claim's own text and file, excludes the claim from its results, and with `--graphify <output>` ranks the graph-retrieved candidates together with the text matches.
 - [ ] **R31 — Steering in the graph:** each `task.md` `# DECISIONS` entry becomes a steering node linked to the findings it reads like, and `match` returns matching steering decisions.
 - [ ] **R32 — Human comments surface:** each prior in `match` output carries its justification, reviewer acknowledgement, pushback, reply, scope, and thread.
+- [ ] **R34 — Run log:** every `/kg-review` run writes `~/review-kg/<timestamp>-<target>/` holding each claim's Graphify output and `match` result, an append-only event log of what the KG found, which priors the agent kept or dropped, the steering and reference data it used, its decisions with their evidence, its proposed fix, the user's answer, and recorded rulings, rendered to `run.md`.
 - [ ] **R33 — Per-claim summary:** for each claim the skill reports the kept priors with outcome and reason, the reference rules that applied, the pre-judgement, coverage gaps, and a proposed fix as a diff citing them.
 
 ## Scope
 
 - In scope: the builder script and its tests, the memory file contract, the lint checks, the `/kg-review` skill and its command mappings.
 - Out of scope: vector embeddings; model-backed semantic extraction; edge-strength spreading activation; writing to the review store from the builder; hosting the graph; authoring new reference docs for coverage gaps.
-- Boundary: changes `scripts/`, `tests/`, `skills/`, `skills/SKILL.md`, `specs/`, and the `CODER.md` skill map; reads `~/reviews/` and `reference/` read-only; writes only `~/agents-secret/kg/reviewer/`.
+- Boundary: changes `scripts/`, `tests/`, `skills/`, `skills/SKILL.md`, `specs/`, and the `CODER.md` skill map; reads `~/reviews/` and `reference/` read-only; writes only `~/agents-secret/kg/reviewer/` and `~/review-kg/`.
 
 ## Acceptance Criteria
 
@@ -111,11 +112,12 @@
 - [ ] AC24: `match --finding --graphify` marks graph-retrieved candidates `retrieved_by: graphify` and keeps them below the text threshold (R30).
 - [ ] AC25: a fixture store's `task.md` decision becomes a steering node and is returned by a matching `match` (R31).
 - [ ] AC26: a fixture prior's `reply` and `reviewer_ack` appear in its `match` result (R32).
+- [ ] AC28: a fixture run logs `kg_match` from `match --log-run`, then `kept` and `proposal` steps with evidence and refs, and `run-report` renders all three into `run.md` (R34).
 - [ ] AC27: `/kg-review` on three tracking IDs prints, per claim, the kept priors, reference rules, pre-judgement, gaps, and a proposed diff, then asks once (R28, R33).
 
 ## Verification
 
-- `python3 -m unittest tests/test_build_reviewer_kg.py` → all tests pass (AC1–AC13, AC16–AC20, AC22–AC26).
+- `python3 -m unittest tests/test_build_reviewer_kg.py` → all tests pass (AC1–AC13, AC16–AC20, AC22–AC26, AC28).
 - `python3 scripts/build_reviewer_kg.py build` → writes `~/agents-secret/kg/reviewer/graph.json` and prints node, link, finding, and reference counts.
 - `python3 scripts/build_reviewer_kg.py lint` → exit 0 with zero errors on the live store.
 - `graphify explain "Exception Swallowing" --graph ~/agents-secret/kg/reviewer/graph.json` → lists findings linked to that anti-pattern.

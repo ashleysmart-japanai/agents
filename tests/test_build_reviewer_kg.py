@@ -277,6 +277,30 @@ class ReviewerKgTests(unittest.TestCase):
         self.assertEqual(by_id[SQL_COLUMN['id']]['retrieved_by'], 'graphify')  # kept below the text threshold
         self.assertEqual(by_id[NULL_FALLBACK_REJECTED['id']]['retrieved_by'], 'text')
 
+    def test_run_log_records_kg_findings_agent_steps_and_report(self):
+        self.run_cli('build')
+        run = Path(self.run_cli('run-start', '--target', 'shop-pr-1 claims', '--agent', 'codex',
+                                '--log-root', str(self.root / 'review-kg')).strip())
+        self.assertTrue(run.name.endswith('-shop-pr-1-claims'))
+        claim = 'shop-pr-1/' + NULL_FALLBACK['id']
+        self.run_cli('match', '--finding', claim, '--log-run', str(run), '--format', 'json')
+        self.assertTrue((run / f"shop-pr-1__{NULL_FALLBACK['id']}.match.json").is_file())
+        self.run_cli('log', '--run', str(run), '--claim', claim, '--kind', 'kept',
+                     '--text', 'B2 is the same inline body fallback on the same file',
+                     '--ref', NULL_FALLBACK_REJECTED['id'], '--evidence', 'src/api/orders.ts:12')
+        self.run_cli('log', '--run', str(run), '--claim', claim, '--kind', 'proposal',
+                     '--text', 'Reject a missing body with 400 at the controller', '--ref',
+                     'reference/anti-patterns/defensive-duct-taping.md')
+        events = [json.loads(l) for l in (run / 'events.jsonl').read_text().splitlines()]
+        self.assertEqual([e['kind'] for e in events], ['kg_match', 'kept', 'proposal'])
+        self.assertEqual(events[0]['data']['priors'][0]['id'], NULL_FALLBACK_REJECTED['id'])
+        report = Path(self.run_cli('run-report', '--run', str(run)).strip()).read_text()
+        for expected in ('### KG found', '### kept', 'evidence: src/api/orders.ts:12', '### proposal',
+                         'uses: reference/anti-patterns/defensive-duct-taping.md', 'agent: codex'):
+            self.assertIn(expected, report)
+        with self.assertRaises(SystemExit):
+            self.run_cli('log', '--run', str(self.root / 'nope'), '--claim', claim, '--kind', 'note', '--text', 'x')
+
     def test_every_edge_has_a_graphify_context(self):
         self.run_cli('build')
         self.assertTrue(all(l['context'] == l['relation'] for l in self.graph()['links']))

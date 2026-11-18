@@ -24,6 +24,7 @@ AGENTS_ROOT = Path(__file__).resolve().parents[1]
 DEFAULT_REVIEWS = Path.home() / 'reviews'
 DEFAULT_REFERENCE = AGENTS_ROOT / 'reference'
 DEFAULT_OUT = Path.home() / 'agents-secret' / 'kg' / 'reviewer'
+DEFAULT_LOG_ROOT = Path.home() / 'review-kg'  # per-run debug logs of /kg-review
 REFERENCE_CATEGORIES = ['anti-patterns', 'design-principles', 'design-patterns', 'security-principles']
 SKIP_REFERENCE_NAMES = {'CHECKLIST.md', 'README.md', 'index.md'}
 FORMAT_VERSION = 1
@@ -609,6 +610,102 @@ def lint(out, reviews):
     return {k: v for k, v in sorted(report.items()) if v}
 
 
+# --- Run log: why /kg-review did what it did --------------------------------------------------------
+
+LOG_KINDS = ('understanding', 'kept', 'dropped', 'prior_decision', 'reference', 'steering', 'prejudgement',
+             'decision', 'proposal', 'user_response', 'ruling', 'applied', 'gap', 'note')
+EVENTS_FILE = 'events.jsonl'
+
+
+def slug(text, limit=40):
+    return re.sub(r'[^a-z0-9]+', '-', (text or 'run').lower()).strip('-')[:limit] or 'run'
+
+
+def append_event(run, **event):
+    if not (run / 'meta.json').is_file():
+        raise SystemExit(f'No run at {run}; start one with run-start')
+    event = dict(at=datetime.now(timezone.utc).isoformat(timespec='seconds'), **event)
+    with (run / EVENTS_FILE).open('a') as handle:
+        handle.write(json.dumps(event, ensure_ascii=False) + '\n')
+    return event
+
+
+def claim_slug(report, args):
+    claim = report.get('claim')
+    if claim:
+        return f"{claim['store']}__{claim['id']}"
+    return 'query-' + sha256_text(json.dumps([args.text, args.files], default=str))[:8]
+
+
+def log_match(run, args, report):
+    """Save the full match result and log what the KG found for this claim."""
+    name = claim_slug(report, args)
+    (run / f'{name}.match.json').write_text(json.dumps(report, indent=2, ensure_ascii=False))
+    append_event(run, claim=name, kind='kg_match', text='KG retrieval and ranking',
+                 data=dict(graphify_output=args.graphify, files=report['files'], query_terms=report['query_terms'],
+                           prejudgement=report['prejudgement'],
+                           priors=[dict(id=r['id'], store=r['store'], score=r['score'], outcome=r['outcome'],
+                                        retrieved_by=r['retrieved_by'], superseded_by=r['superseded_by'],
+                                        rulings=[c['id'] for c in r['rulings']], title=r['title'])
+                                   for r in report['findings']],
+                           steering=[dict(name=st['name'], store=st['store'], score=st['score']) for st in report['steering']],
+                           references=report['references'],
+                           match_file=f'{name}.match.json'))
+
+
+def cmd_run_start(args):
+    root = Path(args.log_root).expanduser()
+    run = root / f"{datetime.now().strftime('%Y%m%d-%H%M%S')}-{slug(args.target)}"
+    run.mkdir(parents=True, exist_ok=False)
+    meta = dict(target=args.target, started=datetime.now(timezone.utc).isoformat(timespec='seconds'),
+                cwd=str(Path.cwd()), agent=args.agent or '', graph=str(Path(args.out).expanduser() / 'graph.json'))
+    (run / 'meta.json').write_text(json.dumps(meta, indent=2))
+    (run / EVENTS_FILE).touch()
+    print(run)
+
+
+def cmd_log(args):
+    run = Path(args.run).expanduser()
+    event = append_event(run, claim=args.claim, kind=args.kind, text=args.text,
+                         evidence=args.evidence or [], refs=args.ref or [])
+    print(json.dumps(dict(logged=event['kind'], claim=event['claim'], run=str(run))))
+
+
+def cmd_run_report(args):
+    run = Path(args.run).expanduser()
+    meta = json.loads((run / 'meta.json').read_text())
+    events = [json.loads(line) for line in (run / EVENTS_FILE).read_text().splitlines() if line.strip()]
+    by_claim = defaultdict(list)
+    for event in events:
+        by_claim[event.get('claim') or 'run'].append(event)
+    lines = [f"# KG review run {run.name}", '', f"- target: {meta['target']}", f"- started: {meta['started']}",
+             f"- agent: {meta.get('agent') or 'unknown'}", f"- cwd: `{meta['cwd']}`", f"- graph: `{meta['graph']}`",
+             f'- events: {len(events)}', '']
+    for claim, items in by_claim.items():
+        lines += [f'## {claim}', '']
+        for event in items:
+            if event['kind'] == 'kg_match':
+                d = event['data']
+                pj = d['prejudgement']
+                lines += ['### KG found', '', f"- match file: `{d['match_file']}`",
+                          f"- graphify output: `{d['graphify_output'] or 'none (text only)'}`",
+                          f"- pre-judgement: {pj['basis']} / {pj['verdict'] or 'none'} / ask={pj['ask']}"]
+                lines += [f"- prior {p['id']} ({p['store']}) {p['outcome']} score {p['score']} via {p['retrieved_by']}"
+                          f"{' superseded' if p['superseded_by'] else ''}{' rulings ' + ','.join(p['rulings']) if p['rulings'] else ''}"
+                          f": {p['title'][:120]}" for p in d['priors']]
+                lines += [f"- steering {st['name']} ({st['store']}) score {st['score']}" for st in d['steering']]
+                lines += [f"- reference {r['title']} ({r['score']}) `{r['path']}`" for r in d['references']]
+                lines.append('')
+            else:
+                lines.append(f"### {event['kind']} ({event['at']})")
+                lines += ['', f"- {' '.join(event['text'].split())}"]
+                lines += [f'- evidence: {e}' for e in event.get('evidence', [])]
+                lines += [f'- uses: {r}' for r in event.get('refs', [])]
+                lines.append('')
+    (run / 'run.md').write_text('\n'.join(lines) + '\n')
+    print(run / 'run.md')
+
+
 def cmd_lint(args):
     report = lint(Path(args.out).expanduser(), Path(args.reviews).expanduser())
     errors = sum(len(v) for k, v in report.items() if k.startswith('E'))
@@ -898,6 +995,8 @@ def cmd_match(args):
                   prejudgement=prejudge(results), findings=results, steering=steering_hits[:args.top],
                   references=[dict(score=round(s, 3), title=ref_list[i]['title'], category=ref_list[i]['category'],
                                    path=ref_list[i]['path']) for s, i in ref_ranked])
+    if args.log_run:
+        log_match(Path(args.log_run).expanduser(), args, report)
     if args.format == 'json':
         print(json.dumps(report, indent=2, ensure_ascii=False))
         return
@@ -955,6 +1054,7 @@ def main(argv=None):
     match.add_argument('--text', help='claim or finding text')
     match.add_argument('--finding', help='claim under review (store/ID, full ID, or node); excluded from its own matches')
     match.add_argument('--graphify', help='graphify query output (file or -); rank only the nodes it retrieved')
+    match.add_argument('--log-run', help='run directory from run-start; saves the match result and logs what the KG found')
     match.add_argument('--query-file', help='file holding claim text')
     match.add_argument('--diff', help='unified diff file, or - for stdin')
     match.add_argument('--file', dest='files', action='append', help='code path touched (repeatable)')
@@ -978,6 +1078,19 @@ def main(argv=None):
     remember.add_argument('--source', help='PR, thread URL, or session that produced the decision')
     remember.add_argument('--author')
     remember.add_argument('--no-update', action='store_true', help='skip the incremental graph rebuild')
+    run_start = sub.add_parser('run-start', help='start a /kg-review run log under ~/review-kg; prints the run dir')
+    run_start.add_argument('--target', required=True, help='claims, store, or branch under review')
+    run_start.add_argument('--agent', help='agent name, e.g. codex or claude')
+    run_start.add_argument('--log-root', default=str(DEFAULT_LOG_ROOT))
+    log_cmd = sub.add_parser('log', help='append an agent step to a run log')
+    log_cmd.add_argument('--run', required=True)
+    log_cmd.add_argument('--claim', required=True, help='store__ID as used in the run (or store/ID)')
+    log_cmd.add_argument('--kind', required=True, choices=LOG_KINDS)
+    log_cmd.add_argument('--text', required=True, help='what was found, decided, or proposed')
+    log_cmd.add_argument('--evidence', action='append', help='file:line, command and result, or URL (repeatable)')
+    log_cmd.add_argument('--ref', action='append', help='prior ID, ruling ID, steering name, or reference doc used (repeatable)')
+    run_report = sub.add_parser('run-report', help='render a run log to run.md')
+    run_report.add_argument('--run', required=True)
     lint_cmd = sub.add_parser('lint', help='check memory and graph consistency; exit 1 on errors')
     lint_cmd.add_argument('--format', choices=['md', 'json'], default='md')
     lint_cmd.add_argument('--limit', type=int, default=10, help='messages shown per check')
@@ -988,6 +1101,13 @@ def main(argv=None):
         cmd_remember(args)
     elif args.command == 'lint':
         cmd_lint(args)
+    elif args.command == 'run-start':
+        cmd_run_start(args)
+    elif args.command == 'log':
+        args.claim = args.claim.replace('/', '__')
+        cmd_log(args)
+    elif args.command == 'run-report':
+        cmd_run_report(args)
     else:
         cmd_build(args, incremental=args.command == 'update')
 
