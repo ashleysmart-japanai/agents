@@ -483,3 +483,7 @@ An agent surfaces an open question rather than guessing — at the end of a turn
 - `/check-spec`: `~/agents/skills/CHECK_SPEC.md`
 - `repo-vac`: `~/agents/skills/REPO_VAC.md`
 - `/repo-vac`: `~/agents/skills/REPO_VAC.md`
+- `kg-review`: `~/agents/skills/KG_REVIEW.md`
+- `/kg-review`: `~/agents/skills/KG_REVIEW.md`
+- `reviewer-kg`: `~/agents/skills/KG_REVIEW.md`
+- `/reviewer-kg`: `~/agents/skills/KG_REVIEW.md`

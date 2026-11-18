@@ -1,6 +1,6 @@
 ---
 name: local-agent-skills
-description: Load and use local flat and grouped agent skills from ~/agents/skills. Use when the user references @~/agents/skills, asks to read/install/use local skills, invokes slash commands such as /clean-check, /acs-review, /update-main, /cherry-pick, /squash-rebase, /rebase-squash, /check-spec, /repo-vac, or names the corresponding commands without a slash. Also route FDE/DS work requests through the work-skill command map, including advise_me, murderboard, ontology design, discovery, scoping, steering, and product opportunities. Route quantitative analysis requests to the analyst group, including Monte Carlo, forecasting, inference, and optimization.
+description: Load and use local flat and grouped agent skills from ~/agents/skills. Use when the user references @~/agents/skills, asks to read/install/use local skills, invokes slash commands such as /clean-check, /acs-review, /update-main, /cherry-pick, /squash-rebase, /rebase-squash, /check-spec, /repo-vac, /kg-review, /reviewer-kg, or names the corresponding commands without a slash. Also route FDE/DS work requests through the work-skill command map, including advise_me, murderboard, ontology design, discovery, scoping, steering, and product opportunities. Route quantitative analysis requests to the analyst group, including Monte Carlo, forecasting, inference, and optimization.
 ---
 
 # Local Agent Skills
@@ -32,6 +32,8 @@ Use these aliases:
 - `/review-triage` or `review-triage` -> `REVIEW_TRIAGE.md`
 - `/check-spec` or `check-spec` -> `CHECK_SPEC.md`
 - `/repo-vac` or `repo-vac` -> `REPO_VAC.md`
+- `/kg-review` or `kg-review` -> `KG_REVIEW.md`
+- `/reviewer-kg` or `reviewer-kg` -> `KG_REVIEW.md` § `/reviewer-kg` maintenance
 
 ## Execution Rules
 
