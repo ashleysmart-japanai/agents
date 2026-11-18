@@ -77,6 +77,7 @@
 - [ ] **R32 — Human comments surface:** each prior in `match` output carries its justification, reviewer acknowledgement, pushback, reply, scope, and thread.
 - [ ] **R34 — Run log:** every `/kg-review` run writes `~/review-kg/<timestamp>-<target>/` holding each claim's Graphify output and `match` result, an append-only event log of what the KG found, which priors the agent kept or dropped, the steering and reference data it used, its decisions with their evidence, its proposed fix, the user's answer, and recorded rulings, rendered to `run.md`.
 - [ ] **R35 — Report format:** the chat report gives, per claim, a heading with tracking ID, severity, and short problem; a two-to-three-line problem statement; the top three prior matches as `store/ID — Outcome: decision` lines; and a one-to-two-line fix direction; it holds no tables or diffs, and ends with one apply question and the run-log and patch paths.
+- [ ] **R36 — Claim-brief:** a single claim described to the user follows `style/CLAIM_BRIEF.md`: heading with ID and severity, Problem, Details, Proposed fix, Prior evidence, written in ASD-STE100 Simplified Technical English.
 - [ ] **R33 — Per-claim summary:** for each claim the skill reports the kept priors with outcome and reason, the reference rules that applied, the pre-judgement, coverage gaps, and a proposed fix as a diff citing them.
 
 ## Scope

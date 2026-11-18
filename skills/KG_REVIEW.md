@@ -101,7 +101,8 @@ The chat report is short and readable; detail lives in the run folder.
 
 - One block per claim, separated by a `———` line.
 - No tables, no diffs, no tool output, no lint or test logs in the report.
-- Write in plain language; name code only where the reader needs it.
+- Write in ASD-STE100 Simplified Technical English (`~/agents/style/CLAIM_BRIEF.md` § Writing rules); name code only where the reader needs it.
+- When the user asks about one claim, answer with a claim-brief (`~/agents/style/CLAIM_BRIEF.md`).
 
 Each claim block, in this order:
 
