@@ -49,6 +49,8 @@ fix:{fix}
 fixed:{fixed}
 justification:{justification}
 reviewer:review-bot[bot]
+reviewer-ack:2026-11-02 https://github.com/acme/shop/pull/{pr} - resolved by reviewer.
+reply:2026-11-02 https://github.com/acme/shop/pull/{pr}#reply
 '''
 
 
@@ -94,6 +96,10 @@ class ReviewerKgTests(unittest.TestCase):
         self.reference_count = sum(1 for p in self.reference.rglob('*.md') if p.name not in kg.SKIP_REFERENCE_NAMES)
         write_store(self.reviews, 1, [NULL_FALLBACK, NULL_FALLBACK_REJECTED])
         write_store(self.reviews, 2, [SQL_COLUMN], extra_summary='\n- [ ] B9.zzzzzzzzzzzzzzzzzzzzzz - OPEN [LOW] - orphan')
+        (self.reviews / 'shop-pr-1' / 'task.md').write_text(
+            '# GOAL\n- ship\n\n# DECISIONS\n'
+            '- 2026-11-01 - boundary-validation-only - Validate request bodies once at the controller boundary; '
+            'no inline body fallbacks downstream.\n')
 
     def run_cli(self, *argv):
         buffer = io.StringIO()
@@ -245,6 +251,36 @@ class ReviewerKgTests(unittest.TestCase):
         self.run_cli('remember', '--kind', 'supersede', '--by', b, '--supersedes', a, '--rationale', 'b wins')
         self.assertIn('E3 supersede cycle', kg.lint(self.out, self.reviews))
 
+    def test_match_finding_excludes_itself_and_surfaces_steering_and_comments(self):
+        self.run_cli('build')
+        report = json.loads(self.run_cli('match', '--finding', 'shop-pr-1/' + NULL_FALLBACK['id'], '--format', 'json'))
+        ids = [r['id'] for r in report['findings']]
+        self.assertNotIn(NULL_FALLBACK['id'], ids)
+        self.assertEqual(ids[0], NULL_FALLBACK_REJECTED['id'])
+        self.assertEqual(report['claim']['id'], NULL_FALLBACK['id'])
+        self.assertIn('resolved by reviewer', report['findings'][0]['reviewer_ack'])
+        self.assertIn('#reply', report['findings'][0]['reply'])
+        self.assertEqual([s['name'] for s in report['steering']], ['boundary-validation-only'])
+        relations = {(l['relation'], l['target']) for l in self.graph()['links']
+                     if l['source'] == f"finding:shop-pr-1/{NULL_FALLBACK['id']}"}
+        self.assertIn(('steered_by', 'steering:shop-pr-1/boundary-validation-only'), relations)
+
+    def test_match_ranks_graphify_retrieved_candidates(self):
+        self.run_cli('build')
+        output = self.root / 'gq.txt'
+        sql_node = f"finding:shop-pr-2/{SQL_COLUMN['id']}"
+        nodes = self.nodes()
+        output.write_text(f"Graph: x\n\nNODE {nodes[sql_node]['label']} [src={nodes[sql_node]['source_file']} loc= community=]\n")
+        report = json.loads(self.run_cli('match', '--finding', 'shop-pr-1/' + NULL_FALLBACK['id'],
+                                         '--graphify', str(output), '--format', 'json'))
+        by_id = {r['id']: r for r in report['findings']}
+        self.assertEqual(by_id[SQL_COLUMN['id']]['retrieved_by'], 'graphify')  # kept below the text threshold
+        self.assertEqual(by_id[NULL_FALLBACK_REJECTED['id']]['retrieved_by'], 'text')
+
+    def test_every_edge_has_a_graphify_context(self):
+        self.run_cli('build')
+        self.assertTrue(all(l['context'] == l['relation'] for l in self.graph()['links']))
+
     @unittest.skipUnless(shutil.which('graphify') or os.path.exists(os.path.expanduser('~/.local/bin/graphify')),
                          'graphify not installed')
     def test_graphify_reads_the_graph(self):
@@ -254,6 +290,12 @@ class ReviewerKgTests(unittest.TestCase):
                                  '--graph', str(self.out / 'graph.json')], capture_output=True, text=True, timeout=60)
         self.assertEqual(result.returncode, 0, result.stderr)
         self.assertIn('similar_to', result.stdout + result.stderr)
+        # Seeded GraphRAG traversal over precedent links reaches the similar prior.
+        query = subprocess.run([binary, 'query', 'inline body fallback', '--seed', f"finding:shop-pr-1/{NULL_FALLBACK['id']}",
+                                '--context', 'similar_to', '--context', 'touches', '--graph', str(self.out / 'graph.json'),
+                                '--budget', '4000'], capture_output=True, text=True, timeout=60)
+        self.assertEqual(query.returncode, 0, query.stderr)
+        self.assertIn(NULL_FALLBACK_REJECTED['id'], query.stdout)
 
 
 if __name__ == '__main__':

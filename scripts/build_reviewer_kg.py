@@ -51,6 +51,8 @@ REFERENCE_TITLE_BOOST = 0.3
 REFERENCE_BOOST_FLOOR = 0.05  # a title hit only boosts a doc whose body also matches
 REFERENCE_LINK_MIN_SCORE = 0.2  # build-time exemplifies links; stricter than interactive match
 VECTOR_TERMS = 40
+STEERING_TOP_K = 3
+STEERING_MIN_SCORE = 0.2
 REFERENCE_VECTOR_TERMS = 150  # long guidance docs keep more terms
 
 # Outcome of a prior decision, from the status token.
@@ -72,7 +74,10 @@ def sha256_text(text):
 def tokens(text):
     out = []
     for word in WORD.findall(text or ''):
-        for part in CAMEL.sub(' ', word).replace('_', ' ').split():
+        parts = CAMEL.sub(' ', word).replace('_', ' ').split()
+        if len(parts) > 1:
+            out.append(word.lower())  # keep the whole identifier: OrderModeService is more specific than its parts
+        for part in parts:
             low = part.lower()
             if len(low) >= 3 and low not in STOPWORDS and not low.isdigit():
                 out.append(stem(low))
@@ -220,6 +225,7 @@ def parse_store(store):
             justification=first(detail.get('justification')),
             reviewer_ack=first(detail.get('reviewer-ack')),
             pushback=first(detail.get('pushback')),
+            reply=first(detail.get('reply')), triage=first(detail.get('triage')),
             scope=first(detail.get('scope')),
             commit=first(detail.get('commit')),
             reviewer=first(detail.get('reviewer')), source=first(detail.get('source')),
@@ -228,7 +234,26 @@ def parse_store(store):
             path=str(path),
         ))
     return dict(store=store.name, repo=repo, pr=pr, branch=meta.get('branch', ''),
-                reviewed=meta.get('reviewed', ''), findings=findings)
+                reviewed=meta.get('reviewed', ''), findings=findings, decisions=parse_task_decisions(store))
+
+
+TASK_DECISION = re.compile(r'^- (\d{4}-\d{2}-\d{2}) - ([a-z0-9][a-z0-9-]*) - (.+)$')
+
+
+def parse_task_decisions(store):
+    """The user's steering decisions from `task.md` `# DECISIONS` (review/TASK_FILE.md grammar)."""
+    path = store / 'task.md'
+    if not path.is_file():
+        return []
+    decisions, section = [], None
+    for line in path.read_text(errors='replace').splitlines():
+        if line.startswith('# '):
+            section = line[2:].strip()
+        elif section == 'DECISIONS':
+            match = TASK_DECISION.match(line.strip())
+            if match:
+                decisions.append(dict(date=match.group(1), name=match.group(2), text=match.group(3)))
+    return decisions
 
 
 def parse_reference(path, root):
@@ -301,7 +326,8 @@ def build_graph(stores, references, memory=()):
         nodes.setdefault(node_id, dict(id=node_id, **attrs))
 
     def link(source, target, relation, confidence='EXTRACTED', score=1.0, **attrs):
-        links.append(dict(source=source, target=target, relation=relation, confidence=confidence,
+        # Graphify filters traversal on `context`; set it to the relation so `--context similar_to` works.
+        links.append(dict(source=source, target=target, relation=relation, context=relation, confidence=confidence,
                           confidence_score=round(score, 4), weight=round(score, 4), _origin='reviewer_kg', **attrs))
 
     findings = [f for store in stores for f in store['findings']]
@@ -312,6 +338,12 @@ def build_graph(stores, references, memory=()):
         node(store_id, label=store['store'], kind='review_store', file_type='review', repo=store['repo'],
              pr=store['pr'], branch=store['branch'], reviewed=store['reviewed'])
         link(store_id, repo_id, 'in_repo')
+        for decision in store.get('decisions', []):
+            decision_id = f"steering:{store['store']}/{decision['name']}"
+            node(decision_id, label=f"steering {decision['name']}", kind='steering', file_type='decision',
+                 store=store['store'], repo=store['repo'], date=decision['date'], name=decision['name'],
+                 text=decision['text'], confidence='verified', source_file=f"{store['store']}/task.md")
+            link(decision_id, store_id, 'steers')
     for finding in findings:
         fid = finding_node_id(finding)
         node(fid, label=f"{finding['id'].split('.')[0]} {finding['title']}"[:160], kind='finding', file_type='finding',
@@ -369,6 +401,11 @@ def build_graph(stores, references, memory=()):
         for ref, patterns in ref_name_patterns:
             if any(p.search(claim) for p in patterns):
                 link(finding_node_id(finding), f"reference:{ref['path']}", 'cites')
+    # Steering decisions link to the findings they read like, so a traversal from a claim reaches them.
+    for steer in (n for n in list(nodes.values()) if n['kind'] == 'steering'):
+        scores = model.scores(model.query(f"{steer['name'].replace('-', ' ')} {steer['text']}"))
+        for score, j in sorted(((s, j) for j, s in scores.items() if s >= STEERING_MIN_SCORE), reverse=True)[:STEERING_TOP_K]:
+            link(finding_node_id(findings[j]), steer['id'], 'steered_by', 'INFERRED', score)
     add_memory(nodes, link, memory)
     return dict(directed=True, multigraph=True,
                 graph=dict(name='reviewer_kg', format_version=FORMAT_VERSION,
@@ -673,6 +710,8 @@ SUPERSEDED_WEIGHT = 0.5
 
 
 def candidate_text(node):
+    if node['kind'] == 'steering':
+        return f"{node['name'].replace('-', ' ')} {node['text']}"
     if node['kind'] == 'memory':
         return ' '.join([node.get('title', '')] * 2 + [node.get('rationale', ''), node.get('fix', '')])
     return finding_text(node)
@@ -726,6 +765,28 @@ def prejudge(results):
                 instruction='No prior decision; research the issue, propose a fix, ask once, then remember the answer.')
 
 
+GRAPH_RETRIEVAL_BONUS = 0.05
+
+
+def graphify_candidates(source, nodes):
+    """Node ids named in `graphify query` output: detail-file `src=` paths, else exact node labels."""
+    text = sys.stdin.read() if source == '-' else Path(source).read_text(errors='replace')
+    by_src, by_label = defaultdict(set), defaultdict(set)
+    for n in nodes.values():
+        if n.get('source_file'):
+            by_src[n['source_file']].add(n['id'])
+        by_label[n.get('label', '')].add(n['id'])
+    found = set()
+    for line in text.splitlines():
+        match = re.match(r'^NODE (.*?) \[src=([^\]]*?) loc=', line)
+        if not match:
+            continue
+        label, src = match.group(1).strip(), match.group(2).strip()
+        hits = by_label.get(label, set()) & by_src.get(src, set()) or by_label.get(label, set())
+        found |= hits
+    return found
+
+
 def read_query(args):
     parts = []
     if args.text:
@@ -738,7 +799,7 @@ def read_query(args):
                                if line.startswith('+') and not line.startswith('+++')))
         args.files = (args.files or []) + re.findall(r'^\+\+\+ b/(\S+)', diff, re.M)
     if not parts and not args.files:
-        raise SystemExit('match needs --text, --query-file, --diff, or --file')
+        raise SystemExit('match needs --text, --query-file, --diff, --file, or --finding')
     return '\n'.join(parts)
 
 
@@ -757,8 +818,16 @@ def cmd_match(args):
         if n['kind'] == 'memory' and n['memory_kind'] in ('decision', 'supersede'):
             for target in n.get('about', []):
                 rulings_about[target].append(n['id'])
+    claim = None
+    if args.finding:
+        claim = nodes[resolve_node(args.finding, nodes)]
+        args.text = ' '.join(filter(None, [args.text, finding_text(claim)]))
+        args.files = (args.files or []) + ([claim['file']] if claim.get('file') else [])
     query = read_query(args)
     files = [f.split(':')[0] for f in (args.files or [])]
+    steering = [n for n in graph['nodes'] if n['kind'] == 'steering']
+    findings = findings + steering
+    retrieved = graphify_candidates(args.graphify, nodes) if args.graphify else None
     ref_list = [dict(title=n['label'], aliases=n.get('aliases', []), text=n.get('text', ''),
                      category=n['category'], path=n['source_file']) for n in refs.values()]
     model = TfIdf([candidate_text(n) for n in findings])
@@ -769,6 +838,22 @@ def cmd_match(args):
                 scores[i] += 0.3 if n['file'] == f else 0.15
         if args.repo and n.get('repo') and n['repo'] != args.repo:
             scores.pop(i, None)
+        if claim is not None and n['id'] == claim['id']:
+            scores.pop(i, None)  # the claim under review is not its own precedent
+    graph_hits = set()
+    if claim is not None:
+        # Steering the graph links to the claim is relevant whatever its wording score.
+        steered = {l['target'] for l in graph['links'] if l['relation'] == 'steered_by' and l['source'] == claim['id']}
+        for i, n in enumerate(findings):
+            if n['id'] in steered:
+                scores[i] = scores.get(i, 0.0) + GRAPH_RETRIEVAL_BONUS
+                graph_hits.add(i)
+    if retrieved is not None:
+        # GraphRAG: graph-retrieved candidates join the text matches with a bonus and pass the threshold.
+        for i, n in enumerate(findings):
+            if n['id'] in retrieved and (claim is None or n['id'] != claim['id']):
+                scores[i] = scores.get(i, 0.0) + GRAPH_RETRIEVAL_BONUS
+                graph_hits.add(i)
     # Threshold on the raw score so a superseded match still surfaces with its newer decision;
     # the superseded weight only orders it below current items. Ties prefer an actionable fix.
     def rank_key(item):
@@ -776,22 +861,30 @@ def cmd_match(args):
         n = findings[i]
         weight = SUPERSEDED_WEIGHT if n.get('superseded_by') else 1.0
         return (round(s * weight, 6), n.get('outcome') == 'fixed', -i)
-    ranked = [(s, i) for i, s in sorted(((i, s) for i, s in scores.items() if s >= args.min_score),
+    ranked = [(s, i) for i, s in sorted(((i, s) for i, s in scores.items() if s >= args.min_score or i in graph_hits),
                                         key=rank_key, reverse=True)]
     if args.decided:
         ranked = [(s, i) for s, i in ranked if findings[i].get('outcome') != 'undecided']
-    results = []
-    for score, i in ranked[:args.top]:
+    results, steering_hits = [], []
+    for score, i in ranked[:args.top + len(steering)]:
+        if len(results) >= args.top and findings[i]['kind'] != 'steering':
+            continue
         n = findings[i]
         current = [c for c in current_of(n['id'], nodes) if c != n['id']]
+        if n['kind'] == 'steering':
+            steering_hits.append(dict(score=round(score, 3), node=n['id'], store=n['store'], date=n['date'],
+                                      name=n['name'], text=n['text'], detail=n['source_file']))
+            continue
         results.append(dict(
             score=round(score, 3), node=n['id'], id=n.get('finding_id') or n.get('memory_id'),
+            retrieved_by='graphify' if i in graph_hits else 'text',
+            same_store=bool(claim is not None and n.get('store') == claim.get('store')),
             store=n.get('store', ''), repo=n.get('repo', ''), pr=n.get('pr', ''), type=n.get('type', 'MEMORY'),
             severity=n.get('severity', ''), status=n.get('status', ''), outcome=n.get('outcome', ''),
             title=n.get('title', ''), file=f"{n['file']}:{n['line']}" if n.get('line') else n.get('file', ''),
             fix=n.get('fix', ''), fixed=n.get('fixed', ''), justification=n.get('justification', ''),
             rationale=n.get('rationale', ''), confidence=n.get('confidence', ''), reviewer_ack=n.get('reviewer_ack', ''), pushback=n.get('pushback', ''),
-            scope=n.get('scope', ''), commit=n.get('commit', ''), thread=n.get('thread', ''),
+            reply=n.get('reply', ''), triage=n.get('triage', ''), scope=n.get('scope', ''), commit=n.get('commit', ''), thread=n.get('thread', ''),
             detail=f"{n.get('source_file', '')}{':' + n['source_location'] if n.get('kind') == 'memory' else ''}",
             superseded_by=n.get('superseded_by', []),
             current_decision=[decision_summary(nodes[c]) for c in current if c in nodes],
@@ -800,7 +893,9 @@ def cmd_match(args):
             references=[dict(title=t, path=p) for _, t, p in sorted(linked_refs[n['id']], reverse=True)[:3]]))
     ref_ranked = ReferenceIndex(ref_list).rank(query, args.top_refs) if query.strip() else []
     report = dict(query_terms=sorted(model.query(query), key=lambda t: -model.query(query)[t])[:15] if query.strip() else [],
-                  files=files, prejudgement=prejudge(results), findings=results,
+                  files=files, claim=claim and dict(id=claim.get('finding_id'), store=claim.get('store'),
+                                                    title=claim.get('title'), file=claim.get('file')),
+                  prejudgement=prejudge(results), findings=results, steering=steering_hits[:args.top],
                   references=[dict(score=round(s, 3), title=ref_list[i]['title'], category=ref_list[i]['category'],
                                    path=ref_list[i]['path']) for s, i in ref_ranked])
     if args.format == 'json':
@@ -816,13 +911,17 @@ def cmd_match(args):
     for r in pj.get('priors', []):
         print(f"- prior: {r['id']} {r['outcome']} ({r['score']}) {' '.join((r['fix'] or '').split())[:200]}")
     print(f"- instruction: {pj['instruction']}\n")
+    if report['claim']:
+        c = report['claim']
+        print(f"# Claim\n\n- {c['store']}/{c['id']}: {c['title']}\n- file: `{c['file']}`\n")
     print(f"# Prior matches\n\n- query terms: {', '.join(report['query_terms']) or 'none'}\n- files: {', '.join(files) or 'none'}\n")
     if not results:
         print('- No prior finding above the score threshold.\n')
     for r in results:
         print(f"## {r['id']} [{r['severity']}] {r['outcome']} ({r['score']})\n")
         print(f"- title: {r['title']}\n- where: {r['repo']} PR {r['pr']} `{r['file']}`\n- status: {r['status']}")
-        for key in ('fix', 'fixed', 'justification', 'rationale', 'reviewer_ack', 'pushback', 'scope', 'commit', 'thread'):
+        print(f"- retrieved by: {r['retrieved_by']}{' (same PR store)' if r['same_store'] else ''}")
+        for key in ('fix', 'fixed', 'justification', 'rationale', 'reviewer_ack', 'pushback', 'reply', 'scope', 'commit', 'thread'):
             if r[key]:
                 print(f"- {key}: {' '.join(r[key].split())[:400]}")
         for c in r['rulings']:
@@ -834,7 +933,12 @@ def cmd_match(args):
         for ref in r['references']:
             print(f"- reference: {ref['title']} (`{ref['path']}`)")
         print(f"- detail: `{r['detail']}`\n")
-    print('# Reference matches\n')
+    print('# Steering decisions\n')
+    if not report['steering']:
+        print('- none matched\n')
+    for st in report['steering']:
+        print(f"- {st['date']} {st['name']} ({st['score']}) `{st['detail']}`: {' '.join(st['text'].split())[:300]}")
+    print('\n# Reference matches\n')
     for ref in report['references']:
         print(f"- {ref['title']} [{ref['category']}] ({ref['score']}) `{ref['path']}`")
 
@@ -849,6 +953,8 @@ def main(argv=None):
     sub.add_parser('update', help='incremental rebuild from cache')
     match = sub.add_parser('match', help='rank prior findings and references')
     match.add_argument('--text', help='claim or finding text')
+    match.add_argument('--finding', help='claim under review (store/ID, full ID, or node); excluded from its own matches')
+    match.add_argument('--graphify', help='graphify query output (file or -); rank only the nodes it retrieved')
     match.add_argument('--query-file', help='file holding claim text')
     match.add_argument('--diff', help='unified diff file, or - for stdin')
     match.add_argument('--file', dest='files', action='append', help='code path touched (repeatable)')

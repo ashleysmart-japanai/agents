@@ -1,6 +1,6 @@
 # Reviewer knowledge graph and KG review
 
-- **What:** a rebuildable reviewer KG of prior review findings and reference guidance, with append-only memory, lint, and a `/kg-review` skill that researches each bug, gives a pre-judgement from the user's prior rulings, and proposes fixes.
+- **What:** `/kg-review` — review claims or code against prior claims and the reference data, and propose fixes; backed by a rebuildable reviewer KG with append-only memory and lint.
 - **When:** 2026-11-18.
 - **Owner:** repository maintainer.
 
@@ -16,7 +16,15 @@
 
 ## Objective
 
-- **Decision:** build a graph that links prior findings, their decisions, the code files they touch, and the reference guidance. Keep new decisions in an append-only memory that can supersede, but never delete, a prior result. Review through a skill that consults the graph before proposing each fix.
+- **Purpose:** review claims, or code, against prior claims and against the reference data, and propose fixes.
+- **Decision:** the core of the system is a per-claim review loop; every other part exists to make that loop work.
+  - Understand the claim: read it, read the cited code, prove the problem.
+  - Locate similar items: a Graphify GraphRAG query seeded at the claim, walking precedent links.
+  - Rank: score the retrieved and text-matched priors against the claim; keep those that match the problem.
+  - Review the priors: their outcomes, supersedes, user rulings, human comments, steering decisions, and linked anti-patterns, design patterns, and principles.
+  - Summarise the prior instances, their decisions, and the reference rules that mattered.
+  - Propose the fix grounded in those priors and rules; apply on confirmation; record the user's ruling once.
+- **Decision:** support tasks — building and updating the graph, the append-only memory with supersede, the fixed vocabularies, and lint — keep the loop's inputs current, consistent, and private.
 - **Success:** the user rules on an issue once; the next review of a matching issue returns that ruling as a pre-judgement and follows it without asking again.
 - **Success:** for a new finding without a ruling, the reviewer surfaces the closest prior decisions and reference guidance and proposes a fix that cites them.
 
@@ -30,6 +38,8 @@
 - **Current decision:** the item reached by following supersede links from a prior item to the newest one.
 - **Ruling:** a `verified` memory entry recording how the user decided an issue should be handled.
 - **Pre-judgement:** the verdict `match` derives before the agent asks: from a current ruling, else from agreeing prior findings, else none.
+- **Precedent links:** `similar_to`, `touches`, `steered_by`, `supersedes`, `about`, and `cascade_of`; the links a claim's GraphRAG traversal follows.
+- **Steering decision:** a `task.md` `# DECISIONS` entry in a review store; the user's direction for that PR.
 
 ## Requirements
 
@@ -60,11 +70,17 @@
 - [ ] **R25 — Conflicting rulings:** when current rulings with different outcomes match at near-equal scores, `match` returns verdict `conflict` with `ask: true`.
 - [ ] **R26 — Hypotheses do not decide:** a memory entry with confidence `hypothesis` or `reported` never produces `ask: false`.
 - [ ] **R27 — Ruled once:** the skill follows a `user-ruling` pre-judgement without asking how to handle the issue, and asks only which fixes to apply.
+- [ ] **R28 — Claims or code input:** `/kg-review` accepts tracking IDs, `store/ID`, a review store, or a branch diff; a diff is reviewed into claims before the per-claim loop.
+- [ ] **R29 — GraphRAG retrieval:** each graph edge carries a Graphify `context` equal to its relation, so `graphify query --seed <claim> --context <precedent link>` returns the claim's precedent neighbourhood.
+- [ ] **R30 — Rank against the claim:** `match --finding <claim>` queries from the claim's own text and file, excludes the claim from its results, and with `--graphify <output>` ranks the graph-retrieved candidates together with the text matches.
+- [ ] **R31 — Steering in the graph:** each `task.md` `# DECISIONS` entry becomes a steering node linked to the findings it reads like, and `match` returns matching steering decisions.
+- [ ] **R32 — Human comments surface:** each prior in `match` output carries its justification, reviewer acknowledgement, pushback, reply, scope, and thread.
+- [ ] **R33 — Per-claim summary:** for each claim the skill reports the kept priors with outcome and reason, the reference rules that applied, the pre-judgement, coverage gaps, and a proposed fix as a diff citing them.
 
 ## Scope
 
 - In scope: the builder script and its tests, the memory file contract, the lint checks, the `/kg-review` skill and its command mappings.
-- Out of scope: vector embeddings; model-backed semantic extraction; edge-strength spreading activation; writing to the review store from the builder; hosting the graph.
+- Out of scope: vector embeddings; model-backed semantic extraction; edge-strength spreading activation; writing to the review store from the builder; hosting the graph; authoring new reference docs for coverage gaps.
 - Boundary: changes `scripts/`, `tests/`, `skills/`, `skills/SKILL.md`, `specs/`, and the `CODER.md` skill map; reads `~/reviews/` and `reference/` read-only; writes only `~/agents-secret/kg/reviewer/`.
 
 ## Acceptance Criteria
@@ -90,10 +106,16 @@
 - [ ] AC19: a matching `hypothesis` memory entry does not produce basis `user-ruling` (R26).
 - [ ] AC20: two verified rulings with different outcomes on the same claim return verdict `conflict` (R25).
 - [ ] AC21: a `/kg-review` run with a `user-ruling` pre-judgement cites the ruling ID and asks only which fixes to apply (R22, R27).
+- [ ] AC22: a seeded `graphify query` with precedent-link contexts on a fixture claim returns its similar prior (R29).
+- [ ] AC23: `match --finding` on a fixture claim never returns that claim and returns its similar prior (R30).
+- [ ] AC24: `match --finding --graphify` marks graph-retrieved candidates `retrieved_by: graphify` and keeps them below the text threshold (R30).
+- [ ] AC25: a fixture store's `task.md` decision becomes a steering node and is returned by a matching `match` (R31).
+- [ ] AC26: a fixture prior's `reply` and `reviewer_ack` appear in its `match` result (R32).
+- [ ] AC27: `/kg-review` on three tracking IDs prints, per claim, the kept priors, reference rules, pre-judgement, gaps, and a proposed diff, then asks once (R28, R33).
 
 ## Verification
 
-- `python3 -m unittest tests/test_build_reviewer_kg.py` → all tests pass (AC1–AC13, AC16–AC20).
+- `python3 -m unittest tests/test_build_reviewer_kg.py` → all tests pass (AC1–AC13, AC16–AC20, AC22–AC26).
 - `python3 scripts/build_reviewer_kg.py build` → writes `~/agents-secret/kg/reviewer/graph.json` and prints node, link, finding, and reference counts.
 - `python3 scripts/build_reviewer_kg.py lint` → exit 0 with zero errors on the live store.
 - `graphify explain "Exception Swallowing" --graph ~/agents-secret/kg/reviewer/graph.json` → lists findings linked to that anti-pattern.
