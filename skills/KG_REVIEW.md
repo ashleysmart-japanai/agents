@@ -85,8 +85,7 @@ Run these steps for each claim, in order.
    - which fixes to apply: **all**, a list of tracking IDs, or **none**;
    - how to handle each claim without a `user-ruling` pre-judgement.
 4. Log the user's answer per claim: `--kind user_response`.
-5. Apply the confirmed fixes to the working tree; run the tests for the touched files; report each command's result.
-   - Log `--kind applied` with the test command and its result as `--evidence`.
+5. Apply the confirmed fixes per § Apply it.
 6. Record each new ruling once:
    - `python3 $KG remember --about <store>/<ID> --outcome <o> --confidence verified --title "<the rule as a general statement>" --fix "<how>" --rationale "<user's words>" --source <PR or thread URL>`
    - Write the title as the general rule so it matches the next occurrence.
@@ -94,6 +93,13 @@ Run these steps for each claim, in order.
    - Record only rulings the user gave.
    - Log `--kind ruling` with the memory ID `remember` printed.
 7. Close the run: `python3 $KG run-report --run "$RUN"`; give the user the `run.md` path.
+
+## Apply it
+
+- Apply approved fixes per `~/agents/style/CLAIM_BRIEF.md` § Apply it: a background sub-agent per fix, the next claim back to the user at once, consolidation when the sub-agent finishes.
+- In a `/kg-review` run, the sub-agent prompt also holds `$RUN/proposed.patch` and `$RUN`.
+- The sub-agent logs `--kind applied` with the test command and result as `--evidence`.
+- Consolidation is logged as `--kind applied` by the main agent, with the verified diff summary.
 
 ## Report format
 
@@ -155,7 +161,7 @@ Example (invented store and IDs):
 - When the user explicitly asks to use `/kg-review`, treat that request as approval to run the graph commands and to append the rulings the user gives to memory.
 - `/kg-review` does not run `/review-triage`; it does not move claims through triage gates or change their status.
 - Review tracking follows `~/agents/review/ISSUE_TRACKING.md`; review triage (`~/agents/skills/REVIEW_TRIAGE.md`) runs only when the user asks.
-- Ask before applying any fix; apply only the confirmed set.
+- Ask before applying any fix; apply only the confirmed set, through § Apply it.
 - Never commit or push.
 - Never apply a `NEEDS_REVIEW:cascade` claim without the user's explicit ruling.
 - Never edit or delete lines in `memory.jsonl`; supersede instead.

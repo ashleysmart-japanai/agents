@@ -33,6 +33,25 @@ A **claim-brief** describes one review claim to the user in chat. Use it when th
   - Say whether the fix is applied, proposed, or not started.
 - Leave out a section that has no content; do not write "N/A".
 
+## Apply it
+
+- "Apply it", said while going through single claims, approves the proposed fix for the current claim.
+- "Apply all" or a list of tracking IDs approves those claims.
+- Do the fix in a background sub-agent, not in the main conversation.
+  - The sub-agent prompt holds: the claim ID, the problem, the proposed fix, the files to touch, and the focused test command.
+  - The sub-agent applies the fix and runs the focused tests.
+  - The sub-agent does not commit, push, change claim status, or start other work.
+- Return to the user at once, while the sub-agent works:
+  - present the next unaddressed claim as a claim-brief, or
+  - state "All claims are addressed." with one line per claim: ID and applied, applying, declined, or deferred.
+- A claim is addressed when the user approved, declined, or deferred it.
+- Run one sub-agent at a time on a file; queue a second fix that touches the same file.
+- Consolidate each sub-agent when it finishes:
+  - Claude: the sub-agent works on the branch in the main checkout, with no worktree; verify its diff and its test result.
+  - Codex: the sub-agent may use a worktree; consolidate its changes into the main checkout as soon as it finishes.
+  - Report one line: claim ID, files changed, test command and result.
+  - Report a failed test or a conflict to the user; do not retry the fix without the user's answer.
+
 ## Writing rules (ASD-STE100)
 
 - Write short sentences: 20 words or fewer for an instruction, 25 words or fewer for a description.

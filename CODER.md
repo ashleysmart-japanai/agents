@@ -368,6 +368,7 @@ SOLID applies to statements too — docs, specs, PR descriptions, commit message
 - Report bugs, issues, and findings **to the user in chat** using the finding grammar in [`~/agents/review/REVIEW_METHOD.md` § Finding Grammar](review/REVIEW_METHOD.md#finding-grammar): one line per finding.
   - Code references follow `style/QUICK_REF.md` and `style/CODE_SNIP.md`; the chat form is their chat exception.
 - Describe a single claim to the user as a claim-brief in ASD-STE100 Simplified Technical English (`style/CLAIM_BRIEF.md`).
+- "Apply it", said while going through single claims, approves the proposed fix for the current claim; apply it per `style/CLAIM_BRIEF.md` § Apply it.
 - Use the status tokens only (`OPEN`, `NEEDS_REVIEW:coder`, `CLOSED verified:<yyyy-mm-dd>`, …). **Never** describe a finding with a loose adjective like "present", "resolved", "done", or "handled".
 - A fix that is written but not yet verified is `OPEN`, not `CLOSED verified:` — "verified" requires a passing reverify command, test, or trace, not merely that the code is present.
 - **Always track reviewer comments when reading them**, including requests to read, explain, or list claims without implementing fixes.
