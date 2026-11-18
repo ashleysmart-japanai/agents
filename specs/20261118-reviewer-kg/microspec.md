@@ -116,6 +116,7 @@
 - [ ] AC26: a fixture prior's `reply` and `reviewer_ack` appear in its `match` result (R32).
 - [ ] AC28: a fixture run logs `kg_match` from `match --log-run`, then `kept` and `proposal` steps with evidence and refs, and `run-report` renders all three into `run.md` (R34).
 - [ ] AC29: a `/kg-review` report on three claims has one block per claim with problem, three or fewer numbered prior matches, and fix direction, no table or diff, and the full diff is in `$RUN/proposed.patch` (R35).
+- [ ] AC30: asked about one claim, the agent answers with a claim-brief: heading with full ID and severity, Problem, Details, Proposed fix, and Prior evidence with full tracking IDs, in sentences of 25 words or fewer (R36).
 - [ ] AC27: `/kg-review` on three tracking IDs prints, per claim, the kept priors, reference rules, pre-judgement, gaps, and a proposed diff, then asks once (R28, R33).
 
 ## Verification
