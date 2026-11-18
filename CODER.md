@@ -471,3 +471,5 @@ An agent surfaces an open question rather than guessing — at the end of a turn
 - `/review-triage`: `~/agents/skills/REVIEW_TRIAGE.md`
 - `check-spec`: `~/agents/skills/CHECK_SPEC.md`
 - `/check-spec`: `~/agents/skills/CHECK_SPEC.md`
+- `repo-vac`: `~/agents/skills/REPO_VAC.md`
+- `/repo-vac`: `~/agents/skills/REPO_VAC.md`
