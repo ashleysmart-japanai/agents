@@ -53,6 +53,7 @@ Run these steps for each claim, in order.
 3. **Rank what matches the claim:**
    - `python3 $KG match --finding <store>/<ID> --graphify "$GQ" --log-run "$RUN" --top 8 --format json`
    - The claim is excluded from its own matches; graph-retrieved and text-retrieved candidates are ranked together.
+   - Follow `~/agents/style/CLAIM_BRIEF.md` § KG search: the shared graph only, no lowered `--top`, a `--decided` rerun when no decided prior is in the top results, and its never-use list.
    - Keep a prior when it matches the problem, not only the wording; drop false friends (same word, different meaning).
    - Label each kept prior as same file, same PR, or other PR.
    - Log each prior: `--kind kept` or `--kind dropped`, with the reason and `--ref <prior ID>`.
@@ -73,6 +74,8 @@ Run these steps for each claim, in order.
    - Log `--kind prejudgement` (basis, verdict, the ruling or priors it rests on) and each `--kind gap`.
 6. **Propose the fix:**
    - Base it on the governing prior decision and the reference doc's fix, adapted to the current code.
+   - Reviewer bot suggestions are almost never right: prefer the KG's decided priors and rulings, and treat the bot's fix as a hint to check.
+   - When the reviewer's suggested fix (`reviewer suggested` in the `match` output) differs, log `--kind decision` with both fixes and the reason.
    - A prior `rejected` or `out-of-scope` decision is stated first; propose against it only with a stated reason.
    - Write the full unified diff to `$RUN/proposed.patch`, with `file:line` citations; it is not printed in the report.
    - Log `--kind decision` (what to do and why, with the evidence and refs it rests on) and `--kind proposal` (a summary of the fix and the files it touches).
@@ -123,6 +126,7 @@ Each claim block, in this order:
    - Never list the claim itself, or the claim's own repeats by later reviewers, as a prior match.
 5. **Fix direction:** one or two lines — what to change and what to preserve.
    - State a prior `rejected` or `out-of-scope` decision the fix must respect.
+   - **Reviewer suggested:** one line, only when the reviewer's fix differs — the reviewer (bot or human), its fix, and why the fix direction differs.
 6. **Needs:** one line, only when it applies — a cascade approval, a decision only the user can make, or a coverage gap that weakens the match.
 
 After the last block:

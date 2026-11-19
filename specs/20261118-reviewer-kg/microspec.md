@@ -79,6 +79,7 @@
 - [ ] **R35 — Report format:** the chat report gives, per claim, a heading with tracking ID, severity, and short problem; a two-to-three-line problem statement; the top three prior matches as `store/ID — Outcome: decision` lines; and a one-to-two-line fix direction; it holds no tables or diffs, and ends with one apply question and the run-log and patch paths.
 - [ ] **R36 — Claim-brief:** a single claim described to the user follows `style/CLAIM_BRIEF.md`: heading with ID and severity, Problem, Details, Proposed fix, Prior evidence, written in ASD-STE100 Simplified Technical English.
 - [ ] **R37 — Apply it:** "apply it" on a single claim hands the fix to a background sub-agent, returns the user at once to the next unaddressed claim or to "All claims are addressed.", and consolidates and verifies the sub-agent's change when it finishes (`style/CLAIM_BRIEF.md` § Apply it).
+- [ ] **R38 — Reviewer suggestion:** `match` reports the claim's reviewer, whether it is a bot, and its suggested fix; the brief and the report prefer the KG's decided priors over a bot suggestion and state the reviewer's fix and the reason when it differs.
 - [ ] **R33 — Per-claim summary:** for each claim the skill reports the kept priors with outcome and reason, the reference rules that applied, the pre-judgement, coverage gaps, and a proposed fix as a diff citing them.
 
 ## Scope
@@ -119,6 +120,7 @@
 - [ ] AC29: a `/kg-review` report on three claims has one block per claim with problem, three or fewer numbered prior matches, and fix direction, no table or diff, and the full diff is in `$RUN/proposed.patch` (R35).
 - [ ] AC30: asked about one claim, the agent answers with a claim-brief: heading with full ID and severity, Problem, Details, Proposed fix, and Prior evidence with full tracking IDs, in sentences of 25 words or fewer (R36).
 - [ ] AC31: after "apply it" on one of three claims, the next reply is the next claim's claim-brief while the fix runs in a sub-agent; after the last claim the reply is "All claims are addressed." with each claim's state (R37).
+- [ ] AC32: `match --finding` on a bot-raised claim prints `reviewer suggested (bot: …)`; a fixture reviewer named `x[bot]` is classed `bot` and `alice` is `human` (R38).
 - [ ] AC27: `/kg-review` on three tracking IDs prints, per claim, the kept priors, reference rules, pre-judgement, gaps, and a proposed diff, then asks once (R28, R33).
 
 ## Verification

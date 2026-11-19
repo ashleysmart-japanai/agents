@@ -325,6 +325,13 @@ class ReviewerKgTests(unittest.TestCase):
         if 'undecided' in outcomes and 'rejected' in outcomes:
             self.assertLess(outcomes.index('rejected'), outcomes.index('undecided'))
 
+    def test_reviewer_kind_flags_bots(self):
+        reviewer_kind = kg.reviewer_kind
+        for name in ('shop-agent[bot]', 'github-actions[bot]', 'Claude (pasted review)', 'Review task (GPT)', 'ci-review-agent'):
+            self.assertEqual(reviewer_kind(name), 'bot', name)
+        self.assertEqual(reviewer_kind('alice'), 'human')
+        self.assertEqual(reviewer_kind(''), 'unknown')
+
     def test_every_edge_has_a_graphify_context(self):
         self.run_cli('build')
         self.assertTrue(all(l['context'] == l['relation'] for l in self.graph()['links']))

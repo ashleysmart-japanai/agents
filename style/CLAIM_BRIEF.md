@@ -17,6 +17,8 @@ A **claim-brief** describes one review claim to the user in chat. Use it when th
 
 **Proposed fix:** <the concrete change and how it resolves the issue>.
 
+**Reviewer suggested:** <the reviewer's own fix, and why the proposed fix differs>.
+
 **Prior evidence:** <earlier findings, applied fixes, proposals, and user decisions, with full tracking IDs>.
 ```
 
@@ -27,21 +29,43 @@ A **claim-brief** describes one review claim to the user in chat. Use it when th
   - What happens: the change, call order, or data flow that causes the defect.
   - Effect: the impact, and the limits of the impact (for example, "It does not change permission checks").
 - **Proposed fix:** the concrete change, and how it resolves the issue; what to keep unchanged.
-- **Prior evidence:** other claims, fixes, proposals, and user decisions that bear on this claim.
-  - Never cite the claim itself; it is not its own precedent.
-  - The claim's own history (recorded, repeated by a reviewer, extended by a reviewer, its status) goes in Details, not here.
-  - Take priors only from the reviewer KG: `python3 ~/agents/scripts/build_reviewer_kg.py match --finding <store>/<ID> --top 3`.
-  - Use the shared graph; do not build a private copy with `--out`, and do not lower `--top` or `--top-refs`.
-  - A claim that is not in the graph yet is read from its review store; `match` still works without `update`.
-  - Open each prior's `detail` file and state its decision; an undecided prior is listed as undecided, not as a ruling.
-  - Never fill Prior evidence from the conversation, the PR description, or the repo; those facts go in Details.
-  - The search fails: write `KG search failed: <error>`, and stop the brief there.
+  - Base it on the decided priors and user rulings from § KG search, not on the reviewer's suggestion.
+- **Reviewer suggested:** only when the reviewer's fix differs from the proposed fix.
+  - Quote the reviewer's fix in one line and name the reviewer: bot or human.
+  - State in one sentence why the proposed fix differs, citing the prior or ruling.
+  - Reviewer bot suggestions are almost never right; treat them as a hint to check, never as the fix.
+  - A human reviewer's suggestion carries more weight; a user ruling still decides.
+- **Prior evidence:** other claims, fixes, proposals, and user decisions that bear on this claim, from § KG search only.
+  - Never cite the claim itself, or a copy of it in a stacked PR; it is not its own precedent.
+  - The claim's own history (recorded, repeated by a reviewer, extended by a reviewer, its status) goes in Details.
   - Cite other claims by full tracking ID and store, and commits by SHA.
+  - State the decision of each prior: fixed, rejected, out of scope, or undecided, and any user ruling.
   - Say which other claim or commit caused this one.
-  - State the outcome of each prior: fixed, rejected, out of scope, or undecided, and any user ruling.
   - No prior found: write `No prior evidence found.`
 - Leave out a section that has no content; do not write "N/A".
 - Say in Details whether this claim's fix is applied, proposed, or not started.
+
+## KG search
+
+Run this for every claim-brief, before writing it. Do each step; do not shorten it.
+
+1. Use the shared graph: `python3 ~/agents/scripts/build_reviewer_kg.py match --finding <store>/<ID> --top 3`.
+   - Do not pass `--out`, and do not build a private copy of the graph.
+   - Do not lower `--top` or `--top-refs`.
+   - A claim that is not in the graph is read from its review store; `match` still works.
+2. No decided prior in the top 3: run it again with `--decided --top 5`, and use the decided results.
+3. Open the `detail` file of each kept prior; read its status, justification, reply, and thread.
+4. Keep a prior that matches the problem; drop a wording-only match, and say so.
+5. A user ruling (`prejudgement` basis `user-ruling`) decides the handling; follow it and cite its ID.
+6. Read the `reviewer suggested` line of the claim; compare it with the decided priors.
+7. The search fails: write `KG search failed: <error>` in Prior evidence; do not fill the section from other sources.
+
+Never use as prior evidence:
+
+- the conversation, the user's current instruction, or the PR description;
+- the claim itself, or its copy in a stacked PR;
+- an undecided prior presented as a decision;
+- a result from a private or rebuilt graph copy.
 
 ## Apply it
 
@@ -92,6 +116,8 @@ The ownership-only method was added between the existing warning comment and the
 This is a documentation error. It does not change permission checks or data access.
 
 **Proposed fix:** Move the warning comment to `getByIdUnsafe()` and add a comment to `getOwnerByIdUnsafe()`. Each comment then describes the method it is attached to. The full-record method again warns that authorization must succeed first.
+
+**Reviewer suggested:** The review bot suggested a rename of `getOwnerByIdUnsafe()`. The rename does not move the comment, and prior claim I5.1aBcDeFgHiJkLmNoPqRsTu kept the method name.
 
 **Prior evidence:** Commit `1a2b3c4d5e6` added the ownership-only method to fix I5.1aBcDeFgHiJkLmNoPqRsTu, which concerned detail reads before permission checks. That fix caused this comment-placement error. A fix is proposed; it is not applied.
 ```

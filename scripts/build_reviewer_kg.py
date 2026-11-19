@@ -901,6 +901,16 @@ def read_query(args):
     return '\n'.join(parts)
 
 
+BOT_REVIEWER = re.compile(r'\[bot\]|\bbot\b|agent|github-actions|\bgpt\b|claude|codex|copilot|coderabbit', re.I)
+
+
+def reviewer_kind(reviewer):
+    """bot, human, or unknown; a bot's suggested fix is a hint to check, not a decision."""
+    if not reviewer:
+        return 'unknown'
+    return 'bot' if BOT_REVIEWER.search(reviewer) else 'human'
+
+
 def claim_from_reviews(token, reviews):
     """Read a claim that is not in the graph yet straight from its review store (read-only, no rebuild)."""
     store_name, _, full_id = token.replace('finding:', '').partition('/')
@@ -1029,7 +1039,10 @@ def cmd_match(args):
     report = dict(query_terms=sorted(model.query(query), key=lambda t: -model.query(query)[t])[:15] if query.strip() else [],
                   files=files, claim=claim and dict(id=claim.get('finding_id'), store=claim.get('store'),
                                                     title=claim.get('title'), file=claim.get('file'),
-                                                    in_graph=claim.get('in_graph', True)),
+                                                    in_graph=claim.get('in_graph', True),
+                                                    reviewer=claim.get('reviewer', ''),
+                                                    reviewer_kind=reviewer_kind(claim.get('reviewer', '')),
+                                                    reviewer_fix=' '.join((claim.get('fix') or '').split())),
                   stale_stores=stale_stores(Path(args.out).expanduser(), Path(args.reviews).expanduser()),
                   prejudgement=prejudge(results), findings=results, steering=steering_hits[:args.top],
                   references=[dict(score=round(s, 3), title=ref_list[i]['title'], category=ref_list[i]['category'],
@@ -1052,6 +1065,10 @@ def cmd_match(args):
     if report['claim']:
         c = report['claim']
         print(f"# Claim\n\n- {c['store']}/{c['id']}: {c['title']}\n- file: `{c['file']}`")
+        if c['reviewer_fix']:
+            print(f"- reviewer suggested ({c['reviewer_kind']}: {c['reviewer'] or 'unknown'}): {c['reviewer_fix'][:300]}")
+            if c['reviewer_kind'] == 'bot':
+                print('- bot suggestions are rarely right; prefer the decided priors below and state where they differ')
         if not c['in_graph']:
             print('- not in the graph yet: read from the review store; run `update` to link it')
         print()
