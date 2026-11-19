@@ -13,6 +13,8 @@ A **claim-brief** describes one review claim to the user in chat. Use it when th
 
 **Problem:** <short summary>.
 
+**Origin:** <New in this PR | Made worse by this PR | On main before this PR> — <the commit or merge-base evidence>.
+
 <Details: where the issue occurs, what happens, and its effect.>
 
 **Proposed fix:** <the concrete change and how it resolves the issue>.
@@ -24,6 +26,13 @@ A **claim-brief** describes one review claim to the user in chat. Use it when th
 
 - **Heading:** the full tracking ID and severity; nothing else.
 - **Problem:** one short sentence: the defect only, with no cause and no fix.
+- **Origin:** one line; required in every brief.
+  - **New in this PR:** this PR added the code that causes the problem; name the PR commit SHA and what it added.
+  - **Made worse by this PR:** the code was on main, and this PR's change exposes or widens the problem; name both.
+  - **On main before this PR:** the cited code is unchanged from the merge-base; this PR only brought it into view.
+  - Prove it: `git -C <repo> log --oneline $(git -C <repo> merge-base origin/main HEAD)..HEAD -- <file>` and `git -C <repo> blame` on the cited lines.
+  - Never present a problem this PR caused as pre-existing, and never omit that this PR's own change is the cause.
+  - Not provable (no file, or a PR-level claim): write `Origin: not determined — <reason>`.
 - **Details:** one to three short paragraphs.
   - Where: the file and the real symbol names (`style/QUICK_REF.md`), and what each symbol does.
   - What happens: the change, call order, or data flow that causes the defect.
@@ -108,6 +117,8 @@ Never use as prior evidence:
 **M5.0aBcDeFgHiJkLmNoPqRsTu [LOW]**
 
 **Problem:** The access-warning comment is attached to the wrong method.
+
+**Origin:** New in this PR — commit `1a2b3c4d5e6` inserted `getOwnerByIdUnsafe()` below the existing comment.
 
 In `orders.service.ts`, `getOwnerByIdUnsafe()` reads only the account and project IDs that the permission check needs. `getByIdUnsafe()` reads the full order record, with its payment settings.
 

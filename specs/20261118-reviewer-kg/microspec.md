@@ -80,6 +80,7 @@
 - [ ] **R36 — Claim-brief:** a single claim described to the user follows `style/CLAIM_BRIEF.md`: heading with ID and severity, Problem, Details, Proposed fix, Prior evidence, written in ASD-STE100 Simplified Technical English.
 - [ ] **R37 — Apply it:** "apply it" on a single claim hands the fix to a background sub-agent, returns the user at once to the next unaddressed claim or to "All claims are addressed.", and consolidates and verifies the sub-agent's change when it finishes (`style/CLAIM_BRIEF.md` § Apply it).
 - [ ] **R38 — Reviewer suggestion:** `match` reports the claim's reviewer, whether it is a bot, and its suggested fix; the brief and the report prefer the KG's decided priors over a bot suggestion and state the reviewer's fix and the reason when it differs.
+- [ ] **R39 — Origin:** every claim-brief and report block states whether the problem is new in this PR, made worse by this PR, or on main before this PR, with the commit SHA or merge-base evidence; a problem the PR caused is never presented as pre-existing.
 - [ ] **R33 — Per-claim summary:** for each claim the skill reports the kept priors with outcome and reason, the reference rules that applied, the pre-judgement, coverage gaps, and a proposed fix as a diff citing them.
 
 ## Scope
@@ -121,6 +122,7 @@
 - [ ] AC30: asked about one claim, the agent answers with a claim-brief: heading with full ID and severity, Problem, Details, Proposed fix, and Prior evidence with full tracking IDs, in sentences of 25 words or fewer (R36).
 - [ ] AC31: after "apply it" on one of three claims, the next reply is the next claim's claim-brief while the fix runs in a sub-agent; after the last claim the reply is "All claims are addressed." with each claim's state (R37).
 - [ ] AC32: `match --finding` on a bot-raised claim prints `reviewer suggested (bot: …)`; a fixture reviewer named `x[bot]` is classed `bot` and `alice` is `human` (R38).
+- [ ] AC33: a claim on code that a PR commit added is briefed `Origin: New in this PR` with that commit's SHA; a claim on code unchanged since the merge-base is briefed `On main before this PR` (R39).
 - [ ] AC27: `/kg-review` on three tracking IDs prints, per claim, the kept priors, reference rules, pre-judgement, gaps, and a proposed diff, then asks once (R28, R33).
 
 ## Verification
