@@ -120,6 +120,7 @@ Each claim block, in this order:
    - Mark a superseded prior `(superseded by <ID>)` and state its current decision instead.
    - Mark a wording-only match `(wording match, not relevant)`.
    - Fewer than three: list those found and say `No further match found.`
+   - Never list the claim itself, or the claim's own repeats by later reviewers, as a prior match.
 5. **Fix direction:** one or two lines — what to change and what to preserve.
    - State a prior `rejected` or `out-of-scope` decision the fix must respect.
 6. **Needs:** one line, only when it applies — a cascade approval, a decision only the user can make, or a coverage gap that weakens the match.

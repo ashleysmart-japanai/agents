@@ -27,11 +27,16 @@ A **claim-brief** describes one review claim to the user in chat. Use it when th
   - What happens: the change, call order, or data flow that causes the defect.
   - Effect: the impact, and the limits of the impact (for example, "It does not change permission checks").
 - **Proposed fix:** the concrete change, and how it resolves the issue; what to keep unchanged.
-- **Prior evidence:** earlier findings, applied fixes, proposals, and user decisions.
-  - Cite claims by full tracking ID and commits by SHA.
-  - Say which claim or commit caused this one.
-  - Say whether the fix is applied, proposed, or not started.
+- **Prior evidence:** other claims, fixes, proposals, and user decisions that bear on this claim.
+  - Never cite the claim itself; it is not its own precedent.
+  - The claim's own history (recorded, repeated by a reviewer, extended by a reviewer, its status) goes in Details, not here.
+  - Take priors from the reviewer KG: `python3 ~/agents/scripts/build_reviewer_kg.py match --finding <store>/<ID>`; it excludes the claim from its own results.
+  - Cite other claims by full tracking ID and store, and commits by SHA.
+  - Say which other claim or commit caused this one.
+  - State the outcome of each prior: fixed, rejected, out of scope, or undecided, and any user ruling.
+  - No prior found: write `No prior evidence found.`
 - Leave out a section that has no content; do not write "N/A".
+- Say in Details whether this claim's fix is applied, proposed, or not started.
 
 ## Apply it
 
