@@ -4,7 +4,7 @@ A **claim-brief** describes one review claim to the user in chat. Use it when th
 
 - A claim list or a multi-claim report uses its own format; a claim-brief is for one claim.
 - Write it in ASD-STE100 Simplified Technical English (§ Writing rules).
-- The brief is short paragraphs under fixed labels, not dot points; this is the chat exception to `style/DOT_POINT_SRP.md`.
+- Write every section as terse-srp dot points (`style/DOT_POINT_SRP.md`): one fact per line, no paragraphs.
 
 ## Template
 
@@ -13,15 +13,27 @@ A **claim-brief** describes one review claim to the user in chat. Use it when th
 
 **Problem:** <short summary>.
 
-**Origin:** <New in this PR | Made worse by this PR | On main before this PR> — <the commit or merge-base evidence>.
+**Origin:** <New in this PR | Made worse by this PR | On main before this PR> — <commit or merge-base evidence>.
 
-<Details: where the issue occurs, what happens, and its effect.>
+**Details:**
+- <where: file and symbol, and what the symbol does>
+- <what happens: the change, call order, or data flow>
+- <effect: the impact>
+- <limit: what it does not change>
+- <state: fix applied, proposed, or not started>
 
-**Proposed fix:** <the concrete change and how it resolves the issue>.
+**Proposed fix:**
+- <the concrete change>
+- <how it resolves the issue>
+- <what to keep unchanged>
 
-**Reviewer suggested:** <the reviewer's own fix, and why the proposed fix differs>.
+**Reviewer suggested:**
+- <reviewer (bot or human)>: <the reviewer's fix>
+- <why the proposed fix differs, with the prior or ruling>
 
-**Prior evidence:** <earlier findings, applied fixes, proposals, and user decisions, with full tracking IDs>.
+**Prior evidence:**
+- `<store>/<full ID>` — <Outcome>: <the decision, one line> (`<detail path>`)
+- `<store>/<full ID>` — <Outcome>: <the decision, one line> (`<detail path>`)
 ```
 
 - **Heading:** the full tracking ID and severity; nothing else.
@@ -33,7 +45,7 @@ A **claim-brief** describes one review claim to the user in chat. Use it when th
   - Prove it: `git -C <repo> log --oneline $(git -C <repo> merge-base origin/main HEAD)..HEAD -- <file>` and `git -C <repo> blame` on the cited lines.
   - Never present a problem this PR caused as pre-existing, and never omit that this PR's own change is the cause.
   - Not provable (no file, or a PR-level claim): write `Origin: not determined — <reason>`.
-- **Details:** one to three short paragraphs.
+- **Details:** one dot point per fact; five or fewer.
   - Where: the file and the real symbol names (`style/QUICK_REF.md`), and what each symbol does.
   - What happens: the change, call order, or data flow that causes the defect.
   - Effect: the impact, and the limits of the impact (for example, "It does not change permission checks").
@@ -47,12 +59,14 @@ A **claim-brief** describes one review claim to the user in chat. Use it when th
 - **Prior evidence:** other claims, fixes, proposals, and user decisions that bear on this claim, from § KG search only.
   - Never cite the claim itself, or a copy of it in a stacked PR; it is not its own precedent.
   - The claim's own history (recorded, repeated by a reviewer, extended by a reviewer, its status) goes in Details.
-  - Cite other claims by full tracking ID and store, and commits by SHA.
+  - One prior per dot point: `store/ID`, outcome, the decision in one line, and the detail path.
+  - Cite commits by SHA.
   - State the decision of each prior: fixed, rejected, out of scope, or undecided, and any user ruling.
   - Say which other claim or commit caused this one.
   - No prior found: write `No prior evidence found.`
 - Leave out a section that has no content; do not write "N/A".
 - Say in Details whether this claim's fix is applied, proposed, or not started.
+- No sentence runs across two facts; split it into two dot points.
 
 ## KG search
 
@@ -120,15 +134,24 @@ Never use as prior evidence:
 
 **Origin:** New in this PR — commit `1a2b3c4d5e6` inserted `getOwnerByIdUnsafe()` below the existing comment.
 
-In `orders.service.ts`, `getOwnerByIdUnsafe()` reads only the account and project IDs that the permission check needs. `getByIdUnsafe()` reads the full order record, with its payment settings.
+**Details:**
+- `orders.service.ts` `getOwnerByIdUnsafe()` reads only the account and project IDs for the permission check.
+- `orders.service.ts` `getByIdUnsafe()` reads the full order record, with its payment settings.
+- The warning comment now sits above `getOwnerByIdUnsafe()`.
+- `getByIdUnsafe()` has no warning that authorization must succeed first.
+- It does not change permission checks or data access.
+- The fix is proposed; it is not applied.
 
-The ownership-only method was added between the existing warning comment and the full-record method. The warning now describes the ownership-only method. The full-record method has no warning that authorization must succeed before a call.
+**Proposed fix:**
+- Move the warning comment to `getByIdUnsafe()`.
+- Add a comment to `getOwnerByIdUnsafe()` that it supports controller authorization.
+- Keep both method names.
 
-This is a documentation error. It does not change permission checks or data access.
+**Reviewer suggested:**
+- Review bot: rename `getOwnerByIdUnsafe()`.
+- The rename does not move the comment; `shop-pr-188/I5.1aBcDeFgHiJkLmNoPqRsTu` kept the method name.
 
-**Proposed fix:** Move the warning comment to `getByIdUnsafe()` and add a comment to `getOwnerByIdUnsafe()`. Each comment then describes the method it is attached to. The full-record method again warns that authorization must succeed first.
-
-**Reviewer suggested:** The review bot suggested a rename of `getOwnerByIdUnsafe()`. The rename does not move the comment, and prior claim I5.1aBcDeFgHiJkLmNoPqRsTu kept the method name.
-
-**Prior evidence:** Commit `1a2b3c4d5e6` added the ownership-only method to fix I5.1aBcDeFgHiJkLmNoPqRsTu, which concerned detail reads before permission checks. That fix caused this comment-placement error. A fix is proposed; it is not applied.
+**Prior evidence:**
+- `shop-pr-188/I5.1aBcDeFgHiJkLmNoPqRsTu` — Fixed: commit `1a2b3c4d5e6` added the ownership-only method for permission checks (`~/reviews/shop-pr-188/I5.1aBcDeFgHiJkLmNoPqRsTu.md`)
+- `shop-pr-150/D2.2bCdEfGhIjKlMnOpQrStUv` — Fixed: each `Unsafe` read method carries its own authorization warning (`~/reviews/shop-pr-150/D2.2bCdEfGhIjKlMnOpQrStUv.md`)
 ```

@@ -111,13 +111,14 @@ The chat report is short and readable; detail lives in the run folder.
 
 - One block per claim, separated by a `———` line.
 - No tables, no diffs, no tool output, no lint or test logs in the report.
+- Write each section as terse-srp dot points (`~/agents/style/DOT_POINT_SRP.md`); no paragraphs.
 - Write in ASD-STE100 Simplified Technical English (`~/agents/style/CLAIM_BRIEF.md` § Writing rules); name code only where the reader needs it.
 - When the user asks about one claim, answer with a claim-brief (`~/agents/style/CLAIM_BRIEF.md`).
 
 Each claim block, in this order:
 
 1. Heading: `**<full tracking ID> [<SEVERITY>] — <problem in a few words>**`
-2. **Problem:** two or three lines — what happens, under what condition, and the effect.
+2. **Problem:** two or three dot points — what happens, under what condition, and the effect.
    - **Origin:** one line — new in this PR, made worse by this PR, or on main before this PR, with the commit SHA.
 3. **Ruling:** one line, only when the pre-judgement basis is `user-ruling` or `conflict` — the ruling ID and what it decides.
 4. **Prior matches:** a numbered list of the top three kept priors, best first.
@@ -141,7 +142,10 @@ Example (invented store and IDs):
 ```md
 **B4.3xYkQmVd8RtLp2WcZaNeHu [MEDIUM] — Checkout drops the selected currency**
 
-**Problem:** when the user picks a saved card, the request sends the card ID but drops the cart's currency. A non-default-currency cart is priced in the default currency.
+**Problem:**
+- A saved-card request sends the card ID but drops the cart's currency.
+- A non-default-currency cart is priced in the default currency.
+
 **Origin:** New in this PR — commit `9f8e7d6c5b4` added the saved-card request without the currency.
 
 **Prior matches:**
