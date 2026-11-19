@@ -855,7 +855,7 @@ def prejudge(results):
         outcomes = Counter(r['outcome'] for r in priors)
         outcome, count = outcomes.most_common(1)[0]
         return dict(verdict=outcome if count == len(priors) else 'mixed', basis='prior-findings', ask=True,
-                    priors=[dict(id=r['id'], outcome=r['outcome'], score=r['score'], fix=r['fixed'] or r['fix'],
+                    priors=[dict(id=r['id'], store=r['store'], outcome=r['outcome'], score=r['score'], fix=r['fixed'] or r['fix'],
                                  justification=r['justification']) for r in priors],
                     instruction='No user ruling yet; propose this as a hypothesis and ask once, then remember the answer.')
     return dict(verdict=None, basis='none', ask=True,
@@ -900,6 +900,29 @@ def read_query(args):
     return '\n'.join(parts)
 
 
+def claim_from_reviews(token, reviews):
+    """Read a claim that is not in the graph yet straight from its review store (read-only, no rebuild)."""
+    store_name, _, full_id = token.replace('finding:', '').partition('/')
+    store = reviews / store_name
+    if not full_id or not (store / 'review.md').is_file():
+        return None
+    for finding in parse_store(store)['findings']:
+        if finding['id'] == full_id:
+            return dict(id=finding_node_id(finding), finding_id=finding['id'], in_graph=False,
+                        **{k: v for k, v in finding.items() if k not in ('id', 'path')}, source_file=finding['path'])
+    return None
+
+
+def stale_stores(graph_dir, reviews):
+    """Review stores changed after the graph was built."""
+    graph_file = graph_dir / 'graph.json'
+    if not graph_file.is_file() or not reviews.is_dir():
+        return []
+    built = graph_file.stat().st_mtime
+    return sorted(s.name for s in reviews.iterdir()
+                  if (s / 'review.md').is_file() and max(p.stat().st_mtime for p in s.glob('*.md')) > built)
+
+
 def cmd_match(args):
     graph = load_graph(Path(args.out).expanduser())
     nodes = {n['id']: n for n in graph['nodes']}
@@ -917,7 +940,12 @@ def cmd_match(args):
                 rulings_about[target].append(n['id'])
     claim = None
     if args.finding:
-        claim = nodes[resolve_node(args.finding, nodes)]
+        try:
+            claim = nodes[resolve_node(args.finding, nodes)]
+        except SystemExit:
+            claim = claim_from_reviews(args.finding, Path(args.reviews).expanduser())
+            if claim is None:
+                raise SystemExit(f'Cannot resolve {args.finding!r}: not in the graph and not in {args.reviews}')
         args.text = ' '.join(filter(None, [args.text, finding_text(claim)]))
         args.files = (args.files or []) + ([claim['file']] if claim.get('file') else [])
     query = read_query(args)
@@ -991,7 +1019,9 @@ def cmd_match(args):
     ref_ranked = ReferenceIndex(ref_list).rank(query, args.top_refs) if query.strip() else []
     report = dict(query_terms=sorted(model.query(query), key=lambda t: -model.query(query)[t])[:15] if query.strip() else [],
                   files=files, claim=claim and dict(id=claim.get('finding_id'), store=claim.get('store'),
-                                                    title=claim.get('title'), file=claim.get('file')),
+                                                    title=claim.get('title'), file=claim.get('file'),
+                                                    in_graph=claim.get('in_graph', True)),
+                  stale_stores=stale_stores(Path(args.out).expanduser(), Path(args.reviews).expanduser()),
                   prejudgement=prejudge(results), findings=results, steering=steering_hits[:args.top],
                   references=[dict(score=round(s, 3), title=ref_list[i]['title'], category=ref_list[i]['category'],
                                    path=ref_list[i]['path']) for s, i in ref_ranked])
@@ -1008,11 +1038,16 @@ def cmd_match(args):
     for r in pj.get('rulings', []):
         print(f"- conflicting ruling: {r['id']} {r['outcome']} ({r['score']}) {r['title']}")
     for r in pj.get('priors', []):
-        print(f"- prior: {r['id']} {r['outcome']} ({r['score']}) {' '.join((r['fix'] or '').split())[:200]}")
+        print(f"- prior: {r['store']}/{r['id']} {r['outcome']} ({r['score']}) {' '.join((r['fix'] or '').split())[:200]}")
     print(f"- instruction: {pj['instruction']}\n")
     if report['claim']:
         c = report['claim']
-        print(f"# Claim\n\n- {c['store']}/{c['id']}: {c['title']}\n- file: `{c['file']}`\n")
+        print(f"# Claim\n\n- {c['store']}/{c['id']}: {c['title']}\n- file: `{c['file']}`")
+        if not c['in_graph']:
+            print('- not in the graph yet: read from the review store; run `update` to link it')
+        print()
+    if report['stale_stores']:
+        print(f"- graph is older than {len(report['stale_stores'])} review store(s); run `update`\n")
     print(f"# Prior matches\n\n- query terms: {', '.join(report['query_terms']) or 'none'}\n- files: {', '.join(files) or 'none'}\n")
     if not results:
         print('- No prior finding above the score threshold.\n')

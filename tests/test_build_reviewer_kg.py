@@ -301,6 +301,19 @@ class ReviewerKgTests(unittest.TestCase):
         with self.assertRaises(SystemExit):
             self.run_cli('log', '--run', str(self.root / 'nope'), '--claim', claim, '--kind', 'note', '--text', 'x')
 
+    def test_match_reads_a_claim_added_after_the_build_from_its_store(self):
+        self.run_cli('build')
+        store = self.reviews / 'shop-pr-9'
+        shutil.copytree(self.reviews / 'shop-pr-1', store)
+        for path in store.glob('*.md'):
+            path.touch()
+        out = json.loads(self.run_cli('match', '--finding', 'shop-pr-9/' + NULL_FALLBACK['id'], '--format', 'json'))
+        self.assertFalse(out['claim']['in_graph'])
+        self.assertIn('shop-pr-9', out['stale_stores'])
+        self.assertIn(NULL_FALLBACK['id'], [r['id'] for r in out['findings']])  # the same claim in another store is a prior
+        with self.assertRaises(SystemExit):
+            self.run_cli('match', '--finding', 'shop-pr-9/Z9.nope', '--format', 'json')
+
     def test_every_edge_has_a_graphify_context(self):
         self.run_cli('build')
         self.assertTrue(all(l['context'] == l['relation'] for l in self.graph()['links']))
