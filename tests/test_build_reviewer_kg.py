@@ -314,6 +314,17 @@ class ReviewerKgTests(unittest.TestCase):
         with self.assertRaises(SystemExit):
             self.run_cli('match', '--finding', 'shop-pr-9/Z9.nope', '--format', 'json')
 
+    def test_stacked_pr_copies_collapse_and_decided_priors_rank_first(self):
+        shutil.copytree(self.reviews / 'shop-pr-1', self.reviews / 'shop-pr-9')
+        self.run_cli('build')
+        out = json.loads(self.run_cli('match', '--text', NULL_FALLBACK['title'], '--top', '5', '--format', 'json'))
+        ids = [r['id'] for r in out['findings']]
+        self.assertEqual(len(ids), len(set(ids)))
+        self.assertTrue(any(r['also_in'] for r in out['findings']))
+        outcomes = [r['outcome'] for r in out['findings']]
+        if 'undecided' in outcomes and 'rejected' in outcomes:
+            self.assertLess(outcomes.index('rejected'), outcomes.index('undecided'))
+
     def test_every_edge_has_a_graphify_context(self):
         self.run_cli('build')
         self.assertTrue(all(l['context'] == l['relation'] for l in self.graph()['links']))

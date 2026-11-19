@@ -804,6 +804,7 @@ def cmd_build(args, incremental):
 
 
 SUPERSEDED_WEIGHT = 0.5
+UNDECIDED_WEIGHT = 0.85  # orders an open prior below a decided one of similar score
 
 
 def candidate_text(node):
@@ -985,16 +986,21 @@ def cmd_match(args):
         i, s = item
         n = findings[i]
         weight = SUPERSEDED_WEIGHT if n.get('superseded_by') else 1.0
+        if n['kind'] == 'finding' and n.get('outcome') in ('', 'undecided'):
+            weight *= UNDECIDED_WEIGHT  # a decided prior says how to handle the claim; an open one does not
         return (round(s * weight, 6), n.get('outcome') == 'fixed', -i)
     ranked = [(s, i) for i, s in sorted(((i, s) for i, s in scores.items() if s >= args.min_score or i in graph_hits),
                                         key=rank_key, reverse=True)]
     if args.decided:
         ranked = [(s, i) for s, i in ranked if findings[i].get('outcome') != 'undecided']
-    results, steering_hits = [], []
-    for score, i in ranked[:args.top + len(steering)]:
+    results, steering_hits, seen_ids = [], [], {}
+    for score, i in ranked:
         if len(results) >= args.top and findings[i]['kind'] != 'steering':
             continue
         n = findings[i]
+        if n['kind'] == 'finding' and n.get('finding_id') in seen_ids:
+            seen_ids[n['finding_id']]['also_in'].append(n['store'])  # the same claim carried into a stacked PR
+            continue
         current = [c for c in current_of(n['id'], nodes) if c != n['id']]
         if n['kind'] == 'steering':
             steering_hits.append(dict(score=round(score, 3), node=n['id'], store=n['store'], date=n['date'],
@@ -1015,7 +1021,10 @@ def cmd_match(args):
             current_decision=[decision_summary(nodes[c]) for c in current if c in nodes],
             rulings=[decision_summary(nodes[c]) for m in rulings_about.get(n['id'], [])
                      for c in current_of(m, nodes) if c in nodes],
-            references=[dict(title=t, path=p) for _, t, p in sorted(linked_refs[n['id']], reverse=True)[:3]]))
+            references=[dict(title=t, path=p) for _, t, p in sorted(linked_refs[n['id']], reverse=True)[:3]],
+            also_in=[]))
+        if n['kind'] == 'finding':
+            seen_ids[n['finding_id']] = results[-1]
     ref_ranked = ReferenceIndex(ref_list).rank(query, args.top_refs) if query.strip() else []
     report = dict(query_terms=sorted(model.query(query), key=lambda t: -model.query(query)[t])[:15] if query.strip() else [],
                   files=files, claim=claim and dict(id=claim.get('finding_id'), store=claim.get('store'),
@@ -1055,6 +1064,8 @@ def cmd_match(args):
         print(f"## {r['id']} [{r['severity']}] {r['outcome']} ({r['score']})\n")
         print(f"- title: {r['title']}\n- where: {r['repo']} PR {r['pr']} `{r['file']}`\n- status: {r['status']}")
         print(f"- retrieved by: {r['retrieved_by']}{' (same PR store)' if r['same_store'] else ''}")
+        if r['also_in']:
+            print(f"- also in: {', '.join(r['also_in'])}")
         for key in ('fix', 'fixed', 'justification', 'rationale', 'reviewer_ack', 'pushback', 'reply', 'scope', 'commit', 'thread'):
             if r[key]:
                 print(f"- {key}: {' '.join(r[key].split())[:400]}")
